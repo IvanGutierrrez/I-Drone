@@ -17,6 +17,5 @@ subdir('libs')
 
 # Subproyectos (cada módulo)
 subdir('PLD')
-subdir('RSC')
 subdir('Drone')
 subdir('Algorithm')
