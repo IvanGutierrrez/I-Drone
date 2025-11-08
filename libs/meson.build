@@ -1,5 +1,5 @@
 libs_sources = files(
-  'common_libs/comms.cpp',
+  'common_libs/recorder.cpp',
 )
 
 libs_include = include_directories('.')
