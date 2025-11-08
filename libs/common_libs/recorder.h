@@ -15,6 +15,7 @@
 class Recorder {
 
 public:
+    Recorder() = default;
     Recorder(const std::filesystem::path &path, const std::string &filename, const std::string &extension);
     ~Recorder();
     
