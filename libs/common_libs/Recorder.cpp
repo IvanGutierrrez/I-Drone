@@ -1,13 +1,13 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : recorder.cpp                  
+ *  Filename : Recorder.cpp                  
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include "recorder.h"
+#include "Recorder.h"
 
 Recorder::Recorder(const std::filesystem::path &path, 
                    const std::string &filename, 
