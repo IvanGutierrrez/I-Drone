@@ -1,13 +1,13 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : logger.cpp                  
+ *  Filename : Logger.cpp                  
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include "logger.h"
+#include "Logger.h"
 #include <iostream>
 #include <chrono>
 

@@ -1,6 +1,6 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : recorder.h                 
+ *  Filename : Recorder.h                 
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
