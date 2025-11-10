@@ -12,23 +12,31 @@
 
 using boost::asio::ip::tcp;
 
-using handler_error   = std::function<void(const boost::system::error_code&)>;  
+enum class Type_Error {
+    CONNECTING,
+    READING,
+    SENDING
+};
+
+using handler_connect = std::function<void()>;
+using handler_error   = std::function<void(const boost::system::error_code&, const Type_Error &)>;  
 using handler_message = std::function<void(const std::string&)>;
 
 class Server {
 public:
 
     struct handlers {
+        handler_connect call_connect = 0;
         handler_error call_error = 0;
         handler_message call_message = 0;
     };
 
 
-    Server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
-    Server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint, const handlers &handlers);
+    Server(boost::asio::io_context& io_context);
+    Server(boost::asio::io_context& io_context, const handlers &handlers);
     ~Server();
     void set_handlers(const handlers &handlers);
-    void start_listening();
+    void start_listening(const tcp::endpoint& endpoint);
     void connect(const tcp::endpoint& endpoint);
     void deliver(const std::string &message);
 private:

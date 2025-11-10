@@ -10,13 +10,13 @@
 #include "Server.h"
 
 
-Server::Server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint)
-        : io_context_(io_context), acceptor_(io_context, endpoint) 
+Server::Server(boost::asio::io_context& io_context)
+        : io_context_(io_context), acceptor_(io_context) 
 {
 }
 
-Server::Server(boost::asio::io_context& io_context, const tcp::endpoint& endpoint, const handlers &handlers)
-        : io_context_(io_context), acceptor_(io_context, endpoint), handlers_(handlers)
+Server::Server(boost::asio::io_context& io_context,  const handlers &handlers)
+        : io_context_(io_context), acceptor_(io_context), handlers_(handlers)
 {
 }
 
@@ -40,32 +40,58 @@ void Server::set_handlers(const handlers &handlers)
     handlers_ = handlers;
 }
 
-void Server::start_listening()
+void Server::start_listening(const tcp::endpoint& endpoint)
 {
+    boost::system::error_code ec;
+
+    if (!acceptor_.is_open()) {
+        acceptor_.open(endpoint.protocol(), ec);
+        if (ec) {
+            if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
+            return;
+        }
+    }
+
+    acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
+
+    acceptor_.bind(endpoint, ec);
+    if (ec) {
+        if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
+        return;
+    }
+
+    acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
+    if (ec) {
+        if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
+        return;
+    }
+
     auto new_socket = std::make_shared<tcp::socket>(io_context_);
 
     acceptor_.async_accept(*new_socket,
         [this, new_socket](const boost::system::error_code& error) {
             if (error) {
-                if (handlers_.call_error) handlers_.call_error(error);
+                if (handlers_.call_error)
+                    handlers_.call_error(error, Type_Error::CONNECTING);
             } else {
-                current_client_ = new_socket;
-                start_read(new_socket);
-            }
+                if (handlers_.call_connect)
+                    handlers_.call_connect();
 
-            start_listening();
+                current_client_ = new_socket;
+            }
         });
 }
+
 
 void Server::start_read(std::shared_ptr<tcp::socket> socket)
 {
     auto length_buf = std::make_shared<std::array<char, 4>>();
 
-    // Read first 4 bytes
+    // Read 4 first bytes
     boost::asio::async_read(*socket, boost::asio::buffer(*length_buf),
-        [this, socket, length_buf](const boost::system::error_code& ec, std::size_t /*bytes_transferred*/) {
+        [this, socket, length_buf](const boost::system::error_code& ec, std::size_t) {
             if (ec) {
-                if (handlers_.call_error) handlers_.call_error(ec);
+                if (handlers_.call_error) handlers_.call_error(ec, Type_Error::READING);
                 return;
             }
 
@@ -75,16 +101,18 @@ void Server::start_read(std::shared_ptr<tcp::socket> socket)
 
             auto data_buf = std::make_shared<std::vector<char>>(msg_size);
 
-            // Read the exact bytes
+            // Read the exact length of the message
             boost::asio::async_read(*socket, boost::asio::buffer(*data_buf),
-                [this, socket, data_buf](const boost::system::error_code& read_ec, std::size_t /*bytes_transferred*/) {
+                [this, socket, data_buf](const boost::system::error_code& read_ec, std::size_t) {
                     if (read_ec) {
-                        if (handlers_.call_error) handlers_.call_error(read_ec);
+                        if (handlers_.call_error) handlers_.call_error(read_ec, Type_Error::READING);
                         return;
                     }
 
                     if (handlers_.call_message) {
-                        handlers_.call_message(std::string(data_buf->data(), data_buf->size()));
+                        handlers_.call_message(
+                            std::string(data_buf->data(), data_buf->size())
+                        );
                     }
 
                     // Read next message
@@ -100,8 +128,9 @@ void Server::connect(const tcp::endpoint& endpoint)
     current_client_->async_connect(endpoint,
         [this](const boost::system::error_code& ec) {
             if (ec) {
-                if (handlers_.call_error) handlers_.call_error(ec);
+                if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
             } else {
+                if (handlers_.call_connect) handlers_.call_connect();
                 start_read(current_client_);
             }
         });
@@ -120,6 +149,6 @@ void Server::deliver(const std::string &message)
     boost::asio::async_write(*current_client_, buffers,
         [this](const boost::system::error_code& ec, std::size_t /*bytes_transferred*/) {
             if (ec && handlers_.call_error)
-                handlers_.call_error(ec);
+                handlers_.call_error(ec, Type_Error::SENDING);
         });
 }

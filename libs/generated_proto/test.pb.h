@@ -47,11 +47,189 @@ extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table
 class MyMessage;
 struct MyMessageDefaultTypeInternal;
 extern MyMessageDefaultTypeInternal _MyMessage_default_instance_;
+class Wrapper;
+struct WrapperDefaultTypeInternal;
+extern WrapperDefaultTypeInternal _Wrapper_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::MyMessage* Arena::CreateMaybeMessage<::MyMessage>(Arena*);
+template<> ::Wrapper* Arena::CreateMaybeMessage<::Wrapper>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 
 // ===================================================================
+
+class Wrapper final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Wrapper) */ {
+ public:
+  inline Wrapper() : Wrapper(nullptr) {}
+  ~Wrapper() override;
+  explicit PROTOBUF_CONSTEXPR Wrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  Wrapper(const Wrapper& from);
+  Wrapper(Wrapper&& from) noexcept
+    : Wrapper() {
+    *this = ::std::move(from);
+  }
+
+  inline Wrapper& operator=(const Wrapper& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Wrapper& operator=(Wrapper&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Wrapper& default_instance() {
+    return *internal_default_instance();
+  }
+  enum PayloadCase {
+    kA = 1,
+    PAYLOAD_NOT_SET = 0,
+  };
+
+  static inline const Wrapper* internal_default_instance() {
+    return reinterpret_cast<const Wrapper*>(
+               &_Wrapper_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(Wrapper& a, Wrapper& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Wrapper* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Wrapper* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Wrapper* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Wrapper>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const Wrapper& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const Wrapper& from) {
+    Wrapper::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Wrapper* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Wrapper";
+  }
+  protected:
+  explicit Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kAFieldNumber = 1,
+  };
+  // .MyMessage a = 1;
+  bool has_a() const;
+  private:
+  bool _internal_has_a() const;
+  public:
+  void clear_a();
+  const ::MyMessage& a() const;
+  PROTOBUF_NODISCARD ::MyMessage* release_a();
+  ::MyMessage* mutable_a();
+  void set_allocated_a(::MyMessage* a);
+  private:
+  const ::MyMessage& _internal_a() const;
+  ::MyMessage* _internal_mutable_a();
+  public:
+  void unsafe_arena_set_allocated_a(
+      ::MyMessage* a);
+  ::MyMessage* unsafe_arena_release_a();
+
+  void clear_payload();
+  PayloadCase payload_case() const;
+  // @@protoc_insertion_point(class_scope:Wrapper)
+ private:
+  class _Internal;
+  void set_has_a();
+
+  inline bool has_payload() const;
+  inline void clear_has_payload();
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    union PayloadUnion {
+      constexpr PayloadUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      ::MyMessage* a_;
+    } payload_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    uint32_t _oneof_case_[1];
+
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_test_2eproto;
+};
+// -------------------------------------------------------------------
 
 class MyMessage final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:MyMessage) */ {
@@ -101,7 +279,7 @@ class MyMessage final :
                &_MyMessage_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    1;
 
   friend void swap(MyMessage& a, MyMessage& b) {
     a.Swap(&b);
@@ -224,6 +402,93 @@ class MyMessage final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// Wrapper
+
+// .MyMessage a = 1;
+inline bool Wrapper::_internal_has_a() const {
+  return payload_case() == kA;
+}
+inline bool Wrapper::has_a() const {
+  return _internal_has_a();
+}
+inline void Wrapper::set_has_a() {
+  _impl_._oneof_case_[0] = kA;
+}
+inline void Wrapper::clear_a() {
+  if (_internal_has_a()) {
+    if (GetArenaForAllocation() == nullptr) {
+      delete _impl_.payload_.a_;
+    }
+    clear_has_payload();
+  }
+}
+inline ::MyMessage* Wrapper::release_a() {
+  // @@protoc_insertion_point(field_release:Wrapper.a)
+  if (_internal_has_a()) {
+    clear_has_payload();
+    ::MyMessage* temp = _impl_.payload_.a_;
+    if (GetArenaForAllocation() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.payload_.a_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::MyMessage& Wrapper::_internal_a() const {
+  return _internal_has_a()
+      ? *_impl_.payload_.a_
+      : reinterpret_cast< ::MyMessage&>(::_MyMessage_default_instance_);
+}
+inline const ::MyMessage& Wrapper::a() const {
+  // @@protoc_insertion_point(field_get:Wrapper.a)
+  return _internal_a();
+}
+inline ::MyMessage* Wrapper::unsafe_arena_release_a() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:Wrapper.a)
+  if (_internal_has_a()) {
+    clear_has_payload();
+    ::MyMessage* temp = _impl_.payload_.a_;
+    _impl_.payload_.a_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Wrapper::unsafe_arena_set_allocated_a(::MyMessage* a) {
+  clear_payload();
+  if (a) {
+    set_has_a();
+    _impl_.payload_.a_ = a;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Wrapper.a)
+}
+inline ::MyMessage* Wrapper::_internal_mutable_a() {
+  if (!_internal_has_a()) {
+    clear_payload();
+    set_has_a();
+    _impl_.payload_.a_ = CreateMaybeMessage< ::MyMessage >(GetArenaForAllocation());
+  }
+  return _impl_.payload_.a_;
+}
+inline ::MyMessage* Wrapper::mutable_a() {
+  ::MyMessage* _msg = _internal_mutable_a();
+  // @@protoc_insertion_point(field_mutable:Wrapper.a)
+  return _msg;
+}
+
+inline bool Wrapper::has_payload() const {
+  return payload_case() != PAYLOAD_NOT_SET;
+}
+inline void Wrapper::clear_has_payload() {
+  _impl_._oneof_case_[0] = PAYLOAD_NOT_SET;
+}
+inline Wrapper::PayloadCase Wrapper::payload_case() const {
+  return Wrapper::PayloadCase(_impl_._oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
 // MyMessage
 
 // string name = 1;
@@ -299,6 +564,8 @@ inline void MyMessage::set_id(int32_t value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 

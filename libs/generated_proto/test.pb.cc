@@ -20,6 +20,20 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+PROTOBUF_CONSTEXPR Wrapper::Wrapper(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.payload_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}
+  , /*decltype(_impl_._oneof_case_)*/{}} {}
+struct WrapperDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR WrapperDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~WrapperDefaultTypeInternal() {}
+  union {
+    Wrapper _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 WrapperDefaultTypeInternal _Wrapper_default_instance_;
 PROTOBUF_CONSTEXPR MyMessage::MyMessage(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -34,11 +48,19 @@ struct MyMessageDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 MyMessageDefaultTypeInternal _MyMessage_default_instance_;
-static ::_pb::Metadata file_level_metadata_test_2eproto[1];
+static ::_pb::Metadata file_level_metadata_test_2eproto[2];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_test_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_test_2eproto = nullptr;
 
 const uint32_t TableStruct_test_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Wrapper, _internal_metadata_),
+  ~0u,  // no _extensions_
+  PROTOBUF_FIELD_OFFSET(::Wrapper, _impl_._oneof_case_[0]),
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  ::_pbi::kInvalidFieldOffsetTag,
+  PROTOBUF_FIELD_OFFSET(::Wrapper, _impl_.payload_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::MyMessage, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -49,22 +71,25 @@ const uint32_t TableStruct_test_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pro
   PROTOBUF_FIELD_OFFSET(::MyMessage, _impl_.id_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::MyMessage)},
+  { 0, -1, -1, sizeof(::Wrapper)},
+  { 8, -1, -1, sizeof(::MyMessage)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
+  &::_Wrapper_default_instance_._instance,
   &::_MyMessage_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_test_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\ntest.proto\"%\n\tMyMessage\022\014\n\004name\030\001 \001(\t\022"
-  "\n\n\002id\030\002 \001(\005b\006proto3"
+  "\n\ntest.proto\"-\n\007Wrapper\022\027\n\001a\030\001 \001(\0132\n.MyM"
+  "essageH\000B\t\n\007payload\"%\n\tMyMessage\022\014\n\004name"
+  "\030\001 \001(\t\022\n\n\002id\030\002 \001(\005b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_test_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_test_2eproto = {
-    false, false, 59, descriptor_table_protodef_test_2eproto,
+    false, false, 106, descriptor_table_protodef_test_2eproto,
     "test.proto",
-    &descriptor_table_test_2eproto_once, nullptr, 0, 1,
+    &descriptor_table_test_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_test_2eproto::offsets,
     file_level_metadata_test_2eproto, file_level_enum_descriptors_test_2eproto,
     file_level_service_descriptors_test_2eproto,
@@ -75,6 +100,253 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_test_2ep
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_test_2eproto(&descriptor_table_test_2eproto);
+
+// ===================================================================
+
+class Wrapper::_Internal {
+ public:
+  static const ::MyMessage& a(const Wrapper* msg);
+};
+
+const ::MyMessage&
+Wrapper::_Internal::a(const Wrapper* msg) {
+  return *msg->_impl_.payload_.a_;
+}
+void Wrapper::set_allocated_a(::MyMessage* a) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  clear_payload();
+  if (a) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(a);
+    if (message_arena != submessage_arena) {
+      a = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, a, submessage_arena);
+    }
+    set_has_a();
+    _impl_.payload_.a_ = a;
+  }
+  // @@protoc_insertion_point(field_set_allocated:Wrapper.a)
+}
+Wrapper::Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:Wrapper)
+}
+Wrapper::Wrapper(const Wrapper& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  Wrapper* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.payload_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , /*decltype(_impl_._oneof_case_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  clear_has_payload();
+  switch (from.payload_case()) {
+    case kA: {
+      _this->_internal_mutable_a()->::MyMessage::MergeFrom(
+          from._internal_a());
+      break;
+    }
+    case PAYLOAD_NOT_SET: {
+      break;
+    }
+  }
+  // @@protoc_insertion_point(copy_constructor:Wrapper)
+}
+
+inline void Wrapper::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.payload_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , /*decltype(_impl_._oneof_case_)*/{}
+  };
+  clear_has_payload();
+}
+
+Wrapper::~Wrapper() {
+  // @@protoc_insertion_point(destructor:Wrapper)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void Wrapper::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  if (has_payload()) {
+    clear_payload();
+  }
+}
+
+void Wrapper::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void Wrapper::clear_payload() {
+// @@protoc_insertion_point(one_of_clear_start:Wrapper)
+  switch (payload_case()) {
+    case kA: {
+      if (GetArenaForAllocation() == nullptr) {
+        delete _impl_.payload_.a_;
+      }
+      break;
+    }
+    case PAYLOAD_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[0] = PAYLOAD_NOT_SET;
+}
+
+
+void Wrapper::Clear() {
+// @@protoc_insertion_point(message_clear_start:Wrapper)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  clear_payload();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* Wrapper::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // .MyMessage a = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr = ctx->ParseMessage(_internal_mutable_a(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* Wrapper::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Wrapper)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .MyMessage a = 1;
+  if (_internal_has_a()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, _Internal::a(this),
+        _Internal::a(this).GetCachedSize(), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Wrapper)
+  return target;
+}
+
+size_t Wrapper::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Wrapper)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  switch (payload_case()) {
+    // .MyMessage a = 1;
+    case kA: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+          *_impl_.payload_.a_);
+      break;
+    }
+    case PAYLOAD_NOT_SET: {
+      break;
+    }
+  }
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Wrapper::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    Wrapper::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Wrapper::GetClassData() const { return &_class_data_; }
+
+
+void Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<Wrapper*>(&to_msg);
+  auto& from = static_cast<const Wrapper&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:Wrapper)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  switch (from.payload_case()) {
+    case kA: {
+      _this->_internal_mutable_a()->::MyMessage::MergeFrom(
+          from._internal_a());
+      break;
+    }
+    case PAYLOAD_NOT_SET: {
+      break;
+    }
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void Wrapper::CopyFrom(const Wrapper& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Wrapper)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Wrapper::IsInitialized() const {
+  return true;
+}
+
+void Wrapper::InternalSwap(Wrapper* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.payload_, other->_impl_.payload_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Wrapper::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_test_2eproto_getter, &descriptor_table_test_2eproto_once,
+      file_level_metadata_test_2eproto[0]);
+}
 
 // ===================================================================
 
@@ -303,11 +575,15 @@ void MyMessage::InternalSwap(MyMessage* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata MyMessage::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_test_2eproto_getter, &descriptor_table_test_2eproto_once,
-      file_level_metadata_test_2eproto[0]);
+      file_level_metadata_test_2eproto[1]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
+template<> PROTOBUF_NOINLINE ::Wrapper*
+Arena::CreateMaybeMessage< ::Wrapper >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Wrapper >(arena);
+}
 template<> PROTOBUF_NOINLINE ::MyMessage*
 Arena::CreateMaybeMessage< ::MyMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::MyMessage >(arena);
