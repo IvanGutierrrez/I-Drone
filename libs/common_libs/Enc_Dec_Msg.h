@@ -12,6 +12,14 @@
 #include <string>
 
 namespace Enc_Dec {
+
+    enum class Algo {
+        UNKNOWN,
+        ERROR,
+        MyMessage
+    };
+    
+    std::pair<Algo, std::unique_ptr<google::protobuf::Message>> decode_to_algo(const std::string& data);
     
     bool encode_test(const MyMessage& msg, std::string &data);
     bool decode_test(const std::string& data, MyMessage &msg);

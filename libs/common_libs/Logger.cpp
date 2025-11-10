@@ -64,14 +64,14 @@ std::string getTimeFormatted() { // return time in doyyy_hhmm
     return oss.str();
 }
 
-std::string getCurrentTimestamp() { // return time in DD:MM:YYYYTHH:MM:SS
+std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     
     std::tm* tm_info = std::localtime(&now_time);
 
     char buffer[20];
-    std::strftime(buffer, sizeof(buffer), "%d:%m:%YT%H:%M:%S", tm_info);
+    std::strftime(buffer, sizeof(buffer), "%d/%m/%YT%H:%M:%S", tm_info);
 
     return std::string(buffer);
 }
