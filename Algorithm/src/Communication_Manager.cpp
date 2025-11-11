@@ -16,11 +16,14 @@
 #include "common_libs/Enc_Dec_Msg.h"
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
+constexpr int RATE_STATUS_MESSAGE = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
                                              const tcp::endpoint& endpoint): io_context_(io_context), 
                                                                              server_(io_context),
-                                                                             endpoint_(endpoint)
+                                                                             endpoint_(endpoint),
+                                                                             status_timer(io_context_),
+                                                                             status_(Struct_Algo::Status::OK)
 {
     Server::handlers handler_obj;
 
@@ -37,6 +40,32 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
 void Communication_Manager::on_connect()
 {
     Logger::log_message(Logger::TYPE::INFO,"Succesfully connected to PLD");
+    boost::system::error_code ec;
+    send_status_message(ec);
+}
+
+void Communication_Manager::send_status_message(const boost::system::error_code& ec)
+{
+    if (ec) {
+        Logger::log_message(Logger::TYPE::WARNING,"Problems with timer to send status message to PLD module");
+        return;
+    }   
+
+    Logger::log_message(Logger::TYPE::INFO,"Sending status message");
+
+    std::string message;
+    if (!Enc_Dec::encode_status_algo(status_,message)) {
+        Logger::log_message(Logger::TYPE::WARNING,"Problems encoding status message");
+    } else {
+        server_.deliver(message);
+    }
+    status_timer.expires_after(std::chrono::seconds(RATE_STATUS_MESSAGE));
+    status_timer.async_wait(std::bind(&Communication_Manager::send_status_message, this, std::placeholders::_1));
+}
+
+void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
+{
+    status_ = new_status;
 }
 
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
@@ -65,7 +94,7 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
         server_.connect(endpoint_);
     } else 
     {
-        Logger::log_message(Logger::TYPE::WARNING,"Number of allowed attempts exceeded. Exiting program...");
+        Logger::log_message(Logger::TYPE::ERROR,"Number of allowed attempts exceeded. Exiting program...");
         io_context_.stop();
     }
 }

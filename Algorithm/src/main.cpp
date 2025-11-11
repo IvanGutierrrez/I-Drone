@@ -9,7 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
 #include <boost/asio.hpp>
-#include "config.h"
+#include "Config.h"
 #include "common_libs/Logger.h"
 #include "Communication_Manager.h"
 #include "Algorithm_Manager_Interface.h"

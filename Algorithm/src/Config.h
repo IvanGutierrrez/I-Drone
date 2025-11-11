@@ -1,6 +1,6 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : config.h                    
+ *  Filename : Config.h                    
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
