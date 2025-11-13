@@ -78,6 +78,7 @@ void Server::start_listening(const tcp::endpoint& endpoint)
                     handlers_.call_connect();
 
                 current_client_ = new_socket;
+                start_read(current_client_);
             }
         });
 }

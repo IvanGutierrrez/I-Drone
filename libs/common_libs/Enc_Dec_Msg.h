@@ -8,7 +8,8 @@
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
-#include "generated_proto/test.pb.h"
+#include "generated_proto/messages_algo.pb.h"
+#include "structs/Structs_Algo.h"
 #include <string>
 
 namespace Enc_Dec {
@@ -16,11 +17,13 @@ namespace Enc_Dec {
     enum class Algo {
         UNKNOWN,
         ERROR,
-        MyMessage
+        SignalServerConfig,
+        Status
     };
     
     std::pair<Algo, std::unique_ptr<google::protobuf::Message>> decode_to_algo(const std::string& data);
     
-    bool encode_test(const MyMessage& msg, std::string &data);
-    bool decode_test(const std::string& data, MyMessage &msg);
+    bool encode_signal_server(const Struct_Algo::SignalServerConfig& msg, std::string &data);
+    bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Algo::SignalServerConfig &msg);
+    bool encode_status_algo(const Struct_Algo::Status &status, std::string &message);
 };

@@ -3,7 +3,8 @@ libs_sources = files(
   'common_libs/Logger.cpp',
   'common_libs/Server.cpp',
   'common_libs/Enc_Dec_Msg.cpp',
-  'generated_proto/test.pb.cc',
+  'generated_proto/messages_algo.pb.cc',
+  'structs/Structs_Algo.h'
 )
 
 libs_include = include_directories(

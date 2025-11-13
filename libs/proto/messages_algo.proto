@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+message Wrapper {
+  oneof payload {
+    SignalServerConfigProto signal_server_config = 1;
+    Status status = 2;
+  }
+}
+
+message SignalServerConfigProto {
+    string sdf_directory = 1;
+    string output_file = 2;
+    optional string user_terrain_file = 3;
+    optional string terrain_background = 4;
+
+    double latitude = 5;
+    double longitude = 6;
+    double tx_height = 7;
+    repeated double rx_heights = 8;
+
+    double frequency_mhz = 9;
+    double erp_watts = 10;
+    optional double rx_threshold = 11;
+    optional bool horizontal_pol = 12;
+
+    optional double ground_clutter = 13;
+    optional int32 terrain_code = 14;
+    optional double terrain_dielectric = 15;
+    optional double terrain_conductivity = 16;
+    optional int32 climate_code = 17;
+
+    int32 propagation_model = 18;
+    optional bool knife_edge_diff = 19;
+    optional bool win32_tile_names = 20;
+    optional bool debug_mode = 21;
+    optional bool metric_units = 22;
+    optional bool plot_dbm = 23;
+
+    double radius = 24;
+    int32 resolution = 25;
+}
+
+message Status {
+    string type_status = 1;
+}

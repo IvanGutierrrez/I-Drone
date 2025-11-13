@@ -16,11 +16,14 @@
 #include "common_libs/Enc_Dec_Msg.h"
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
+constexpr int RATE_STATUS_MESSAGE = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
                                              const tcp::endpoint& endpoint): io_context_(io_context), 
                                                                              server_(io_context),
-                                                                             endpoint_(endpoint)
+                                                                             endpoint_(endpoint),
+                                                                             status_timer(io_context_),
+                                                                             status_(Struct_Algo::Status::OK)
 {
     Server::handlers handler_obj;
 
@@ -37,6 +40,32 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
 void Communication_Manager::on_connect()
 {
     Logger::log_message(Logger::TYPE::INFO,"Succesfully connected to PLD");
+    boost::system::error_code ec;
+    send_status_message(ec);
+}
+
+void Communication_Manager::send_status_message(const boost::system::error_code& ec)
+{
+    if (ec) {
+        Logger::log_message(Logger::TYPE::WARNING,"Problems with timer to send status message to PLD module");
+        return;
+    }   
+
+    Logger::log_message(Logger::TYPE::INFO,"Sending status message");
+
+    std::string message;
+    if (!Enc_Dec::encode_status_algo(status_,message)) {
+        Logger::log_message(Logger::TYPE::WARNING,"Problems encoding status message");
+    } else {
+        server_.deliver(message);
+    }
+    status_timer.expires_after(std::chrono::seconds(RATE_STATUS_MESSAGE));
+    status_timer.async_wait(std::bind(&Communication_Manager::send_status_message, this, std::placeholders::_1));
+}
+
+void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
+{
+    status_ = new_status;
 }
 
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
@@ -56,7 +85,7 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
             log = "Unknown error communicating with PLD";
             break;
     }
-    Logger::log_message(Logger::TYPE::WARNING,log + ": " + ec.what());
+    Logger::log_message(Logger::TYPE::WARNING,log + ": " + ec.message());
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX)
     {
@@ -65,9 +94,14 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
         server_.connect(endpoint_);
     } else 
     {
-        Logger::log_message(Logger::TYPE::WARNING,"Number of allowed attempts exceeded. Exiting program...");
+        Logger::log_message(Logger::TYPE::ERROR,"Number of allowed attempts exceeded. Exiting program...");
         io_context_.stop();
     }
+}
+
+void Communication_Manager::set_calculate_handler(const calculate_handler &handler)
+{
+    calculate_handler_ = std::move(handler);
 }
 
 void Communication_Manager::on_message(const std::string& msg)
@@ -85,13 +119,18 @@ void Communication_Manager::on_message(const std::string& msg)
         case Enc_Dec::Algo::ERROR:
             Logger::log_message(Logger::TYPE::WARNING, "Error decoding message");
             break;
-        case Enc_Dec::Algo::MyMessage: {
-            auto my_msg = dynamic_cast<MyMessage*>(decoded_msg.get());
+        case Enc_Dec::Algo::SignalServerConfig: {
+            auto my_msg = dynamic_cast<SignalServerConfigProto*>(decoded_msg.get());
             if (my_msg) {
-                std::stringstream log;
-                log << "Message MyMessage decoded: name " << my_msg->name() << ", id " << my_msg->id();
-                Logger::log_message(Logger::TYPE::INFO, log.str());
-                // Process message
+                Logger::log_message(Logger::TYPE::INFO, "Signal-Server message received");
+
+                Struct_Algo::SignalServerConfig config;
+                if (!Enc_Dec::decode_signal_server(*my_msg, config))
+                {
+                    Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode Signal-Server message");
+                    return;
+                }
+                calculate_handler_(config);
             }
             break;
         }

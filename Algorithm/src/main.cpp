@@ -9,7 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
 #include <boost/asio.hpp>
-#include "config.h"
+#include "Config.h"
 #include "common_libs/Logger.h"
 #include "Communication_Manager.h"
 #include "Algorithm_Manager_Interface.h"
@@ -61,7 +61,11 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>();
 
-    std::shared_ptr<Algorithm_Manager_Interface> algo_mng_ptr = std::make_shared<Algorithm_Manager>(comm_mng_ptr,rec_mng_ptr);
+    std::shared_ptr<Algorithm_Manager_Interface> algo_mng_ptr = std::make_shared<Algorithm_Manager>(comm_mng_ptr,
+                                                                                                    rec_mng_ptr,
+                                                                                                    Config::signal_server_path,
+                                                                                                    Config::executable_path,
+                                                                                                    Config::threshold);
 
     io_context.run();
 
