@@ -85,7 +85,7 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
             log = "Unknown error communicating with PLD";
             break;
     }
-    Logger::log_message(Logger::TYPE::WARNING,log + ": " + ec.what());
+    Logger::log_message(Logger::TYPE::WARNING,log + ": " + ec.message());
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX)
     {
@@ -97,6 +97,11 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
         Logger::log_message(Logger::TYPE::ERROR,"Number of allowed attempts exceeded. Exiting program...");
         io_context_.stop();
     }
+}
+
+void Communication_Manager::set_calculate_handler(const calculate_handler &handler)
+{
+    calculate_handler_ = std::move(handler);
 }
 
 void Communication_Manager::on_message(const std::string& msg)
@@ -114,13 +119,18 @@ void Communication_Manager::on_message(const std::string& msg)
         case Enc_Dec::Algo::ERROR:
             Logger::log_message(Logger::TYPE::WARNING, "Error decoding message");
             break;
-        case Enc_Dec::Algo::MyMessage: {
-            auto my_msg = dynamic_cast<MyMessage*>(decoded_msg.get());
+        case Enc_Dec::Algo::SignalServerConfig: {
+            auto my_msg = dynamic_cast<SignalServerConfigProto*>(decoded_msg.get());
             if (my_msg) {
-                std::stringstream log;
-                log << "Message MyMessage decoded: name " << my_msg->name() << ", id " << my_msg->id();
-                Logger::log_message(Logger::TYPE::INFO, log.str());
-                // Process message
+                Logger::log_message(Logger::TYPE::INFO, "Signal-Server message received");
+
+                Struct_Algo::SignalServerConfig config;
+                if (!Enc_Dec::decode_signal_server(*my_msg, config))
+                {
+                    Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode Signal-Server message");
+                    return;
+                }
+                calculate_handler_(config);
             }
             break;
         }

@@ -9,10 +9,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
 #include <boost/asio.hpp>
+#include <functional>
 #include "common_libs/Server.h"
 #include "structs/Structs_Algo.h"
 
 using boost::asio::ip::tcp;
+
+using calculate_handler = std::function<void(const Struct_Algo::SignalServerConfig&)>;;
 
 class Communication_Manager {
 
@@ -23,13 +26,15 @@ private:
     boost::asio::steady_timer status_timer;
     int attemps_ = 0;
     Struct_Algo::Status status_;
+    calculate_handler calculate_handler_;
     void on_connect();
     void on_error(const boost::system::error_code& ec, const Type_Error &type_error);
     void on_message(const std::string& msg);
     void send_status_message(const boost::system::error_code& ec);
-    void set_status(const Struct_Algo::Status &new_status);
 
 public:
     Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
+    void set_status(const Struct_Algo::Status &new_status);
+    void set_calculate_handler(const calculate_handler &handler);
 
 };
