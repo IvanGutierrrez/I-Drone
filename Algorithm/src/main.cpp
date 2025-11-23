@@ -15,6 +15,8 @@
 #include "Algorithm_Manager_Interface.h"
 #include "Algorithm_Manager.h"
 #include "structs/Structs_Algo.h"
+#include "Path_Cal.h"
+#include "Signal_Cal.h"
 
 int main(int argc, char* argv[]) {
     // Initialize logger
@@ -63,8 +65,14 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>();
 
+    std::shared_ptr<Path_Cal> path_cal_ptr = std::make_shared<Path_Cal>(cnf);
+
+    std::shared_ptr<Signal_Cal> signal_cal_ptr = std::make_shared<Signal_Cal>();
+
     std::shared_ptr<Algorithm_Manager_Interface> algo_mng_ptr = std::make_shared<Algorithm_Manager>(comm_mng_ptr,
                                                                                                     rec_mng_ptr,
+                                                                                                    path_cal_ptr,
+                                                                                                    signal_cal_ptr,
                                                                                                     cnf);
 
     io_context.run();

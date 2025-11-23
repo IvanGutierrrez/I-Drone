@@ -33,7 +33,7 @@ public:
     std::vector<Struct_Algo::Coordinate> calculate_signal(const Struct_Algo::Config_struct &global_config,const Struct_Algo::SignalServerConfig &signal_server_conf);
 
 private:
-    CoverageMatrix read_Coverage_File(const std::string& filename, const std::string& dcfFilename, const std::vector<double> &lat_lot, const double &threshold);
+    CoverageMatrix read_Coverage_File(const std::string& filename, const std::string& dcfFilename);
     std::vector<double> parse_Bounds(const std::string& str);
     std::map<RGB, double> read_DCF(const std::string& dcf_filename);
 };

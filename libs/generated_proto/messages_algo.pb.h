@@ -64,10 +64,6 @@ class SignalServerConfigProto;
 struct SignalServerConfigProtoDefaultTypeInternal;
 extern SignalServerConfigProtoDefaultTypeInternal _SignalServerConfigProto_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull SignalServerConfigProto_class_data_;
-class Status;
-struct StatusDefaultTypeInternal;
-extern StatusDefaultTypeInternal _Status_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull Status_class_data_;
 class Wrapper;
 struct WrapperDefaultTypeInternal;
 extern WrapperDefaultTypeInternal _Wrapper_default_instance_;
@@ -81,202 +77,6 @@ namespace protobuf {
 // ===================================================================
 
 
-// -------------------------------------------------------------------
-
-class Status final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:Status) */ {
- public:
-  inline Status() : Status(nullptr) {}
-  ~Status() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(Status* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(Status));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR Status(::google::protobuf::internal::ConstantInitialized);
-
-  inline Status(const Status& from) : Status(nullptr, from) {}
-  inline Status(Status&& from) noexcept
-      : Status(nullptr, ::std::move(from)) {}
-  inline Status& operator=(const Status& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline Status& operator=(Status&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const Status& default_instance() {
-    return *reinterpret_cast<const Status*>(
-        &_Status_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 4;
-  friend void swap(Status& a, Status& b) { a.Swap(&b); }
-  inline void Swap(Status* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(Status* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  Status* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<Status>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const Status& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const Status& from) { Status::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(Status* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "Status"; }
-
- protected:
-  explicit Status(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  Status(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Status& from);
-  Status(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Status&& from) noexcept
-      : Status(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
-
- public:
-  static constexpr auto InternalGenerateClassData_();
-
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kTypeStatusFieldNumber = 1,
-  };
-  // string type_status = 1;
-  void clear_type_status() ;
-  const ::std::string& type_status() const;
-  template <typename Arg_ = const ::std::string&, typename... Args_>
-  void set_type_status(Arg_&& arg, Args_... args);
-  ::std::string* PROTOBUF_NONNULL mutable_type_status();
-  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_type_status();
-  void set_allocated_type_status(::std::string* PROTOBUF_NULLABLE value);
-
-  private:
-  const ::std::string& _internal_type_status() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_type_status(const ::std::string& value);
-  ::std::string* PROTOBUF_NONNULL _internal_mutable_type_status();
-
-  public:
-  // @@protoc_insertion_point(class_scope:Status)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
-                                   0, 26,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const Status& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr type_status_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_messages_5falgo_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull Status_class_data_;
 // -------------------------------------------------------------------
 
 class SignalServerConfigProto final : public ::google::protobuf::Message
@@ -1301,7 +1101,6 @@ class Wrapper final : public ::google::protobuf::Message
   }
   enum PayloadCase {
     kAlgoMessage = 1,
-    kStatus = 2,
     PAYLOAD_NOT_SET = 0,
   };
   static constexpr int kIndexInFileMessages = 0;
@@ -1393,7 +1192,6 @@ class Wrapper final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kAlgoMessageFieldNumber = 1,
-    kStatusFieldNumber = 2,
   };
   // .AlgorithmMessage algo_message = 1;
   bool has_algo_message() const;
@@ -1414,37 +1212,17 @@ class Wrapper final : public ::google::protobuf::Message
   ::AlgorithmMessage* PROTOBUF_NONNULL _internal_mutable_algo_message();
 
   public:
-  // .Status status = 2;
-  bool has_status() const;
-  private:
-  bool _internal_has_status() const;
-
-  public:
-  void clear_status() ;
-  const ::Status& status() const;
-  [[nodiscard]] ::Status* PROTOBUF_NULLABLE release_status();
-  ::Status* PROTOBUF_NONNULL mutable_status();
-  void set_allocated_status(::Status* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_status(::Status* PROTOBUF_NULLABLE value);
-  ::Status* PROTOBUF_NULLABLE unsafe_arena_release_status();
-
-  private:
-  const ::Status& _internal_status() const;
-  ::Status* PROTOBUF_NONNULL _internal_mutable_status();
-
-  public:
   void clear_payload();
   PayloadCase payload_case() const;
   // @@protoc_insertion_point(class_scope:Wrapper)
  private:
   class _Internal;
   void set_has_algo_message();
-  void set_has_status();
   inline bool has_payload() const;
   inline void clear_has_payload();
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 2,
-                                   2, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
                                    2>
       _table_;
 
@@ -1467,7 +1245,6 @@ class Wrapper final : public ::google::protobuf::Message
       constexpr PayloadUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::AlgorithmMessage* PROTOBUF_NULLABLE algo_message_;
-      ::Status* PROTOBUF_NULLABLE status_;
     } payload_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -1573,87 +1350,6 @@ inline ::AlgorithmMessage* PROTOBUF_NONNULL Wrapper::mutable_algo_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::AlgorithmMessage* _msg = _internal_mutable_algo_message();
   // @@protoc_insertion_point(field_mutable:Wrapper.algo_message)
-  return _msg;
-}
-
-// .Status status = 2;
-inline bool Wrapper::has_status() const {
-  return payload_case() == kStatus;
-}
-inline bool Wrapper::_internal_has_status() const {
-  return payload_case() == kStatus;
-}
-inline void Wrapper::set_has_status() {
-  _impl_._oneof_case_[0] = kStatus;
-}
-inline void Wrapper::clear_status() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (payload_case() == kStatus) {
-    if (GetArena() == nullptr) {
-      delete _impl_.payload_.status_;
-    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
-      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.status_);
-    }
-    clear_has_payload();
-  }
-}
-inline ::Status* PROTOBUF_NULLABLE Wrapper::release_status() {
-  // @@protoc_insertion_point(field_release:Wrapper.status)
-  if (payload_case() == kStatus) {
-    clear_has_payload();
-    auto* temp = _impl_.payload_.status_;
-    if (GetArena() != nullptr) {
-      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
-    }
-    _impl_.payload_.status_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const ::Status& Wrapper::_internal_status() const {
-  return payload_case() == kStatus ? *_impl_.payload_.status_ : reinterpret_cast<::Status&>(::_Status_default_instance_);
-}
-inline const ::Status& Wrapper::status() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:Wrapper.status)
-  return _internal_status();
-}
-inline ::Status* PROTOBUF_NULLABLE Wrapper::unsafe_arena_release_status() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:Wrapper.status)
-  if (payload_case() == kStatus) {
-    clear_has_payload();
-    auto* temp = _impl_.payload_.status_;
-    _impl_.payload_.status_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline void Wrapper::unsafe_arena_set_allocated_status(
-    ::Status* PROTOBUF_NULLABLE value) {
-  // We rely on the oneof clear method to free the earlier contents
-  // of this oneof. We can directly use the pointer we're given to
-  // set the new value.
-  clear_payload();
-  if (value) {
-    set_has_status();
-    _impl_.payload_.status_ = value;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Wrapper.status)
-}
-inline ::Status* PROTOBUF_NONNULL Wrapper::_internal_mutable_status() {
-  if (payload_case() != kStatus) {
-    clear_payload();
-    set_has_status();
-    _impl_.payload_.status_ = 
-        ::google::protobuf::Message::DefaultConstruct<::Status>(GetArena());
-  }
-  return _impl_.payload_.status_;
-}
-inline ::Status* PROTOBUF_NONNULL Wrapper::mutable_status()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::Status* _msg = _internal_mutable_status();
-  // @@protoc_insertion_point(field_mutable:Wrapper.status)
   return _msg;
 }
 
@@ -2830,75 +2526,6 @@ inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL
 DroneData::_internal_mutable_lat() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.lat_;
-}
-
-// -------------------------------------------------------------------
-
-// Status
-
-// string type_status = 1;
-inline void Status::clear_type_status() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.type_status_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline const ::std::string& Status::type_status() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:Status.type_status)
-  return _internal_type_status();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void Status::set_type_status(Arg_&& arg, Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.type_status_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:Status.type_status)
-}
-inline ::std::string* PROTOBUF_NONNULL Status::mutable_type_status()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::std::string* _s = _internal_mutable_type_status();
-  // @@protoc_insertion_point(field_mutable:Status.type_status)
-  return _s;
-}
-inline const ::std::string& Status::_internal_type_status() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.type_status_.Get();
-}
-inline void Status::_internal_set_type_status(const ::std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.type_status_.Set(value, GetArena());
-}
-inline ::std::string* PROTOBUF_NONNULL Status::_internal_mutable_type_status() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.type_status_.Mutable( GetArena());
-}
-inline ::std::string* PROTOBUF_NULLABLE Status::release_type_status() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:Status.type_status)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.type_status_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.type_status_.Set("", GetArena());
-  }
-  return released;
-}
-inline void Status::set_allocated_type_status(::std::string* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.type_status_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.type_status_.IsDefault()) {
-    _impl_.type_status_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:Status.type_status)
 }
 
 #ifdef __GNUC__

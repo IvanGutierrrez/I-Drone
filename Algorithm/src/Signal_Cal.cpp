@@ -53,7 +53,7 @@ std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) {
     return colorToDbm;
 }
 
-CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, const std::string& dcf_filename, const std::vector<double> &lat_lon, const double &threshold)
+CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, const std::string& dcf_filename)
 {
     std::ifstream file(ppm_filename, std::ios::binary);
     if (!file) {
@@ -209,7 +209,7 @@ std::vector<Struct_Algo::Coordinate> Signal_Cal::calculate_signal(const Struct_A
     Logger::log_message(Logger::TYPE::INFO, "PPM path: " + ppmPath);
     Logger::log_message(Logger::TYPE::INFO, "DCF path: " + dcfPath);
 
-    auto matrix = read_Coverage_File(ppmPath, dcfPath, values, global_config.threshold);
+    auto matrix = read_Coverage_File(ppmPath, dcfPath);
 
     if (matrix.empty())
     {

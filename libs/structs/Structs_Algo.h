@@ -21,6 +21,8 @@ struct Config_struct {
     std::string signal_server_path;
     std::string executable_path;
     double threshold;
+    int max_neighbor;
+    double max_distance_for_neighbor;
 };
 
 enum class Status {

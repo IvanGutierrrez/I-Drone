@@ -21,6 +21,8 @@ inline Struct_Algo::Config_struct get_config() {
     cnf.signal_server_path = "/home/ivan/repo/signal_server_val/Signal-Server/signal_server";
     cnf.executable_path = "/home/ivan/repo/I-Drone/I-Drone/build/Algorithm";
     cnf.threshold = -90.0;
+    cnf.max_neighbor = 8;
+    cnf.max_distance_for_neighbor = 20.0;
 
     return cnf;
 }

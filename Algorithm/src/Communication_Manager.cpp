@@ -13,7 +13,8 @@
 #include <chrono>
 
 #include "common_libs/Logger.h"
-#include "common_libs/Enc_Dec_Msg.h"
+#include "common_libs/Enc_Dec_Algo.h"
+#include "common_libs/Enc_Dec_PLD.h"
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
 constexpr int RATE_STATUS_MESSAGE = 1;
@@ -55,7 +56,7 @@ void Communication_Manager::send_status_message(const boost::system::error_code&
     Logger::log_message(Logger::TYPE::INFO,"Sending status message");
 
     std::string message;
-    if (!Enc_Dec::encode_status_algo(status_,message)) {
+    if (!Enc_Dec_PLD::encode_status_algo(status_,message)) {
         Logger::log_message(Logger::TYPE::WARNING,"Problems encoding status message");
     } else {
         server_.deliver(message);
@@ -120,29 +121,29 @@ void Communication_Manager::on_message(const std::string& msg)
 
     std::string data = msg.substr(4);
 
-    auto [type, decoded_msg] = Enc_Dec::decode_to_algo(data);
+    auto [type, decoded_msg] = Enc_Dec_Algo::decode_to_algo(data);
 
     switch (type) {
-        case Enc_Dec::Algo::UNKNOWN:
+        case Enc_Dec_Algo::Algo::UNKNOWN:
             Logger::log_message(Logger::TYPE::WARNING, "Unknown message received");
             break;
-        case Enc_Dec::Algo::ERROR:
+        case Enc_Dec_Algo::Algo::ERROR:
             Logger::log_message(Logger::TYPE::WARNING, "Error decoding message");
             break;
-        case Enc_Dec::Algo::ConfigMessage: {
+        case Enc_Dec_Algo::Algo::ConfigMessage: {
             auto my_msg = dynamic_cast<AlgorithmMessage*>(decoded_msg.get());
             if (my_msg) {
                 Logger::log_message(Logger::TYPE::INFO, "Configuration message received");
 
                 Struct_Algo::SignalServerConfig signal_server;
-                if (!Enc_Dec::decode_signal_server(my_msg->signal_server_config(), signal_server))
+                if (!Enc_Dec_Algo::decode_signal_server(my_msg->signal_server_config(), signal_server))
                 {
                     Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode Signal-Server message");
                     return;
                 }
 
                 Struct_Algo::DroneData drone_data;
-                if (!Enc_Dec::decode_drone_data(my_msg->drone_data(), drone_data))
+                if (!Enc_Dec_Algo::decode_drone_data(my_msg->drone_data(), drone_data))
                 {
                     Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode drone data message");
                     return;
@@ -155,4 +156,9 @@ void Communication_Manager::on_message(const std::string& msg)
             Logger::log_message(Logger::TYPE::WARNING, "Unhandled message type");
             break;
     }
+}
+
+void Communication_Manager::deliver(const std::string &msg)
+{
+    server_.deliver(msg);
 }

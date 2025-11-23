@@ -36,5 +36,6 @@ public:
     Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
     void set_status(const Struct_Algo::Status &new_status);
     void set_calculate_handler(const calculate_handler &handler);
+    void deliver(const std::string &msg);
 
 };

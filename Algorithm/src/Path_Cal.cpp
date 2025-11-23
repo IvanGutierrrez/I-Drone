@@ -22,7 +22,7 @@
 
 using namespace operations_research;
 
-Path_Cal::Path_Cal()
+Path_Cal::Path_Cal(const Struct_Algo::Config_struct &cnf): global_cnf_(cnf)
 {
 }
 
@@ -154,15 +154,22 @@ void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Algo::Coo
     }
 }
 
-
-void Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
-                         const std::vector<Struct_Algo::Coordinate>& pos_targets,
-                         int num_drones)
+std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
+                                                         const std::vector<Struct_Algo::Coordinate>& pos_targets,
+                                                         int num_drones)
 {
-    int T = pos_targets.size();
+    std::vector<std::vector<Struct_Algo::Coordinate>> result;
 
-    std::vector<RoutingIndexManager::NodeIndex> starts(num_drones, RoutingIndexManager::NodeIndex(0));
-    std::vector<RoutingIndexManager::NodeIndex> ends(num_drones, RoutingIndexManager::NodeIndex(0));
+    int T = pos_targets.size();
+    if (T == 0 || num_drones <= 0) return result;
+
+    std::vector<RoutingIndexManager::NodeIndex> starts;
+    std::vector<RoutingIndexManager::NodeIndex> ends;
+    for (int d = 0; d < num_drones; d++) {
+        int start_idx = d % T;
+        starts.push_back(RoutingIndexManager::NodeIndex(start_idx));
+        ends.push_back(RoutingIndexManager::NodeIndex(start_idx));
+    }
 
     RoutingIndexManager manager(T, num_drones, starts, ends);
     RoutingModel routing(manager);
@@ -176,45 +183,106 @@ void Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
     );
     routing.SetArcCostEvaluatorOfAllVehicles(transitIndex);
 
+    int64_t max_load = static_cast<int64_t>(std::ceil(double(T) / num_drones));
+    routing.AddDimension(
+        routing.RegisterTransitCallback([](int64_t, int64_t){ return 1; }),
+        0,
+        max_load,
+        true,
+        "load"
+    );
+
+    RoutingDimension* load_dimension = routing.GetMutableDimension("load");
+    if (load_dimension) {
+        load_dimension->SetGlobalSpanCostCoefficient(100);
+    }
+    
+    for (int node = 0; node < T; ++node) {
+        bool is_start = false;
+        for (int d = 0; d < num_drones; ++d) {
+            if (node == starts[d].value()) {
+                is_start = true;
+                break;
+            }
+        }
+        if (!is_start) {
+            std::vector<int64_t> indices = {manager.NodeToIndex(RoutingIndexManager::NodeIndex(node))};
+            routing.AddDisjunction(indices, 1000);
+        }
+    }
+
     RoutingSearchParameters params = DefaultRoutingSearchParameters();
     params.set_first_solution_strategy(FirstSolutionStrategy::PATH_CHEAPEST_ARC);
+    params.set_local_search_metaheuristic(LocalSearchMetaheuristic::GUIDED_LOCAL_SEARCH);
+    params.mutable_time_limit()->set_seconds(1);
 
     const Assignment* solution = routing.SolveWithParameters(params);
     if (!solution) {
-        std::cout << "❌ No se encontró solución VRP\n";
-        return;
+        Logger::log_message(Logger::TYPE::ERROR, "No solution VRP found");
+        return result;
     }
 
+    // TODO Set result and move this to record class
+    std::stringstream log;
     for (int d = 0; d < num_drones; d++) {
-        std::cout << "\n🚁 Ruta dron " << d << ":\n";
-
+        log << "\nDron path " << d << ":\n";
         int64_t idx = routing.Start(d);
         while (!routing.IsEnd(idx)) {
             int node = manager.IndexToNode(idx).value();
-
-            std::cout << "  -> (" 
-                      << pos_targets[node].lat << ", " 
+            log << "  -> (" << pos_targets[node].lat << ", " 
                       << pos_targets[node].lon << ")\n";
-
             idx = solution->Value(routing.NextVar(idx));
         }
+        log << "  (go origin)\n";
     }
+    
+    Logger::log_message(Logger::TYPE::INFO, log.str());
+
+
+    result.resize(num_drones);
+
+    for (int d = 0; d < num_drones; d++) {
+
+        std::vector<Struct_Algo::Coordinate> path;
+        int64_t idx = routing.Start(d);
+
+        int start_node = manager.IndexToNode(idx).value();
+        Struct_Algo::Coordinate origin{
+            pos_targets[start_node].lat,
+            pos_targets[start_node].lon
+        };
+
+        path.push_back(origin);
+
+        idx = solution->Value(routing.NextVar(idx));
+        while (!routing.IsEnd(idx)) {
+            int node = manager.IndexToNode(idx).value();
+            Struct_Algo::Coordinate p{pos_targets[node].lat, pos_targets[node].lon};
+            path.push_back(p);
+            idx = solution->Value(routing.NextVar(idx));
+        }
+
+        path.push_back(origin);
+        result[d] = std::move(path);
+    }
+
+    return result;
 }
 
-bool Path_Cal::calculate_path(const Struct_Algo::DroneData &drone_data, const std::vector<Struct_Algo::Coordinate> &points_cp)
+bool Path_Cal::calculate_path(const Struct_Algo::DroneData &drone_data, const std::vector<Struct_Algo::Coordinate> &points_cp, std::vector<std::vector<Struct_Algo::Coordinate>> &result)
 {
     int num_drones = drone_data.num_drones;
 
     std::vector<std::vector<std::pair<int,double>>> adj;
     build_knn_graph(points_cp, 
-                    8, // TODO Move values to config.h
-                    20.0,
+                    global_cnf_.max_neighbor,
+                    global_cnf_.max_distance_for_neighbor,
                     adj);
 
     std::vector<std::vector<int64_t>> dist_matrix;
     compute_target_distance_matrix(points_cp, adj, drone_data.pos_targets, dist_matrix);
 
-    solve_vrp(dist_matrix, drone_data.pos_targets, num_drones);
+    result = solve_vrp(dist_matrix, drone_data.pos_targets, num_drones);
 
-    return true;
+    return !result.empty();
 }
