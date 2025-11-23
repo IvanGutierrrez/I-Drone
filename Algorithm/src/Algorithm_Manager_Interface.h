@@ -18,5 +18,5 @@ class Algorithm_Manager_Interface {
 
 public:
     virtual ~Algorithm_Manager_Interface();
-    virtual void calculate(const Struct_Algo::SignalServerConfig &config);
+    virtual void calculate(const Struct_Algo::SignalServerConfig &config, const Struct_Algo::DroneData &drone_data);
 };

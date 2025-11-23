@@ -15,7 +15,7 @@
 
 using boost::asio::ip::tcp;
 
-using calculate_handler = std::function<void(const Struct_Algo::SignalServerConfig&)>;;
+using calculate_handler = std::function<void(const Struct_Algo::SignalServerConfig&, const Struct_Algo::DroneData &)>;;
 
 class Communication_Manager {
 

@@ -19,9 +19,9 @@ namespace Enc_Dec {
             return {Algo::UNKNOWN, nullptr};
         }
 
-        if (wrapper.has_signal_server_config()) {
-            auto msg = std::make_unique<SignalServerConfigProto>(wrapper.signal_server_config());
-            return {Algo::SignalServerConfig, std::move(msg)};
+        if (wrapper.has_algo_message()) {
+            auto msg = std::make_unique<AlgorithmMessage>(wrapper.algo_message());
+            return {Algo::ConfigMessage, std::move(msg)};
         }
 
         if (wrapper.has_status()) {
@@ -32,48 +32,63 @@ namespace Enc_Dec {
         return {Algo::UNKNOWN, nullptr};
     }
         
-    bool encode_signal_server(const Struct_Algo::SignalServerConfig& msg, std::string &data) 
+    bool encode_config_message(const Struct_Algo::SignalServerConfig& signal_msg, const Struct_Algo::DroneData& drone_msg, std::string &data) 
     {
         SignalServerConfigProto protoMsg;
 
         // Required fields
-        protoMsg.set_sdf_directory(msg.sdfDirectory);
-        protoMsg.set_output_file(msg.outputFile);
-        protoMsg.set_latitude(msg.latitude);
-        protoMsg.set_longitude(msg.longitude);
-        protoMsg.set_tx_height(msg.txHeight);
-        protoMsg.set_frequency_mhz(msg.frequencyMHz);
-        protoMsg.set_erp_watts(msg.erpWatts);
-        protoMsg.set_propagation_model(msg.propagationModel);
-        protoMsg.set_radius(msg.radius);
-        protoMsg.set_resolution(msg.resolution);
+        protoMsg.set_sdf_directory(signal_msg.sdfDirectory);
+        protoMsg.set_output_file(signal_msg.outputFile);
+        protoMsg.set_latitude(signal_msg.latitude);
+        protoMsg.set_longitude(signal_msg.longitude);
+        protoMsg.set_tx_height(signal_msg.txHeight);
+        protoMsg.set_frequency_mhz(signal_msg.frequencyMHz);
+        protoMsg.set_erp_watts(signal_msg.erpWatts);
+        protoMsg.set_propagation_model(signal_msg.propagationModel);
+        protoMsg.set_radius(signal_msg.radius);
+        protoMsg.set_resolution(signal_msg.resolution);
 
         // Optional strings
-        if (!msg.userTerrainFile.empty())
-            protoMsg.set_user_terrain_file(msg.userTerrainFile);
-        if (!msg.terrainBackground.empty())
-            protoMsg.set_terrain_background(msg.terrainBackground);
+        if (!signal_msg.userTerrainFile.empty())
+            protoMsg.set_user_terrain_file(signal_msg.userTerrainFile);
+        if (!signal_msg.terrainBackground.empty())
+            protoMsg.set_terrain_background(signal_msg.terrainBackground);
 
         // Optional repeated
-        for (double rxh : msg.rxHeights)
+        for (double rxh : signal_msg.rxHeights)
             protoMsg.add_rx_heights(rxh);
 
         // Optional doubles/ints/bools
-        if (msg.rxThreshold != 0.0) protoMsg.set_rx_threshold(msg.rxThreshold);
-        if (msg.horizontalPol) protoMsg.set_horizontal_pol(msg.horizontalPol);
-        if (msg.groundClutter != 0.0) protoMsg.set_ground_clutter(msg.groundClutter);
-        if (msg.terrainCode != 0) protoMsg.set_terrain_code(msg.terrainCode);
-        if (msg.terrainDielectric != 0.0) protoMsg.set_terrain_dielectric(msg.terrainDielectric);
-        if (msg.terrainConductivity != 0.0) protoMsg.set_terrain_conductivity(msg.terrainConductivity);
-        if (msg.climateCode != 0) protoMsg.set_climate_code(msg.climateCode);
-        if (msg.knifeEdgeDiff) protoMsg.set_knife_edge_diff(msg.knifeEdgeDiff);
-        if (msg.win32TileNames) protoMsg.set_win32_tile_names(msg.win32TileNames);
-        if (msg.debugMode) protoMsg.set_debug_mode(msg.debugMode);
-        if (msg.metricUnits) protoMsg.set_metric_units(msg.metricUnits);
-        if (msg.plotDbm) protoMsg.set_plot_dbm(msg.plotDbm);
+        if (signal_msg.rxThreshold != 0.0) protoMsg.set_rx_threshold(signal_msg.rxThreshold);
+        if (signal_msg.horizontalPol) protoMsg.set_horizontal_pol(signal_msg.horizontalPol);
+        if (signal_msg.groundClutter != 0.0) protoMsg.set_ground_clutter(signal_msg.groundClutter);
+        if (signal_msg.terrainCode != 0) protoMsg.set_terrain_code(signal_msg.terrainCode);
+        if (signal_msg.terrainDielectric != 0.0) protoMsg.set_terrain_dielectric(signal_msg.terrainDielectric);
+        if (signal_msg.terrainConductivity != 0.0) protoMsg.set_terrain_conductivity(signal_msg.terrainConductivity);
+        if (signal_msg.climateCode != 0) protoMsg.set_climate_code(signal_msg.climateCode);
+        if (signal_msg.knifeEdgeDiff) protoMsg.set_knife_edge_diff(signal_msg.knifeEdgeDiff);
+        if (signal_msg.win32TileNames) protoMsg.set_win32_tile_names(signal_msg.win32TileNames);
+        if (signal_msg.debugMode) protoMsg.set_debug_mode(signal_msg.debugMode);
+        if (signal_msg.metricUnits) protoMsg.set_metric_units(signal_msg.metricUnits);
+        if (signal_msg.plotDbm) protoMsg.set_plot_dbm(signal_msg.plotDbm);
+
+        DroneData dron_proto;
+        dron_proto.set_num_drones(drone_msg.num_drones);
+
+        for (const auto& each : drone_msg.pos_targets) {
+            dron_proto.add_lon(each.lon);
+            dron_proto.add_lat(each.lat);
+        }
+
+        AlgorithmMessage complete_mst;
+        *(complete_mst.mutable_signal_server_config()) = protoMsg;
+        *(complete_mst.mutable_drone_data()) = dron_proto;
+
+        //TODO ENCODE DRONE DATA
+        
 
         Wrapper wrapper;
-        *(wrapper.mutable_signal_server_config()) = protoMsg;
+        *(wrapper.mutable_algo_message()) = complete_mst;
 
         std::string serialized_data;
         if (!wrapper.SerializeToString(&serialized_data))
@@ -128,6 +143,19 @@ namespace Enc_Dec {
             return false;
         }
 
+        return true;
+    }
+
+    bool decode_drone_data(const DroneData& protoMsg, Struct_Algo::DroneData &msg)
+    {
+        msg.num_drones = protoMsg.num_drones();
+        msg.pos_targets.clear();
+        for (int i = 0; i < protoMsg.lon().size(); ++i) {
+            if (i >= protoMsg.lat().size())
+                return false;
+            Struct_Algo::Coordinate coordinate(protoMsg.lon(i),protoMsg.lat(i));
+            msg.pos_targets.push_back(coordinate);
+        }
         return true;
     }
 

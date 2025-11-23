@@ -14,10 +14,12 @@
 #include "Communication_Manager.h"
 #include "Algorithm_Manager_Interface.h"
 #include "Algorithm_Manager.h"
+#include "structs/Structs_Algo.h"
 
 int main(int argc, char* argv[]) {
     // Initialize logger
-    if (!Logger::initialize(Config::log_path,Config::log_name))
+    Struct_Algo::Config_struct cnf = Config::get_config();
+    if (!Logger::initialize(cnf.log_path,cnf.log_name))
     {
         std::cout << "Error initializing logger. Exiting program...\n";
         return EXIT_FAILURE;
@@ -63,9 +65,7 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Algorithm_Manager_Interface> algo_mng_ptr = std::make_shared<Algorithm_Manager>(comm_mng_ptr,
                                                                                                     rec_mng_ptr,
-                                                                                                    Config::signal_server_path,
-                                                                                                    Config::executable_path,
-                                                                                                    Config::threshold);
+                                                                                                    cnf);
 
     io_context.run();
 

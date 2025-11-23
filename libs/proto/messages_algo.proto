@@ -2,9 +2,14 @@ syntax = "proto3";
 
 message Wrapper {
   oneof payload {
-    SignalServerConfigProto signal_server_config = 1;
+    AlgorithmMessage algo_message = 1;
     Status status = 2;
   }
+}
+
+message AlgorithmMessage {
+    SignalServerConfigProto signal_server_config = 1;
+    DroneData drone_data = 2;
 }
 
 message SignalServerConfigProto {
@@ -38,6 +43,12 @@ message SignalServerConfigProto {
 
     double radius = 24;
     int32 resolution = 25;
+}
+
+message DroneData {
+    int32 num_drones = 1;
+    repeated double lon = 2;
+    repeated double lat = 3;
 }
 
 message Status {

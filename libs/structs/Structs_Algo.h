@@ -9,12 +9,22 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
 #include <string>
+#include <vector>
 #include <sstream>
+#include <filesystem>
 
 namespace Struct_Algo {
 
+struct Config_struct {
+    std::filesystem::path log_path;
+    std::string log_name;
+    std::string signal_server_path;
+    std::string executable_path;
+    double threshold;
+};
+
 enum class Status {
-    OK,
+    EXPECTING_DATA,
     ERROR,
     CALCULATING,
     FINISH
@@ -22,8 +32,8 @@ enum class Status {
 
 inline std::string to_string(Status status) {
     switch (status) {
-        case Status::OK:
-            return "OK";
+        case Status::EXPECTING_DATA:
+            return "EXPECTING_DATA";
         case Status::ERROR:
             return "ERROR";
         case Status::CALCULATING:
@@ -34,6 +44,27 @@ inline std::string to_string(Status status) {
             return std::string();
     }
 }
+
+struct CoveragePoint {
+    double lat;
+    double lon;
+    double value;   // señal en dBm
+    bool hasCoverage;
+};
+
+struct Coordinate {
+    double lon;
+    double lat;
+
+    Coordinate(const double &lon, const double &lat): lon(lon), lat(lat) {}
+
+    Coordinate(const CoveragePoint& cp) : lon(cp.lon), lat(cp.lat) {}
+};
+
+struct DroneData {
+    int num_drones;
+    std::vector<Coordinate> pos_targets;
+};
 
 struct SignalServerConfig {
     // --- File and directory paths ---

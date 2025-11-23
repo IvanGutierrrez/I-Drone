@@ -23,7 +23,7 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
                                                                              server_(io_context),
                                                                              endpoint_(endpoint),
                                                                              status_timer(io_context_),
-                                                                             status_(Struct_Algo::Status::OK)
+                                                                             status_(Struct_Algo::Status::EXPECTING_DATA)
 {
     Server::handlers handler_obj;
 
@@ -39,6 +39,7 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
 
 void Communication_Manager::on_connect()
 {
+    attemps_ = 0;
     Logger::log_message(Logger::TYPE::INFO,"Succesfully connected to PLD");
     boost::system::error_code ec;
     send_status_message(ec);
@@ -70,6 +71,10 @@ void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
 
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
 {
+    if (status_ == Struct_Algo::Status::FINISH) {
+        Logger::log_message(Logger::TYPE::INFO,"Program task complete, leaving program...");
+        io_context_.stop();
+    }
     std::string log;
     switch (type_error){
         case Type_Error::CONNECTING:
@@ -108,6 +113,11 @@ void Communication_Manager::on_message(const std::string& msg)
 {
     Logger::log_message(Logger::TYPE::INFO, "Message received from PLD");
 
+    if (status_ != Struct_Algo::Status::EXPECTING_DATA) {
+        Logger::log_message(Logger::TYPE::WARNING, "Task in progress or done, message ignore");
+        return;
+    }
+
     std::string data = msg.substr(4);
 
     auto [type, decoded_msg] = Enc_Dec::decode_to_algo(data);
@@ -119,18 +129,25 @@ void Communication_Manager::on_message(const std::string& msg)
         case Enc_Dec::Algo::ERROR:
             Logger::log_message(Logger::TYPE::WARNING, "Error decoding message");
             break;
-        case Enc_Dec::Algo::SignalServerConfig: {
-            auto my_msg = dynamic_cast<SignalServerConfigProto*>(decoded_msg.get());
+        case Enc_Dec::Algo::ConfigMessage: {
+            auto my_msg = dynamic_cast<AlgorithmMessage*>(decoded_msg.get());
             if (my_msg) {
-                Logger::log_message(Logger::TYPE::INFO, "Signal-Server message received");
+                Logger::log_message(Logger::TYPE::INFO, "Configuration message received");
 
-                Struct_Algo::SignalServerConfig config;
-                if (!Enc_Dec::decode_signal_server(*my_msg, config))
+                Struct_Algo::SignalServerConfig signal_server;
+                if (!Enc_Dec::decode_signal_server(my_msg->signal_server_config(), signal_server))
                 {
                     Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode Signal-Server message");
                     return;
                 }
-                calculate_handler_(config);
+
+                Struct_Algo::DroneData drone_data;
+                if (!Enc_Dec::decode_drone_data(my_msg->drone_data(), drone_data))
+                {
+                    Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode drone data message");
+                    return;
+                }
+                calculate_handler_(signal_server,drone_data);
             }
             break;
         }

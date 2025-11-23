@@ -17,13 +17,14 @@ namespace Enc_Dec {
     enum class Algo {
         UNKNOWN,
         ERROR,
-        SignalServerConfig,
+        ConfigMessage,
         Status
     };
     
     std::pair<Algo, std::unique_ptr<google::protobuf::Message>> decode_to_algo(const std::string& data);
     
-    bool encode_signal_server(const Struct_Algo::SignalServerConfig& msg, std::string &data);
+    bool encode_config_message(const Struct_Algo::SignalServerConfig& msg, const Struct_Algo::DroneData& drone_msg, std::string &data);
     bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Algo::SignalServerConfig &msg);
+    bool decode_drone_data(const DroneData& protoMsg, Struct_Algo::DroneData &msg);
     bool encode_status_algo(const Struct_Algo::Status &status, std::string &message);
 };
