@@ -16,14 +16,14 @@ namespace Logger{
 static std::unique_ptr<Recorder> rec_;
 static bool initialized_ = false;
 
-std::string to_string(const TYPE &t)
+std::string to_string(const Type &t)
 {
     switch (t){
-        case TYPE::INFO :
+        case Type::INFO :
             return "INFO";
-        case TYPE::WARNING :
+        case Type::WARNING :
             return "WARNING";
-        case TYPE::ERROR :
+        case Type::ERROR :
             return "ERROR";
         default:
             return "";
@@ -76,7 +76,7 @@ std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
     return std::string(buffer);
 }
 
-void log_message(const TYPE &t, const std::string &log)
+void log_message(const Type &t, const std::string &log)
 {
     if (!initialized_)
     {

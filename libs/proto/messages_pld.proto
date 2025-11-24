@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+message WrapperAlgo {
+  oneof payload {
+    AlgoResponseList algo_response = 1;
+    Status status = 2;
+  }
+}
+
+message AlgoResponseList {
+    repeated AlgoResponse items = 1;
+}
+
+message AlgoResponse {
+    repeated double lon = 1;
+    repeated double lat = 2;
+}
+
+message Status {
+    string type_status = 1;
+}

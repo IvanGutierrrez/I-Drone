@@ -12,16 +12,16 @@
 
 namespace Logger{
 
-enum class TYPE{
+enum class Type{
     INFO,
     WARNING,
     ERROR
 };
 
-std::string to_string(const TYPE &t);
+std::string to_string(const Type &t);
 bool initialize(const std::filesystem::path &path, 
                        const std::string &name);
-void log_message(const TYPE &t, const std::string &log);
+void log_message(const Type &t, const std::string &log);
 std::string getTimeFormatted();
 std::string getCurrentTimestamp();
 };

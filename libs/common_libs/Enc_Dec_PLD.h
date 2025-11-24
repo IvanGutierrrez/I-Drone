@@ -1,6 +1,6 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Enc_Dec_Msg.h                 
+ *  Filename : Enc_Dec_PLD.h                 
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
@@ -8,22 +8,22 @@
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
-#include "generated_proto/messages_algo.pb.h"
+#include "generated_proto/messages_pld.pb.h"
 #include "structs/Structs_Algo.h"
 #include <string>
+namespace Enc_Dec_PLD {
 
-namespace Enc_Dec {
-
-    enum class Algo {
+    enum class PLD {
         UNKNOWN,
         ERROR,
-        SignalServerConfig,
+        ALGO_RESPONSE,
         Status
     };
+
+    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_algo(const std::string& data);
+
+    bool encode_algo_response(const std::vector<std::vector<Struct_Algo::Coordinate>> &result, std::string &msg);
+    bool decode_algo_response(const AlgoResponseList &msg, std::vector<std::vector<Struct_Algo::Coordinate>> &result);
     
-    std::pair<Algo, std::unique_ptr<google::protobuf::Message>> decode_to_algo(const std::string& data);
-    
-    bool encode_signal_server(const Struct_Algo::SignalServerConfig& msg, std::string &data);
-    bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Algo::SignalServerConfig &msg);
     bool encode_status_algo(const Struct_Algo::Status &status, std::string &message);
 };

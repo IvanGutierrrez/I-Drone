@@ -9,13 +9,23 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
 #include <filesystem>
+#include "structs/Structs_Algo.h"
 
 namespace Config {
 
-const std::filesystem::path log_path = "/home/ivan/repo/I-Drone/logs";
-const std::string log_name = "algorithm";
-const std::string signal_server_path = "/home/ivan/repo/signal_server_val/Signal-Server/signal_server";
-const std::string executable_path = "/home/ivan/repo/I-Drone/I-Drone/build/Algorithm";
-const double threshold = -150.0;
+inline Struct_Algo::Config_struct get_config() {
+    Struct_Algo::Config_struct cnf;
+
+    cnf.log_path = "/home/ivan/repo/I-Drone/logs";
+    cnf.log_name = "algorithm";
+    cnf.signal_server_path = "/home/ivan/repo/signal_server_val/Signal-Server/signal_server";
+    cnf.executable_path = "/home/ivan/repo/I-Drone/I-Drone/build/Algorithm";
+    cnf.threshold = -90.0;
+    cnf.max_neighbor = 8;
+    cnf.max_distance_for_neighbor = 100.0;
+    cnf.max_ortools_time = 50;
+
+    return cnf;
+}
 
 };

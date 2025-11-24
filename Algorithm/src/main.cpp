@@ -14,16 +14,20 @@
 #include "Communication_Manager.h"
 #include "Algorithm_Manager_Interface.h"
 #include "Algorithm_Manager.h"
+#include "structs/Structs_Algo.h"
+#include "Path_Cal.h"
+#include "Signal_Cal.h"
 
 int main(int argc, char* argv[]) {
     // Initialize logger
-    if (!Logger::initialize(Config::log_path,Config::log_name))
+    Struct_Algo::Config_struct cnf = Config::get_config();
+    if (!Logger::initialize(cnf.log_path,cnf.log_name))
     {
         std::cout << "Error initializing logger. Exiting program...\n";
         return EXIT_FAILURE;
     }
 
-    Logger::log_message(Logger::TYPE::INFO, "Algorithm module started");
+    Logger::log_message(Logger::Type::INFO, "Algorithm module started");
 
     // Parser arguments
     std::string pld_address;
@@ -39,7 +43,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (pld_address.empty() || pld_port == -1) {
-        Logger::log_message(Logger::TYPE::ERROR, "Mandatory arguments missing --PLD_Address y --PLD_port");
+        Logger::log_message(Logger::Type::ERROR, "Mandatory arguments missing --PLD_Address y --PLD_port");
         return EXIT_FAILURE;
     }
 
@@ -51,7 +55,7 @@ int main(int argc, char* argv[]) {
         );
 
     } catch (const std::exception& e) {
-        Logger::log_message(Logger::TYPE::ERROR, std::string("Error creating PLD endpoint: ") + e.what());
+        Logger::log_message(Logger::Type::ERROR, std::string("Error creating PLD endpoint: ") + e.what());
         return EXIT_FAILURE;
     }
 
@@ -61,13 +65,17 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>();
 
+    std::shared_ptr<Path_Cal> path_cal_ptr = std::make_shared<Path_Cal>(cnf);
+
+    std::shared_ptr<Signal_Cal> signal_cal_ptr = std::make_shared<Signal_Cal>();
+
     std::shared_ptr<Algorithm_Manager_Interface> algo_mng_ptr = std::make_shared<Algorithm_Manager>(comm_mng_ptr,
                                                                                                     rec_mng_ptr,
-                                                                                                    Config::signal_server_path,
-                                                                                                    Config::executable_path,
-                                                                                                    Config::threshold);
+                                                                                                    path_cal_ptr,
+                                                                                                    signal_cal_ptr,
+                                                                                                    cnf);
 
     io_context.run();
 
-    Logger::log_message(Logger::TYPE::INFO, "No more async functions to do, exiting program...");
+    Logger::log_message(Logger::Type::INFO, "No more async functions to do, exiting program...");
 }
