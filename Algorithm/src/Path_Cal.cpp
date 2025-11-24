@@ -119,6 +119,43 @@ std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<st
     return dist;
 }
 
+std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std::vector<std::pair<int,double>>>& adj)
+{
+    int n = adj.size();
+    const double INF = std::numeric_limits<double>::infinity();
+    std::vector<double> dist(n, INF);
+    std::vector<int> prev(n, -1);
+
+    using PQ = std::pair<double,int>;
+    std::priority_queue<PQ, std::vector<PQ>, std::greater<PQ>> pq;
+
+    dist[src] = 0.0;
+    pq.push({0.0, src});
+
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (d > dist[u]) continue;
+        if (u == tgt) break;
+
+        for (auto& e : adj[u]) {
+            int v = e.first;
+            double w = e.second;
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                prev[v] = u;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+
+    std::vector<int> path;
+    for (int u = tgt; u != -1; u = prev[u])
+        path.push_back(u);
+    std::reverse(path.begin(), path.end());
+    return path;
+}
+
+
 void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Algo::Coordinate>& all_points,
                                               const std::vector<std::vector<std::pair<int,double>>>& adj,
                                               const std::vector<Struct_Algo::Coordinate>& pos_targets,
@@ -149,14 +186,16 @@ void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Algo::Coo
 
         for (int j = 0; j < T; j++) {
             int tgt_node = closest_point[j];
-            dist_matrix[i][j] = (int64_t)dist[tgt_node];
+            dist_matrix[i][j] = static_cast<int64_t>(dist[tgt_node] * 1000.0);//(int64_t)dist[tgt_node];
         }
     }
 }
 
 std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
-                                                         const std::vector<Struct_Algo::Coordinate>& pos_targets,
-                                                         int num_drones)
+                                                                      const std::vector<Struct_Algo::Coordinate>& pos_targets,
+                                                                      int num_drones,
+                                                                      const std::vector<Struct_Algo::Coordinate> &points_cp,
+                                                                      const std::vector<std::vector<std::pair<int,double>>>& adj)
 {
     std::vector<std::vector<Struct_Algo::Coordinate>> result;
 
@@ -183,7 +222,7 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
     );
     routing.SetArcCostEvaluatorOfAllVehicles(transitIndex);
 
-    int64_t max_load = static_cast<int64_t>(std::ceil(double(T) / num_drones));
+    int64_t max_load = static_cast<int64_t>(std::ceil(double(T) / num_drones)) + num_drones;
     routing.AddDimension(
         routing.RegisterTransitCallback([](int64_t, int64_t){ return 1; }),
         0,
@@ -196,29 +235,15 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
     if (load_dimension) {
         load_dimension->SetGlobalSpanCostCoefficient(100);
     }
-    
-    for (int node = 0; node < T; ++node) {
-        bool is_start = false;
-        for (int d = 0; d < num_drones; ++d) {
-            if (node == starts[d].value()) {
-                is_start = true;
-                break;
-            }
-        }
-        if (!is_start) {
-            std::vector<int64_t> indices = {manager.NodeToIndex(RoutingIndexManager::NodeIndex(node))};
-            routing.AddDisjunction(indices, 1000);
-        }
-    }
 
     RoutingSearchParameters params = DefaultRoutingSearchParameters();
     params.set_first_solution_strategy(FirstSolutionStrategy::PATH_CHEAPEST_ARC);
     params.set_local_search_metaheuristic(LocalSearchMetaheuristic::GUIDED_LOCAL_SEARCH);
-    params.mutable_time_limit()->set_seconds(1);
+    params.mutable_time_limit()->set_seconds(global_cnf_.max_ortools_time);
 
     const Assignment* solution = routing.SolveWithParameters(params);
     if (!solution) {
-        Logger::log_message(Logger::TYPE::ERROR, "No solution VRP found");
+        Logger::log_message(Logger::Type::ERROR, "No solution VRP found");
         return result;
     }
 
@@ -236,42 +261,115 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
         log << "  (go origin)\n";
     }
     
-    Logger::log_message(Logger::TYPE::INFO, log.str());
+    Logger::log_message(Logger::Type::INFO, log.str());
 
+
+    std::vector<int> closest_point(T);
+    for (int t = 0; t < T; t++) {
+        double best = 1e18;
+        int best_i = -1;
+        for (size_t i = 0; i < points_cp.size(); i++) {
+            double d = haversine_m(pos_targets[t], points_cp[i]);
+            if (d < best) { best = d; best_i = i; }
+        }
+        closest_point[t] = best_i;
+    }
 
     result.resize(num_drones);
 
     for (int d = 0; d < num_drones; d++) {
-
-        std::vector<Struct_Algo::Coordinate> path;
+        std::vector<int> path_target_indices;
         int64_t idx = routing.Start(d);
-
-        int start_node = manager.IndexToNode(idx).value();
-        Struct_Algo::Coordinate origin{
-            pos_targets[start_node].lat,
-            pos_targets[start_node].lon
-        };
-
-        path.push_back(origin);
-
-        idx = solution->Value(routing.NextVar(idx));
         while (!routing.IsEnd(idx)) {
             int node = manager.IndexToNode(idx).value();
-            Struct_Algo::Coordinate p{pos_targets[node].lat, pos_targets[node].lon};
-            path.push_back(p);
+            path_target_indices.push_back(node);
             idx = solution->Value(routing.NextVar(idx));
         }
 
-        path.push_back(origin);
-        result[d] = std::move(path);
+        std::vector<Struct_Algo::Coordinate> path_full;
+
+        for (size_t i = 0; i + 1 < path_target_indices.size(); ++i) {
+            int src_target = path_target_indices[i];
+            int dst_target = path_target_indices[i+1];
+
+            int src_node = closest_point[src_target];
+            int dst_node = closest_point[dst_target];
+
+            std::vector<int> inter_nodes = dijkstra_path(src_node, dst_node, adj);
+            for (int n : inter_nodes) {
+                path_full.push_back(points_cp[n]);
+            }
+        }
+
+        int start_node_idx = closest_point[path_target_indices.front()];
+        path_full.insert(path_full.begin(), points_cp[start_node_idx]);
+        path_full.push_back(points_cp[start_node_idx]);
+
+        result[d] = std::move(path_full);
     }
 
     return result;
 }
 
-bool Path_Cal::calculate_path(const Struct_Algo::DroneData &drone_data, const std::vector<Struct_Algo::Coordinate> &points_cp, std::vector<std::vector<Struct_Algo::Coordinate>> &result)
+std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Algo::Coordinate> &points_cp, const Struct_Algo::DroneData &drone_data)
+{
+    std::vector<size_t> nearest_indices;  
+    nearest_indices.reserve(drone_data.pos_targets.size());
+
+    for (size_t i = drone_data.num_drones; i < drone_data.pos_targets.size(); i++) // Do not look start positions
+    {
+        const auto &target = drone_data.pos_targets[i];
+
+        double bestDist = std::numeric_limits<double>::max();
+        size_t bestIdx = 0;
+
+        for (size_t j = 0; j < points_cp.size(); j++)
+        {
+            double d = haversine_m(target, points_cp[j]);
+
+            if (d < bestDist) {
+                bestDist = d;
+                bestIdx = j;
+            }
+        }
+
+        nearest_indices.push_back(bestIdx);
+    }
+
+    return nearest_indices;
+}
+
+bool Path_Cal::check_targets_signal(Struct_Algo::DroneData &drone_data, const std::vector<Struct_Algo::Coordinate> &points_cp)
+{
+    std::vector<size_t> nearest_points = findNearestPoints(points_cp,drone_data);
+    std::vector<Struct_Algo::Coordinate> new_targets;
+    for (size_t i = 0; i < drone_data.pos_targets.size(); i++) {
+        if (i < static_cast<size_t>(drone_data.num_drones) || haversine_m(drone_data.pos_targets[i], points_cp[nearest_points[i - drone_data.num_drones]]) <= global_cnf_.max_distance_for_neighbor)// Do not look start positions
+        {
+            new_targets.push_back(drone_data.pos_targets[i]);
+        } else {
+            std::stringstream log;
+            log << "Target (" << drone_data.pos_targets[i].lat << "," << drone_data.pos_targets[i].lon <<") deleted, below threshold";
+            Logger::log_message(Logger::Type::WARNING, log.str());
+        }
+    }
+    drone_data.pos_targets = new_targets;
+
+    return drone_data.pos_targets.size() > static_cast<size_t>(drone_data.num_drones);
+}
+
+bool Path_Cal::calculate_path(Struct_Algo::DroneData &drone_data, std::vector<Struct_Algo::Coordinate> &points_cp, std::vector<std::vector<Struct_Algo::Coordinate>> &result)
 {
     int num_drones = drone_data.num_drones;
+
+    if (!check_targets_signal(drone_data, points_cp)) {
+        Logger::log_message(Logger::Type::ERROR, "No targets with signal above threshold");
+        return false;
+    }
+
+    for(auto pos : drone_data.pos_targets) {
+        points_cp.push_back(pos);
+    }
 
     std::vector<std::vector<std::pair<int,double>>> adj;
     build_knn_graph(points_cp, 
@@ -281,8 +379,8 @@ bool Path_Cal::calculate_path(const Struct_Algo::DroneData &drone_data, const st
 
     std::vector<std::vector<int64_t>> dist_matrix;
     compute_target_distance_matrix(points_cp, adj, drone_data.pos_targets, dist_matrix);
-
-    result = solve_vrp(dist_matrix, drone_data.pos_targets, num_drones);
+    
+    result = solve_vrp(dist_matrix, drone_data.pos_targets, num_drones, points_cp, adj);
 
     return !result.empty();
 }

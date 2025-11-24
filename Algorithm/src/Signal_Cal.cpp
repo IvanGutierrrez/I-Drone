@@ -21,7 +21,7 @@ std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) {
     std::map<RGB, double> colorToDbm;
     
     if (!file.is_open()) {
-        Logger::log_message(Logger::TYPE::ERROR, "Cannot open DCF file: " + dcf_filename);
+        Logger::log_message(Logger::Type::ERROR, "Cannot open DCF file: " + dcf_filename);
         return colorToDbm;
     }
     
@@ -57,14 +57,14 @@ CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, c
 {
     std::ifstream file(ppm_filename, std::ios::binary);
     if (!file) {
-        Logger::log_message(Logger::TYPE::ERROR, "Cannot open PPM file: " + ppm_filename);
+        Logger::log_message(Logger::Type::ERROR, "Cannot open PPM file: " + ppm_filename);
         return {};
     }
 
     std::string magic;
     file >> magic;
     if (magic != "P6") {
-        Logger::log_message(Logger::TYPE::ERROR, "Error in PPM version, only accept P6");
+        Logger::log_message(Logger::Type::ERROR, "Error in PPM version, only accept P6");
         return {};
     }
 
@@ -103,7 +103,7 @@ CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, c
             unsigned char rgb[3];
             file.read(reinterpret_cast<char*>(rgb), 3);
             if (!file) {
-                Logger::log_message(Logger::TYPE::ERROR, "Error reading PPM, EOF unexpected");
+                Logger::log_message(Logger::Type::ERROR, "Error reading PPM, EOF unexpected");
                 return {};
             }
 
@@ -166,31 +166,31 @@ std::vector<Struct_Algo::Coordinate> Signal_Cal::calculate_signal(const Struct_A
     std::vector<Struct_Algo::Coordinate> points_empty;
     std::string cmd;
     if (!signal_server_conf.toCommand(global_config.signal_server_path,cmd)) {
-        Logger::log_message(Logger::TYPE::ERROR, "Error creating Signal-Server command");
+        Logger::log_message(Logger::Type::ERROR, "Error creating Signal-Server command");
         return points_empty;
     }
 
     cmd += " > output.txt 2>&1";
     
-    Logger::log_message(Logger::TYPE::INFO, "Executing Signal-Server command: " + cmd);
+    Logger::log_message(Logger::Type::INFO, "Executing Signal-Server command: " + cmd);
 
     if (std::system(cmd.c_str()) == 0) {
-        Logger::log_message(Logger::TYPE::INFO, "Signal-Server command execute succesfully");
+        Logger::log_message(Logger::Type::INFO, "Signal-Server command execute succesfully");
     } else {
-        Logger::log_message(Logger::TYPE::ERROR, "Error executing Signal-Server command");
+        Logger::log_message(Logger::Type::ERROR, "Error executing Signal-Server command");
         return points_empty;
     }
 
     std::string path = std::string(global_config.executable_path) + "/output.txt";
     std::ifstream in(path);
     if (!in.is_open()) {
-        Logger::log_message(Logger::TYPE::ERROR, "Cannot open output.txt file: " + path);
+        Logger::log_message(Logger::Type::ERROR, "Cannot open output.txt file: " + path);
         return points_empty;
     }
 
     std::string line;
     if (!std::getline(in, line)) {
-        Logger::log_message(Logger::TYPE::ERROR, "Error getting Signal-Server output");
+        Logger::log_message(Logger::Type::ERROR, "Error getting Signal-Server output");
         return points_empty;
     }
     in.close();
@@ -198,7 +198,7 @@ std::vector<Struct_Algo::Coordinate> Signal_Cal::calculate_signal(const Struct_A
     std::vector<double> values = parse_Bounds(line);
 
     if (values.size() != 4) {
-        Logger::log_message(Logger::TYPE::ERROR, "Error decoding Signal-Server output: " + line);
+        Logger::log_message(Logger::Type::ERROR, "Error decoding Signal-Server output: " + line);
         return points_empty;
     }
 
@@ -206,21 +206,21 @@ std::vector<Struct_Algo::Coordinate> Signal_Cal::calculate_signal(const Struct_A
     std::string ppmPath = global_config.executable_path + "/" + signal_server_conf.outputFile + ".ppm";
     std::string dcfPath = global_config.executable_path + "/" + dcfFilename;
     
-    Logger::log_message(Logger::TYPE::INFO, "PPM path: " + ppmPath);
-    Logger::log_message(Logger::TYPE::INFO, "DCF path: " + dcfPath);
+    Logger::log_message(Logger::Type::INFO, "PPM path: " + ppmPath);
+    Logger::log_message(Logger::Type::INFO, "DCF path: " + dcfPath);
 
     auto matrix = read_Coverage_File(ppmPath, dcfPath);
 
     if (matrix.empty())
     {
-        Logger::log_message(Logger::TYPE::ERROR, "Error reading coverage file");
+        Logger::log_message(Logger::Type::ERROR, "Error reading coverage file");
         return points_empty;
     }
     
     auto vector = matrixToVector(matrix,values[0],values[2],values[3],values[1],global_config.threshold);
     
     if (vector.empty())
-        Logger::log_message(Logger::TYPE::ERROR, "Error parsing matrix into a vector");
+        Logger::log_message(Logger::Type::ERROR, "Error parsing matrix into a vector");
 
     return vector;
 

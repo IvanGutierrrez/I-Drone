@@ -37,7 +37,7 @@ Algorithm_Manager::~Algorithm_Manager()
 {
 }
 
-void Algorithm_Manager::calculate(const Struct_Algo::SignalServerConfig &config, const Struct_Algo::DroneData &drone_data)
+void Algorithm_Manager::calculate(const Struct_Algo::SignalServerConfig &config, Struct_Algo::DroneData drone_data)
 {
     comm_mng_ptr_->set_status(Struct_Algo::Status::CALCULATING);
     auto points = signal_cal_ptr_->calculate_signal(global_config_,config);
@@ -48,7 +48,7 @@ void Algorithm_Manager::calculate(const Struct_Algo::SignalServerConfig &config,
     }
 
     // TODO Move to recorder class
-    Logger::log_message(Logger::TYPE::INFO, "Writting csv coverage map");
+    Logger::log_message(Logger::Type::INFO, "Writting csv coverage map");
     std::ofstream out(global_config_.executable_path + "/coverage_map.csv");
     out << "lat,lon,coverage\n";
     for (const auto& p : points)
@@ -57,7 +57,7 @@ void Algorithm_Manager::calculate(const Struct_Algo::SignalServerConfig &config,
 
     std::stringstream log1;
     log1 << "Executing or tools algorithm with " << points.size() << " points";
-    Logger::log_message(Logger::TYPE::INFO, log1.str());
+    Logger::log_message(Logger::Type::INFO, log1.str());
 
     // TODO Calculate if there are targets which are not in points
 
@@ -72,12 +72,12 @@ void Algorithm_Manager::calculate(const Struct_Algo::SignalServerConfig &config,
     std::string msg;
     if (!Enc_Dec_PLD::encode_algo_response(result,msg))
     {
-        Logger::log_message(Logger::TYPE::ERROR, "Error encoding algorithm response");
+        Logger::log_message(Logger::Type::ERROR, "Error encoding algorithm response");
         comm_mng_ptr_->set_status(Struct_Algo::Status::ERROR);
         return;
     }
     comm_mng_ptr_->deliver(msg);
 
-    Logger::log_message(Logger::TYPE::INFO, "Algorithm_Manager task finish correctly");
+    Logger::log_message(Logger::Type::INFO, "Algorithm_Manager task finish correctly");
     comm_mng_ptr_->set_status(Struct_Algo::Status::FINISH);
 }

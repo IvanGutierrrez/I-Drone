@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    Logger::log_message(Logger::TYPE::INFO, "Algorithm module started");
+    Logger::log_message(Logger::Type::INFO, "Algorithm module started");
 
     // Parser arguments
     std::string pld_address;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (pld_address.empty() || pld_port == -1) {
-        Logger::log_message(Logger::TYPE::ERROR, "Mandatory arguments missing --PLD_Address y --PLD_port");
+        Logger::log_message(Logger::Type::ERROR, "Mandatory arguments missing --PLD_Address y --PLD_port");
         return EXIT_FAILURE;
     }
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         );
 
     } catch (const std::exception& e) {
-        Logger::log_message(Logger::TYPE::ERROR, std::string("Error creating PLD endpoint: ") + e.what());
+        Logger::log_message(Logger::Type::ERROR, std::string("Error creating PLD endpoint: ") + e.what());
         return EXIT_FAILURE;
     }
 
@@ -77,5 +77,5 @@ int main(int argc, char* argv[]) {
 
     io_context.run();
 
-    Logger::log_message(Logger::TYPE::INFO, "No more async functions to do, exiting program...");
+    Logger::log_message(Logger::Type::INFO, "No more async functions to do, exiting program...");
 }

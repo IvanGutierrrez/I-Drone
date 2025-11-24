@@ -33,5 +33,5 @@ public:
                       std::shared_ptr<Signal_Cal> &signal_cal,
                       const Struct_Algo::Config_struct cnf);
     ~Algorithm_Manager() override;
-    void calculate(const Struct_Algo::SignalServerConfig &config, const Struct_Algo::DroneData &drone_data) override;
+    void calculate(const Struct_Algo::SignalServerConfig &config, Struct_Algo::DroneData drone_data) override;
 };

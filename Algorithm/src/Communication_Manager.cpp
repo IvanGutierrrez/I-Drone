@@ -33,7 +33,7 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
     handler_obj.call_message = std::bind(&Communication_Manager::on_message, this, std::placeholders::_1);
     server_.set_handlers(handler_obj);
 
-    Logger::log_message(Logger::TYPE::INFO,"Start listening to PLD");
+    Logger::log_message(Logger::Type::INFO,"Start listening to PLD");
 
     server_.connect(endpoint_);
 }
@@ -41,7 +41,7 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
 void Communication_Manager::on_connect()
 {
     attemps_ = 0;
-    Logger::log_message(Logger::TYPE::INFO,"Succesfully connected to PLD");
+    Logger::log_message(Logger::Type::INFO,"Succesfully connected to PLD");
     boost::system::error_code ec;
     send_status_message(ec);
 }
@@ -49,17 +49,17 @@ void Communication_Manager::on_connect()
 void Communication_Manager::send_status_message(const boost::system::error_code& ec)
 {
     if (ec) {
-        Logger::log_message(Logger::TYPE::WARNING,"Problems with timer to send status message to PLD module");
+        Logger::log_message(Logger::Type::WARNING,"Problems with timer to send status message to PLD module");
         return;
     }   
 
-    Logger::log_message(Logger::TYPE::INFO,"Sending status message");
+    Logger::log_message(Logger::Type::INFO,"Sending status message");
 
     std::string message;
-    if (!Enc_Dec_PLD::encode_status_algo(status_,message)) {
-        Logger::log_message(Logger::TYPE::WARNING,"Problems encoding status message");
+    if (!Enc_Dec_PLD::encode_status_algo(get_status(),message)) {
+        Logger::log_message(Logger::Type::WARNING,"Problems encoding status message");
     } else {
-        server_.deliver(message);
+        deliver(message);
     }
     status_timer.expires_after(std::chrono::seconds(RATE_STATUS_MESSAGE));
     status_timer.async_wait(std::bind(&Communication_Manager::send_status_message, this, std::placeholders::_1));
@@ -67,13 +67,15 @@ void Communication_Manager::send_status_message(const boost::system::error_code&
 
 void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
 {
+    std::lock_guard<std::mutex> lock(mutex_status_);
     status_ = new_status;
 }
 
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
 {
-    if (status_ == Struct_Algo::Status::FINISH) {
-        Logger::log_message(Logger::TYPE::INFO,"Program task complete, leaving program...");
+    std::lock_guard<std::mutex> lock(mutex_status_);
+    if (get_status() == Struct_Algo::Status::FINISH) {
+        Logger::log_message(Logger::Type::INFO,"Program task complete, leaving program...");
         io_context_.stop();
     }
     std::string log;
@@ -91,16 +93,16 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
             log = "Unknown error communicating with PLD";
             break;
     }
-    Logger::log_message(Logger::TYPE::WARNING,log + ": " + ec.message());
+    Logger::log_message(Logger::Type::WARNING,log + ": " + ec.message());
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX)
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        Logger::log_message(Logger::TYPE::INFO,"Trying to connect to PLD");
+        Logger::log_message(Logger::Type::INFO,"Trying to connect to PLD");
         server_.connect(endpoint_);
     } else 
     {
-        Logger::log_message(Logger::TYPE::ERROR,"Number of allowed attempts exceeded. Exiting program...");
+        Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Exiting program...");
         io_context_.stop();
     }
 }
@@ -112,10 +114,10 @@ void Communication_Manager::set_calculate_handler(const calculate_handler &handl
 
 void Communication_Manager::on_message(const std::string& msg)
 {
-    Logger::log_message(Logger::TYPE::INFO, "Message received from PLD");
+    Logger::log_message(Logger::Type::INFO, "Message received from PLD");
 
     if (status_ != Struct_Algo::Status::EXPECTING_DATA) {
-        Logger::log_message(Logger::TYPE::WARNING, "Task in progress or done, message ignore");
+        Logger::log_message(Logger::Type::WARNING, "Task in progress or done, message ignore");
         return;
     }
 
@@ -125,40 +127,49 @@ void Communication_Manager::on_message(const std::string& msg)
 
     switch (type) {
         case Enc_Dec_Algo::Algo::UNKNOWN:
-            Logger::log_message(Logger::TYPE::WARNING, "Unknown message received");
+            Logger::log_message(Logger::Type::WARNING, "Unknown message received");
             break;
         case Enc_Dec_Algo::Algo::ERROR:
-            Logger::log_message(Logger::TYPE::WARNING, "Error decoding message");
+            Logger::log_message(Logger::Type::WARNING, "Error decoding message");
             break;
         case Enc_Dec_Algo::Algo::ConfigMessage: {
             auto my_msg = dynamic_cast<AlgorithmMessage*>(decoded_msg.get());
             if (my_msg) {
-                Logger::log_message(Logger::TYPE::INFO, "Configuration message received");
+                Logger::log_message(Logger::Type::INFO, "Configuration message received");
 
                 Struct_Algo::SignalServerConfig signal_server;
                 if (!Enc_Dec_Algo::decode_signal_server(my_msg->signal_server_config(), signal_server))
                 {
-                    Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode Signal-Server message");
+                    Logger::log_message(Logger::Type::WARNING, "Unabled to decode Signal-Server message");
                     return;
                 }
 
                 Struct_Algo::DroneData drone_data;
                 if (!Enc_Dec_Algo::decode_drone_data(my_msg->drone_data(), drone_data))
                 {
-                    Logger::log_message(Logger::TYPE::WARNING, "Unabled to decode drone data message");
+                    Logger::log_message(Logger::Type::WARNING, "Unabled to decode drone data message");
                     return;
                 }
-                calculate_handler_(signal_server,drone_data);
+                std::thread([this,signal_server,drone_data]() {
+                    calculate_handler_(signal_server,drone_data);
+                }).detach();
             }
             break;
         }
         default:
-            Logger::log_message(Logger::TYPE::WARNING, "Unhandled message type");
+            Logger::log_message(Logger::Type::WARNING, "Unhandled message type");
             break;
     }
 }
 
 void Communication_Manager::deliver(const std::string &msg)
 {
+    std::lock_guard<std::mutex> lock(mutex_deliver_);
     server_.deliver(msg);
+}
+
+Struct_Algo::Status Communication_Manager::get_status()
+{
+    std::lock_guard<std::mutex> lock(mutex_status_);
+    return status_;
 }

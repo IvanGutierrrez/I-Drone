@@ -22,7 +22,8 @@ inline Struct_Algo::Config_struct get_config() {
     cnf.executable_path = "/home/ivan/repo/I-Drone/I-Drone/build/Algorithm";
     cnf.threshold = -90.0;
     cnf.max_neighbor = 8;
-    cnf.max_distance_for_neighbor = 20.0;
+    cnf.max_distance_for_neighbor = 100.0;
+    cnf.max_ortools_time = 50;
 
     return cnf;
 }

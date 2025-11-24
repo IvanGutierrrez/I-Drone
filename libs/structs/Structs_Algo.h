@@ -23,6 +23,7 @@ struct Config_struct {
     double threshold;
     int max_neighbor;
     double max_distance_for_neighbor;
+    int max_ortools_time;
 };
 
 enum class Status {

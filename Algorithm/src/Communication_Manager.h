@@ -15,7 +15,7 @@
 
 using boost::asio::ip::tcp;
 
-using calculate_handler = std::function<void(const Struct_Algo::SignalServerConfig&, const Struct_Algo::DroneData &)>;;
+using calculate_handler = std::function<void(const Struct_Algo::SignalServerConfig&, Struct_Algo::DroneData)>;;
 
 class Communication_Manager {
 
@@ -27,10 +27,14 @@ private:
     int attemps_ = 0;
     Struct_Algo::Status status_;
     calculate_handler calculate_handler_;
+    std::mutex mutex_status_;
+    std::mutex mutex_deliver_;
+
     void on_connect();
     void on_error(const boost::system::error_code& ec, const Type_Error &type_error);
     void on_message(const std::string& msg);
     void send_status_message(const boost::system::error_code& ec);
+    Struct_Algo::Status get_status();
 
 public:
     Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
