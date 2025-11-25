@@ -22,6 +22,11 @@ Server::Server(boost::asio::io_context& io_context,  const handlers &handlers)
 
 Server::~Server()
 {
+    server_close();
+}
+
+void Server::server_close()
+{
     try {
         if (acceptor_.is_open()) {
             acceptor_.close();
@@ -34,6 +39,7 @@ Server::~Server()
         }
     } catch (const std::exception& e) {}
 }
+
 
 void Server::set_handlers(const handlers &handlers)
 {
