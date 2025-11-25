@@ -195,7 +195,8 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
                                                                       const std::vector<Struct_Algo::Coordinate>& pos_targets,
                                                                       int num_drones,
                                                                       const std::vector<Struct_Algo::Coordinate> &points_cp,
-                                                                      const std::vector<std::vector<std::pair<int,double>>>& adj)
+                                                                      const std::vector<std::vector<std::pair<int,double>>>& adj,
+                                                                      const std::shared_ptr<Algorithm_Recorder> &rec_mng)
 {
     std::vector<std::vector<Struct_Algo::Coordinate>> result;
 
@@ -247,7 +248,8 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
         return result;
     }
 
-    // TODO Set result and move this to record class
+    Logger::log_message(Logger::Type::INFO, "Writting Or Tools result");
+
     std::stringstream log;
     for (int d = 0; d < num_drones; d++) {
         log << "\nDron path " << d << ":\n";
@@ -260,10 +262,10 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
         }
         log << "  (go origin)\n";
     }
+    std::string log_str = log.str();
+
+    rec_mng->write_or_output(log_str);
     
-    Logger::log_message(Logger::Type::INFO, log.str());
-
-
     std::vector<int> closest_point(T);
     for (int t = 0; t < T; t++) {
         double best = 1e18;
@@ -358,7 +360,7 @@ bool Path_Cal::check_targets_signal(Struct_Algo::DroneData &drone_data, const st
     return drone_data.pos_targets.size() > static_cast<size_t>(drone_data.num_drones);
 }
 
-bool Path_Cal::calculate_path(Struct_Algo::DroneData &drone_data, std::vector<Struct_Algo::Coordinate> &points_cp, std::vector<std::vector<Struct_Algo::Coordinate>> &result)
+bool Path_Cal::calculate_path(Struct_Algo::DroneData &drone_data, std::vector<Struct_Algo::Coordinate> &points_cp, std::vector<std::vector<Struct_Algo::Coordinate>> &result, const std::shared_ptr<Algorithm_Recorder> &rec_mng)
 {
     int num_drones = drone_data.num_drones;
 
@@ -380,7 +382,7 @@ bool Path_Cal::calculate_path(Struct_Algo::DroneData &drone_data, std::vector<St
     std::vector<std::vector<int64_t>> dist_matrix;
     compute_target_distance_matrix(points_cp, adj, drone_data.pos_targets, dist_matrix);
     
-    result = solve_vrp(dist_matrix, drone_data.pos_targets, num_drones, points_cp, adj);
+    result = solve_vrp(dist_matrix, drone_data.pos_targets, num_drones, points_cp, adj, rec_mng);
 
     return !result.empty();
 }

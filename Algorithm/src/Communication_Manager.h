@@ -10,6 +10,7 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <functional>
+#include "Algorithm_Recorder.h"
 #include "common_libs/Server.h"
 #include "structs/Structs_Algo.h"
 
@@ -23,12 +24,14 @@ private:
     boost::asio::io_context& io_context_;
     Server server_;
     tcp::endpoint endpoint_;
+    std::shared_ptr<Algorithm_Recorder> recorder_ptr_;
     boost::asio::steady_timer status_timer;
     int attemps_ = 0;
     Struct_Algo::Status status_;
     calculate_handler calculate_handler_;
     std::mutex mutex_status_;
     std::mutex mutex_deliver_;
+    boost::asio::thread_pool pool_;
 
     void on_connect();
     void on_error(const boost::system::error_code& ec, const Type_Error &type_error);
@@ -37,7 +40,8 @@ private:
     Struct_Algo::Status get_status();
 
 public:
-    Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
+    Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint,const std::shared_ptr<Algorithm_Recorder> &rec_mng);
+    ~Communication_Manager();
     void set_status(const Struct_Algo::Status &new_status);
     void set_calculate_handler(const calculate_handler &handler);
     void deliver(const std::string &msg);

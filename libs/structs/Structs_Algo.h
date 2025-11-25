@@ -11,11 +11,14 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <ostream>
+#include <iomanip>
 #include <filesystem>
 
 namespace Struct_Algo {
 
 struct Config_struct {
+    std::filesystem::path data_path;
     std::filesystem::path log_path;
     std::string log_name;
     std::string signal_server_path;
@@ -51,7 +54,7 @@ inline std::string to_string(Status status) {
 struct CoveragePoint {
     double lat;
     double lon;
-    double value;   // señal en dBm
+    double value;
     bool hasCoverage;
 };
 
@@ -62,14 +65,28 @@ struct Coordinate {
     Coordinate(const double &lon, const double &lat): lon(lon), lat(lat) {}
 
     Coordinate(const CoveragePoint& cp) : lon(cp.lon), lat(cp.lat) {}
+
+    friend inline std::ostream& operator<<(std::ostream& os, const Coordinate& c)
+    {
+        os << "{ lon: " << c.lon << ", lat: " << c.lat << " }";
+        return os;
+    }
 };
 
-struct DroneData {
+class DroneData {
+
+public:
     int num_drones;
     std::vector<Coordinate> pos_targets;
+
+    DroneData() = default;
+
+    friend std::ostream& operator<<(std::ostream& os, const DroneData& c);
 };
 
-struct SignalServerConfig {
+class SignalServerConfig {
+
+public:
     // --- File and directory paths ---
     std::string sdfDirectory{};       // -d : Directory containing .sdf tiles, mandatory argument
     std::string outputFile{};         // -o : Output filename (required), mandatory argument
@@ -107,49 +124,11 @@ struct SignalServerConfig {
     double radius{};                  // -R : Coverage radius (miles/kilometers), mandatory argument
     int resolution{};                 // -res : Pixels per degree (300/600/1200/3600), mandatory argument
 
-    bool toCommand(const std::string& exePath, std::string &cmd_final) const {
-        std::ostringstream cmd;
-        try {
-            cmd << exePath;
-            if (!sdfDirectory.empty()) cmd << " -d " << sdfDirectory; //Mandatory argument
-            else return false;
-            cmd << " -lat " << latitude;
-            cmd << " -lon " << longitude;
-            cmd << " -txh " << txHeight;
-            cmd << " -f " << frequencyMHz;
-            cmd << " -erp " << erpWatts;
-            if (!rxHeights.empty()) {
-                cmd << " -rxh ";
-                for (size_t i = 0; i < rxHeights.size(); ++i) {
-                    cmd << rxHeights[i];
-                    if (i < rxHeights.size() - 1) cmd << ",";
-                }
-            }
-            cmd << " -R " << radius;
-            cmd << " -pm " << propagationModel;
-            cmd << " -res " << resolution;
-            if (rxThreshold != 0.0) cmd << " -rt " << rxThreshold;
-            if (horizontalPol) cmd << " -hp";
-            if (knifeEdgeDiff) cmd << " -ked";
-            if (win32TileNames) cmd << " -wf";
-            if (debugMode) cmd << " -dbg";
-            if (metricUnits) cmd << " -m";
-            if (plotDbm) cmd << " -dbm";
-            if (groundClutter != 0.0) cmd << " -gc " << groundClutter;
-            if (terrainCode != 0) cmd << " -te " << terrainCode;
-            if (terrainDielectric != 0.0) cmd << " -terdic " << terrainDielectric;
-            if (terrainConductivity != 0.0) cmd << " -tercon " << terrainConductivity;
-            if (climateCode != 0) cmd << " -cl " << climateCode;
-            if (!userTerrainFile.empty()) cmd << " -udt " << userTerrainFile;
-            if (!terrainBackground.empty()) cmd << " -t " << terrainBackground;
-            if (!outputFile.empty()) cmd << " -o " << outputFile; //Mandatory argument
-            else return false;
-        } catch (...) {
-            return false;
-        }
-        cmd_final = cmd.str();
-        return true;
-    }
+    SignalServerConfig() = default;
+
+    friend std::ostream& operator<<(std::ostream& os, const SignalServerConfig& c);
+
+    bool toCommand(const std::string& exePath, std::string &cmd_final) const;
 };
 
 

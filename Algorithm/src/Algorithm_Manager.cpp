@@ -47,23 +47,16 @@ void Algorithm_Manager::calculate(const Struct_Algo::SignalServerConfig &config,
         return;
     }
 
-    // TODO Move to recorder class
     Logger::log_message(Logger::Type::INFO, "Writting csv coverage map");
-    std::ofstream out(global_config_.executable_path + "/coverage_map.csv");
-    out << "lat,lon,coverage\n";
-    for (const auto& p : points)
-        out << std::fixed << std::setprecision(6) << p.lat << "," << p.lon << ",1\n";
-    out.close();
+    recorder_ptr_->write_signal_output(points);
 
     std::stringstream log1;
     log1 << "Executing or tools algorithm with " << points.size() << " points";
     Logger::log_message(Logger::Type::INFO, log1.str());
 
-    // TODO Calculate if there are targets which are not in points
-
     std::vector<std::vector<Struct_Algo::Coordinate>> result;
 
-    if (!path_cal_ptr_->calculate_path(drone_data,points,result))
+    if (!path_cal_ptr_->calculate_path(drone_data,points,result,recorder_ptr_))
     {
         comm_mng_ptr_->set_status(Struct_Algo::Status::ERROR);
         return;

@@ -6,7 +6,7 @@ libs_sources = files(
   'common_libs/Enc_Dec_PLD.cpp',
   'generated_proto/messages_algo.pb.cc',
   'generated_proto/messages_pld.pb.cc',
-  'structs/Structs_Algo.h',
+  'structs/Structs_Algo.cpp',
 )
 
 libs_include = include_directories(
