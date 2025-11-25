@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
 #include "structs/Structs_Algo.h"
+#include "Algorithm_Recorder.h"
 #include <iostream>
 #include <memory>
 #include <map>
@@ -19,7 +20,8 @@ public:
     Path_Cal(const Struct_Algo::Config_struct &cnf);
     bool calculate_path(Struct_Algo::DroneData &drone_data, 
                         std::vector<Struct_Algo::Coordinate> &points, 
-                        std::vector<std::vector<Struct_Algo::Coordinate>> &result);
+                        std::vector<std::vector<Struct_Algo::Coordinate>> &result,
+                        const std::shared_ptr<Algorithm_Recorder> &rec_mng);
 
 private:
     Struct_Algo::Config_struct global_cnf_;
@@ -41,5 +43,6 @@ private:
                                                                 const std::vector<Struct_Algo::Coordinate>& pos_targets,
                                                                 int num_drones,
                                                                 const std::vector<Struct_Algo::Coordinate> &points_cp,
-                                                                const std::vector<std::vector<std::pair<int,double>>>& adj);
+                                                                const std::vector<std::vector<std::pair<int,double>>>& adj,
+                                                                const std::shared_ptr<Algorithm_Recorder> &rec_mng);
 };

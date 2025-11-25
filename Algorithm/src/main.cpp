@@ -61,9 +61,9 @@ int main(int argc, char* argv[]) {
 
     boost::asio::io_context io_context;
 
-    std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint);
+    std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>(cnf.data_path);
 
-    std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>();
+    std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
 
     std::shared_ptr<Path_Cal> path_cal_ptr = std::make_shared<Path_Cal>(cnf);
 

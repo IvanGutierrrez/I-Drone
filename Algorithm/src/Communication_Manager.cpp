@@ -11,20 +11,24 @@
 
 #include <thread>
 #include <chrono>
-
+#include "Algorithm_Recorder.h"
 #include "common_libs/Logger.h"
 #include "common_libs/Enc_Dec_Algo.h"
 #include "common_libs/Enc_Dec_PLD.h"
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
 constexpr int RATE_STATUS_MESSAGE = 1;
+constexpr int NUM_THREADS = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
-                                             const tcp::endpoint& endpoint): io_context_(io_context), 
-                                                                             server_(io_context),
-                                                                             endpoint_(endpoint),
-                                                                             status_timer(io_context_),
-                                                                             status_(Struct_Algo::Status::EXPECTING_DATA)
+                                             const tcp::endpoint& endpoint,
+                                             const std::shared_ptr<Algorithm_Recorder> &rec_mng): io_context_(io_context), 
+                                                                                                  server_(io_context),
+                                                                                                  endpoint_(endpoint),
+                                                                                                  recorder_ptr_(std::move(rec_mng)),
+                                                                                                  status_timer(io_context_),
+                                                                                                  status_(Struct_Algo::Status::EXPECTING_DATA),
+                                                                                                  pool_(NUM_THREADS)
 {
     Server::handlers handler_obj;
 
@@ -36,6 +40,13 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
     Logger::log_message(Logger::Type::INFO,"Start listening to PLD");
 
     server_.connect(endpoint_);
+}
+
+Communication_Manager::~Communication_Manager()
+{
+    status_timer.cancel();
+    pool_.stop();
+    pool_.join();
 }
 
 void Communication_Manager::on_connect()
@@ -73,10 +84,14 @@ void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
 
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
 {
+    status_timer.cancel();
     std::lock_guard<std::mutex> lock(mutex_status_);
     if (get_status() == Struct_Algo::Status::FINISH) {
         Logger::log_message(Logger::Type::INFO,"Program task complete, leaving program...");
         io_context_.stop();
+        pool_.stop();
+        pool_.join();
+        return;
     }
     std::string log;
     switch (type_error){
@@ -97,9 +112,12 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
         Logger::log_message(Logger::Type::INFO,"Trying to connect to PLD");
-        server_.connect(endpoint_);
+        boost::asio::steady_timer retry_timer(io_context_, std::chrono::seconds(1));
+        retry_timer.async_wait([this](const boost::system::error_code&) {
+            Logger::log_message(Logger::Type::INFO,"Trying to reconnect to PLD");
+            server_.connect(endpoint_);
+        });
     } else 
     {
         Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Exiting program...");
@@ -150,9 +168,10 @@ void Communication_Manager::on_message(const std::string& msg)
                     Logger::log_message(Logger::Type::WARNING, "Unabled to decode drone data message");
                     return;
                 }
-                std::thread([this,signal_server,drone_data]() {
-                    calculate_handler_(signal_server,drone_data);
-                }).detach();
+                recorder_ptr_->write_message_received(signal_server,drone_data);
+                boost::asio::post(pool_, [this, signal_server, drone_data]() {
+                    calculate_handler_(signal_server, drone_data);
+                });
             }
             break;
         }
