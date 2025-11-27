@@ -15,14 +15,13 @@ using executor_type = boost::asio::executor_work_guard<boost::asio::io_context::
 class Signal_Handler {
 
 public:
-    explicit Signal_Handler(boost::asio::io_service &io_service, executor_type &work, const std::function<void()> &handler);
+    explicit Signal_Handler(boost::asio::io_service &io_service, executor_type &work);
 
     void wait_for_signals();
 
 private:
     boost::asio::io_service &io_service_;
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
-    std::function<void()> handler_;
     boost::asio::signal_set signals_;
 
 };

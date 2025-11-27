@@ -80,9 +80,7 @@ int main(int argc, char* argv[]) {
                                                                                                     signal_cal_ptr,
                                                                                                     cnf);
                                                                                                 
-    Signal_Handler signal_handler(io_context, work, [comm_mng_ptr]() {
-        comm_mng_ptr->shutdown();
-    });
+    Signal_Handler signal_handler(io_context, work);
 
     std::vector<std::thread> threads;
 

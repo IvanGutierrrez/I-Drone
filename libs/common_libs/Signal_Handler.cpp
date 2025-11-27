@@ -12,10 +12,9 @@
 #include <csignal>
 #include "common_libs/Logger.h"
 
-Signal_Handler::Signal_Handler(boost::asio::io_service &io_service, executor_type &work, const std::function<void()> &handler)
+Signal_Handler::Signal_Handler(boost::asio::io_service &io_service, executor_type &work)
     : io_service_(io_service),
       work_(work),
-      handler_(handler),
       signals_(io_service_, SIGINT, SIGTERM)
 {
     wait_for_signals();
@@ -34,10 +33,6 @@ void Signal_Handler::wait_for_signals()
         log << "Signal received: " << signal_name << ". Stopping io_service...";
         Logger::log_message(Logger::Type::WARNING, log.str());
 
-        std::thread shutdown_thread([handler = handler_]() {
-            handler();
-        });
-        shutdown_thread.detach();
         work_.reset();
         io_service_.stop();
     });
