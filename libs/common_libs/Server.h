@@ -39,6 +39,7 @@ public:
     void start_listening(const tcp::endpoint& endpoint);
     void connect(const tcp::endpoint& endpoint);
     void deliver(const std::string &message);
+    void server_close();
 private:
 
     boost::asio::io_context& io_context_;

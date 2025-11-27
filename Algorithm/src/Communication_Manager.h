@@ -31,7 +31,6 @@ private:
     calculate_handler calculate_handler_;
     std::mutex mutex_status_;
     std::mutex mutex_deliver_;
-    boost::asio::thread_pool pool_;
 
     void on_connect();
     void on_error(const boost::system::error_code& ec, const Type_Error &type_error);
@@ -45,5 +44,6 @@ public:
     void set_status(const Struct_Algo::Status &new_status);
     void set_calculate_handler(const calculate_handler &handler);
     void deliver(const std::string &msg);
+    void shutdown();
 
 };

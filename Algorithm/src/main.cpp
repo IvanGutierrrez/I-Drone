@@ -11,12 +11,15 @@
 #include <boost/asio.hpp>
 #include "Config.h"
 #include "common_libs/Logger.h"
+#include "common_libs/Signal_Handler.h"
 #include "Communication_Manager.h"
 #include "Algorithm_Manager_Interface.h"
 #include "Algorithm_Manager.h"
 #include "structs/Structs_Algo.h"
 #include "Path_Cal.h"
 #include "Signal_Cal.h"
+
+constexpr int NUM_THREADS = 2;
 
 int main(int argc, char* argv[]) {
     // Initialize logger
@@ -61,6 +64,8 @@ int main(int argc, char* argv[]) {
 
     boost::asio::io_context io_context;
 
+    auto work = boost::asio::make_work_guard(io_context);
+
     std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>(cnf.data_path);
 
     std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
@@ -74,8 +79,19 @@ int main(int argc, char* argv[]) {
                                                                                                     path_cal_ptr,
                                                                                                     signal_cal_ptr,
                                                                                                     cnf);
+                                                                                                
+    Signal_Handler signal_handler(io_context, work);
 
-    io_context.run();
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        std::thread t([&io_context](){ io_context.run(); });
+        threads.emplace_back(std::move(t));
+    }
 
     Logger::log_message(Logger::Type::INFO, "No more async functions to do, exiting program...");
+
+    for (auto &t : threads) {
+        t.join();
+    }
 }

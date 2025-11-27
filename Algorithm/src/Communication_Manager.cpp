@@ -18,7 +18,6 @@
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
 constexpr int RATE_STATUS_MESSAGE = 1;
-constexpr int NUM_THREADS = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
                                              const tcp::endpoint& endpoint,
@@ -27,8 +26,7 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
                                                                                                   endpoint_(endpoint),
                                                                                                   recorder_ptr_(std::move(rec_mng)),
                                                                                                   status_timer(io_context_),
-                                                                                                  status_(Struct_Algo::Status::EXPECTING_DATA),
-                                                                                                  pool_(NUM_THREADS)
+                                                                                                  status_(Struct_Algo::Status::EXPECTING_DATA)
 {
     Server::handlers handler_obj;
 
@@ -44,10 +42,15 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
 
 Communication_Manager::~Communication_Manager()
 {
-    status_timer.cancel();
-    pool_.stop();
-    pool_.join();
+    server_.server_close();
 }
+
+void Communication_Manager::shutdown()
+{
+    status_timer.cancel();
+    server_.server_close();
+}
+
 
 void Communication_Manager::on_connect()
 {
@@ -89,8 +92,6 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
     if (get_status() == Struct_Algo::Status::FINISH) {
         Logger::log_message(Logger::Type::INFO,"Program task complete, leaving program...");
         io_context_.stop();
-        pool_.stop();
-        pool_.join();
         return;
     }
     std::string log;
@@ -169,7 +170,7 @@ void Communication_Manager::on_message(const std::string& msg)
                     return;
                 }
                 recorder_ptr_->write_message_received(signal_server,drone_data);
-                boost::asio::post(pool_, [this, signal_server, drone_data]() {
+                boost::asio::post(io_context_, [this, signal_server, drone_data]() {
                     calculate_handler_(signal_server, drone_data);
                 });
             }
