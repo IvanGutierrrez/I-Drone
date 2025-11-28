@@ -29,7 +29,16 @@ bool Recorder::write(const std::string text)
         }
     }
     file_ << text;
+    file_.flush(); // Force write to disk immediately
     return true;
+}
+
+void Recorder::close()
+{
+    if (is_open()) {
+        file_.flush();
+        file_.close();
+    }
 }
 
 bool Recorder::open_file()

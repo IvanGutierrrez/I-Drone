@@ -20,10 +20,10 @@
 #include "common_libs/Logger.h"
 #include "common_libs/Enc_Dec_PLD.h"
 
-Algorithm_Manager::Algorithm_Manager(std::shared_ptr<Communication_Manager> &comm_mng, 
-                                     std::shared_ptr<Algorithm_Recorder> &rec_mng,
-                                     std::shared_ptr<Path_Cal> &path_cal,
-                                     std::shared_ptr<Signal_Cal> &signal_cal,
+Algorithm_Manager::Algorithm_Manager(std::shared_ptr<Communication_Manager> comm_mng, 
+                                     std::shared_ptr<Algorithm_Recorder> rec_mng,
+                                     std::shared_ptr<Path_Cal> path_cal,
+                                     std::shared_ptr<Signal_Cal> signal_cal,
                                      const Struct_Algo::Config_struct cnf): comm_mng_ptr_(std::move(comm_mng)),
                                                                             recorder_ptr_(std::move(rec_mng)),
                                                                             path_cal_ptr_(std::move(path_cal)),

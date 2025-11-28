@@ -22,15 +22,18 @@ class Communication_Manager {
 
 private:
     boost::asio::io_context& io_context_;
+    boost::asio::thread_pool calculation_pool_;
     Server server_;
     tcp::endpoint endpoint_;
     std::shared_ptr<Algorithm_Recorder> recorder_ptr_;
     boost::asio::steady_timer status_timer;
+    std::shared_ptr<boost::asio::steady_timer> retry_timer_;
     int attemps_ = 0;
     Struct_Algo::Status status_;
     calculate_handler calculate_handler_;
     std::mutex mutex_status_;
     std::mutex mutex_deliver_;
+    std::atomic<bool> shutting_down_{false};
 
     void on_connect();
     void on_error(const boost::system::error_code& ec, const Type_Error &type_error);

@@ -19,8 +19,6 @@
 #include "Path_Cal.h"
 #include "Signal_Cal.h"
 
-constexpr int NUM_THREADS = 2;
-
 int main(int argc, char* argv[]) {
     // Initialize logger
     Struct_Algo::Config_struct cnf = Config::get_config();
@@ -50,21 +48,23 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
+    boost::asio::io_context io_context;
     boost::asio::ip::tcp::endpoint pld_endpoint;
     try {
-        pld_endpoint = boost::asio::ip::tcp::endpoint(
-            boost::asio::ip::address::from_string(pld_address),
-            static_cast<unsigned short>(pld_port)
-        );
+        boost::asio::ip::tcp::resolver resolver(io_context);
+        auto endpoints = resolver.resolve(pld_address, std::to_string(pld_port));
 
+        if (endpoints.begin() == endpoints.end()) {
+            Logger::log_message(Logger::Type::ERROR, "No endpoints found for PLD: " + pld_address + ":" + std::to_string(pld_port));
+            return EXIT_FAILURE;
+        }
+
+        pld_endpoint = *endpoints.begin();
+        Logger::log_message(Logger::Type::INFO,"PLD endpoint:  " + pld_endpoint.address().to_string() + ":" + std::to_string(pld_endpoint.port()));
     } catch (const std::exception& e) {
         Logger::log_message(Logger::Type::ERROR, std::string("Error creating PLD endpoint: ") + e.what());
         return EXIT_FAILURE;
     }
-
-    boost::asio::io_context io_context;
-
-    auto work = boost::asio::make_work_guard(io_context);
 
     std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>(cnf.data_path);
 
@@ -79,19 +79,16 @@ int main(int argc, char* argv[]) {
                                                                                                     path_cal_ptr,
                                                                                                     signal_cal_ptr,
                                                                                                     cnf);
-                                                                                                
-    Signal_Handler signal_handler(io_context, work);
+    
+    Signal_Handler signal_handler(io_context, [&rec_mng_ptr, &comm_mng_ptr]() {
+        comm_mng_ptr->shutdown();
+        rec_mng_ptr->close_all();
+        Logger::log_message(Logger::Type::INFO, "Shutdown complete");
+    });
 
-    std::vector<std::thread> threads;
-
-    for (int i = 0; i < NUM_THREADS; ++i) {
-        std::thread t([&io_context](){ io_context.run(); });
-        threads.emplace_back(std::move(t));
-    }
+    Logger::log_message(Logger::Type::INFO, "Starting io_context...");
+    io_context.run();
 
     Logger::log_message(Logger::Type::INFO, "No more async functions to do, exiting program...");
-
-    for (auto &t : threads) {
-        t.join();
-    }
+    Logger::close();
 }

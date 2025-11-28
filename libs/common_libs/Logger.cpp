@@ -78,7 +78,7 @@ std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
 
 void log_message(const Type &t, const std::string &log)
 {
-    if (!initialized_)
+    if (!initialized_ || !rec_)
     {
         std::cout << "The logger is not initialized" << std::endl;
         return;
@@ -90,13 +90,24 @@ void log_message(const Type &t, const std::string &log)
             << "[" << std::left << std::setw(8) << to_string(t) << "]" 
             << std::setw(2) << "" << log << std::endl;
 
-    if (!rec_->write(message.str()))
-    {
-        std::cout << "Error while dumping the log" << std::endl;
-        return;
+    try {
+        if (!rec_->write(message.str()))
+        {
+            std::cout << "Error while dumping the log" << std::endl;
+            return;
+        }
+    } catch (...) {
+        std::cout << "Exception while logging" << std::endl;
     }
 
     std::cout << message.str();
+}
+
+void close()
+{
+    if (initialized_ && rec_) {
+        rec_->close();
+    }
 }
 
 };

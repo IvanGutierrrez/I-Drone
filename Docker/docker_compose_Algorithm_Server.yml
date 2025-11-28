@@ -1,0 +1,9 @@
+services:
+  Algorithm:
+    image: i-drone:latest
+    container_name: Algorithm
+    network_mode: "host"
+    volumes:
+      - $HOME/test/Algorithm/logs:/opt/I-Drone/logs
+      - $HOME/test/Algorithm/data:/opt/I-Drone/data
+    command: tail -f /dev/null

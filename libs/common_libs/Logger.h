@@ -22,6 +22,7 @@ std::string to_string(const Type &t);
 bool initialize(const std::filesystem::path &path, 
                        const std::string &name);
 void log_message(const Type &t, const std::string &log);
+void close();
 std::string getTimeFormatted();
 std::string getCurrentTimestamp();
 };
