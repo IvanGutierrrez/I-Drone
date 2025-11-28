@@ -28,14 +28,20 @@ Server::~Server()
 void Server::server_close()
 {
     try {
+        boost::system::error_code ec;
+        
         if (acceptor_.is_open()) {
-            acceptor_.close();
+            acceptor_.close(ec);
         }
 
-        if (current_client_ && current_client_->is_open()) {
-            boost::system::error_code ec;
-            current_client_->shutdown(tcp::socket::shutdown_both, ec);
-            current_client_->close(ec);
+        if (current_client_) {
+            auto socket = current_client_;
+            current_client_.reset();
+            
+            if (socket && socket->is_open()) {
+                socket->shutdown(tcp::socket::shutdown_both, ec);
+                socket->close(ec);
+            }
         }
     } catch (const std::exception& e) {}
 }
@@ -145,7 +151,8 @@ void Server::connect(const tcp::endpoint& endpoint)
 
 void Server::deliver(const std::string &message)
 {
-    if (!current_client_ || !current_client_->is_open())
+    auto client = current_client_;
+    if (!client || !client->is_open())
         return;
 
     uint32_t len = htonl(static_cast<uint32_t>(message.size()));
@@ -153,8 +160,8 @@ void Server::deliver(const std::string &message)
     buffers.push_back(boost::asio::buffer(&len, sizeof(len)));
     buffers.push_back(boost::asio::buffer(message));
 
-    boost::asio::async_write(*current_client_, buffers,
-        [this](const boost::system::error_code& ec, std::size_t /*bytes_transferred*/) {
+    boost::asio::async_write(*client, buffers,
+        [this, client](const boost::system::error_code& ec, std::size_t /*bytes_transferred*/) {
             if (ec && handlers_.call_error)
                 handlers_.call_error(ec, Type_Error::SENDING);
         });

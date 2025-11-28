@@ -21,6 +21,7 @@ public:
     bool write_signal_output(const std::vector<Struct_Algo::Coordinate> &points);
     bool write_message_received(const Struct_Algo::SignalServerConfig &sng_data, const Struct_Algo::DroneData &drone_data);
     bool write_or_output(const std::string &data);
+    void close_all();
 
 private:
     Recorder recorder_msg;

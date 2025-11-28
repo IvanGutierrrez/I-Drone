@@ -8,6 +8,7 @@
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "Algorithm_Recorder.h"
+#include "common_libs/Logger.h"
 
 constexpr const char message_received_file_name[] = "message_received";
 constexpr const char message_received_file_extension[] = "txt";
@@ -41,4 +42,12 @@ bool Algorithm_Recorder::write_message_received(const Struct_Algo::SignalServerC
 bool Algorithm_Recorder::write_or_output(const std::string &data)
 {
     return recorder_or.write(data);
+}
+
+void Algorithm_Recorder::close_all()
+{
+    recorder_msg.close();
+    recorder_sgn.close();
+    recorder_or.close();
+    Logger::log_message(Logger::Type::INFO, "All recorder files closed successfully");
 }

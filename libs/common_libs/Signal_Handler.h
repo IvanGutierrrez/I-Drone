@@ -9,19 +9,21 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
 #include <boost/asio.hpp>
+#include <atomic>
 
-using executor_type = boost::asio::executor_work_guard<boost::asio::io_context::executor_type>;
+using shutdown_callback = std::function<void()>;
 
 class Signal_Handler {
 
 public:
-    explicit Signal_Handler(boost::asio::io_service &io_service, executor_type &work);
+    explicit Signal_Handler(boost::asio::io_service &io_service, const shutdown_callback& callback);
 
     void wait_for_signals();
 
 private:
     boost::asio::io_service &io_service_;
-    boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
     boost::asio::signal_set signals_;
+    shutdown_callback shutdown_callback_;
+    std::atomic<bool> shutting_down_{false};
 
 };

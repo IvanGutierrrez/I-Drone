@@ -18,10 +18,12 @@
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
 constexpr int RATE_STATUS_MESSAGE = 1;
+constexpr int CALCULATION_POOL_SIZE = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
                                              const tcp::endpoint& endpoint,
-                                             const std::shared_ptr<Algorithm_Recorder> &rec_mng): io_context_(io_context), 
+                                             const std::shared_ptr<Algorithm_Recorder> &rec_mng): io_context_(io_context),
+                                                                                                  calculation_pool_(CALCULATION_POOL_SIZE),
                                                                                                   server_(io_context),
                                                                                                   endpoint_(endpoint),
                                                                                                   recorder_ptr_(std::move(rec_mng)),
@@ -35,19 +37,39 @@ Communication_Manager::Communication_Manager(boost::asio::io_context& io_context
     handler_obj.call_message = std::bind(&Communication_Manager::on_message, this, std::placeholders::_1);
     server_.set_handlers(handler_obj);
 
-    Logger::log_message(Logger::Type::INFO,"Start listening to PLD");
+    std::stringstream ss;
+    ss << "Start connecting to PLD at " << endpoint_.address().to_string() << ":" << endpoint_.port();
+    Logger::log_message(Logger::Type::INFO, ss.str());
 
     server_.connect(endpoint_);
 }
 
 Communication_Manager::~Communication_Manager()
 {
+    shutdown();
     server_.server_close();
 }
 
 void Communication_Manager::shutdown()
 {
-    status_timer.cancel();
+    if (shutting_down_.exchange(true)) {
+        return;
+    }
+
+    Logger::log_message(Logger::Type::INFO, "Communication_Manager shutting down");
+    
+    boost::system::error_code ec;
+    status_timer.cancel(ec);
+    
+    if (retry_timer_) {
+        retry_timer_->cancel(ec);
+    }
+    
+    calculation_pool_.stop();
+    Logger::log_message(Logger::Type::INFO, "Waiting for calculation threads to finish...");
+    calculation_pool_.join();
+    Logger::log_message(Logger::Type::INFO, "Calculation threads finished");
+    
     server_.server_close();
 }
 
@@ -62,6 +84,10 @@ void Communication_Manager::on_connect()
 
 void Communication_Manager::send_status_message(const boost::system::error_code& ec)
 {
+    if (shutting_down_ || ec == boost::asio::error::operation_aborted) {
+        return;
+    }
+    
     if (ec) {
         Logger::log_message(Logger::Type::WARNING,"Problems with timer to send status message to PLD module");
         return;
@@ -75,8 +101,11 @@ void Communication_Manager::send_status_message(const boost::system::error_code&
     } else {
         deliver(message);
     }
-    status_timer.expires_after(std::chrono::seconds(RATE_STATUS_MESSAGE));
-    status_timer.async_wait(std::bind(&Communication_Manager::send_status_message, this, std::placeholders::_1));
+    
+    if (!shutting_down_) {
+        status_timer.expires_after(std::chrono::seconds(RATE_STATUS_MESSAGE));
+        status_timer.async_wait(std::bind(&Communication_Manager::send_status_message, this, std::placeholders::_1));
+    }
 }
 
 void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
@@ -86,9 +115,13 @@ void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
 }
 
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
-{
-    status_timer.cancel();
-    std::lock_guard<std::mutex> lock(mutex_status_);
+{    
+    if (shutting_down_) return;
+    Logger::log_message(Logger::Type::WARNING, "on_error callback triggered");
+    
+    boost::system::error_code cancel_ec;
+    status_timer.cancel(cancel_ec);
+    
     if (get_status() == Struct_Algo::Status::FINISH) {
         Logger::log_message(Logger::Type::INFO,"Program task complete, leaving program...");
         io_context_.stop();
@@ -110,12 +143,18 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
             break;
     }
     Logger::log_message(Logger::Type::WARNING,log + ": " + ec.message());
+    
+    if (shutting_down_) {
+        Logger::log_message(Logger::Type::INFO,"Shutting down, skipping reconnection");
+        return;
+    }
+    
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX)
     {
-        Logger::log_message(Logger::Type::INFO,"Trying to connect to PLD");
-        boost::asio::steady_timer retry_timer(io_context_, std::chrono::seconds(1));
-        retry_timer.async_wait([this](const boost::system::error_code&) {
+        retry_timer_ = std::make_shared<boost::asio::steady_timer>(io_context_, std::chrono::seconds(1));
+        retry_timer_->async_wait([this](const boost::system::error_code& ec) {
+            if (ec || shutting_down_) return;
             Logger::log_message(Logger::Type::INFO,"Trying to reconnect to PLD");
             server_.connect(endpoint_);
         });
@@ -132,7 +171,8 @@ void Communication_Manager::set_calculate_handler(const calculate_handler &handl
 }
 
 void Communication_Manager::on_message(const std::string& msg)
-{
+{    
+    if (shutting_down_) return;
     Logger::log_message(Logger::Type::INFO, "Message received from PLD");
 
     if (status_ != Struct_Algo::Status::EXPECTING_DATA) {
@@ -170,8 +210,11 @@ void Communication_Manager::on_message(const std::string& msg)
                     return;
                 }
                 recorder_ptr_->write_message_received(signal_server,drone_data);
-                boost::asio::post(io_context_, [this, signal_server, drone_data]() {
-                    calculate_handler_(signal_server, drone_data);
+                
+                boost::asio::post(calculation_pool_, [this, signal_server, drone_data]() {
+                    if (!shutting_down_) {
+                        calculate_handler_(signal_server, drone_data);
+                    }
                 });
             }
             break;

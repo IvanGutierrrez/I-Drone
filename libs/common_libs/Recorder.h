@@ -20,6 +20,7 @@ public:
     ~Recorder();
     
     bool write(const std::string text);
+    void close();
 
 private:
     std::filesystem::path filename_;
