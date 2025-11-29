@@ -14,7 +14,6 @@
 #include "Communication_Manager.h"
 #include "Drone_Recorder.h"
 
-// Interface
 class Controller {
 
 public:
