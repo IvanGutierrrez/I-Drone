@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message WrapperDroneCommand {
+  oneof payload {
+    DroneCommand command_message = 1;
+  }
+}
+
+message DroneCommand {
+  string command = 1;
+}

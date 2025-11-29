@@ -4,9 +4,11 @@ libs_sources = files(
   'common_libs/Server.cpp',
   'common_libs/Enc_Dec_Algo.cpp',
   'common_libs/Enc_Dec_PLD.cpp',
+  'common_libs/Enc_Dec_Drone.cpp',
   'common_libs/Signal_Handler.cpp',
   'generated_proto/messages_algo.pb.cc',
   'generated_proto/messages_pld.pb.cc',
+  'generated_proto/messages_drone.pb.cc',
   'structs/Structs_Algo.cpp',
 )
 

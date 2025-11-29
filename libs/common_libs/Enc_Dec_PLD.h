@@ -17,10 +17,12 @@ namespace Enc_Dec_PLD {
         UNKNOWN,
         ERROR,
         ALGO_RESPONSE,
-        Status
+        STATUS_ALGO,
+        STATUS_DRONE
     };
 
     std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_algo(const std::string& data);
+    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_drone(const std::string& data);
 
     bool encode_algo_response(const std::vector<std::vector<Struct_Algo::Coordinate>> &result, std::string &msg);
     bool decode_algo_response(const AlgoResponseList &msg, std::vector<std::vector<Struct_Algo::Coordinate>> &result);

@@ -27,7 +27,22 @@ namespace Enc_Dec_PLD {
 
         if (wrapper.has_status()) {
             auto msg = std::make_unique<Status>(wrapper.status());
-            return {PLD::Status, std::move(msg)};
+            return {PLD::STATUS_ALGO, std::move(msg)};
+        }
+
+        return {PLD::UNKNOWN, nullptr};
+    }
+
+    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_drone(const std::string& data)
+    {
+        WrapperDrone wrapper;
+        if (!wrapper.ParseFromString(data)) {
+            return {PLD::UNKNOWN, nullptr};
+        }
+
+        if (wrapper.has_status()) {
+            auto msg = std::make_unique<Status>(wrapper.status());
+            return {PLD::STATUS_DRONE, std::move(msg)};
         }
 
         return {PLD::UNKNOWN, nullptr};
