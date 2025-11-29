@@ -7,6 +7,12 @@ message WrapperAlgo {
   }
 }
 
+message WrapperDrone {
+  oneof payload {
+    Status status = 1;
+  }
+}
+
 message AlgoResponseList {
     repeated AlgoResponse items = 1;
 }

@@ -68,6 +68,10 @@ class WrapperAlgo;
 struct WrapperAlgoDefaultTypeInternal;
 extern WrapperAlgoDefaultTypeInternal _WrapperAlgo_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull WrapperAlgo_class_data_;
+class WrapperDrone;
+struct WrapperDroneDefaultTypeInternal;
+extern WrapperDroneDefaultTypeInternal _WrapperDrone_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull WrapperDrone_class_data_;
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
@@ -134,7 +138,7 @@ class Status final : public ::google::protobuf::Message
     return *reinterpret_cast<const Status*>(
         &_Status_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 4;
   friend void swap(Status& a, Status& b) { a.Swap(&b); }
   inline void Swap(Status* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -330,7 +334,7 @@ class AlgoResponse final : public ::google::protobuf::Message
     return *reinterpret_cast<const AlgoResponse*>(
         &_AlgoResponse_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 2;
+  static constexpr int kIndexInFileMessages = 3;
   friend void swap(AlgoResponse& a, AlgoResponse& b) { a.Swap(&b); }
   inline void Swap(AlgoResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -493,6 +497,219 @@ class AlgoResponse final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull AlgoResponse_class_data_;
 // -------------------------------------------------------------------
 
+class WrapperDrone final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:WrapperDrone) */ {
+ public:
+  inline WrapperDrone() : WrapperDrone(nullptr) {}
+  ~WrapperDrone() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(WrapperDrone* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(WrapperDrone));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR WrapperDrone(::google::protobuf::internal::ConstantInitialized);
+
+  inline WrapperDrone(const WrapperDrone& from) : WrapperDrone(nullptr, from) {}
+  inline WrapperDrone(WrapperDrone&& from) noexcept
+      : WrapperDrone(nullptr, ::std::move(from)) {}
+  inline WrapperDrone& operator=(const WrapperDrone& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline WrapperDrone& operator=(WrapperDrone&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const WrapperDrone& default_instance() {
+    return *reinterpret_cast<const WrapperDrone*>(
+        &_WrapperDrone_default_instance_);
+  }
+  enum PayloadCase {
+    kStatus = 1,
+    PAYLOAD_NOT_SET = 0,
+  };
+  static constexpr int kIndexInFileMessages = 1;
+  friend void swap(WrapperDrone& a, WrapperDrone& b) { a.Swap(&b); }
+  inline void Swap(WrapperDrone* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(WrapperDrone* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  WrapperDrone* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<WrapperDrone>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const WrapperDrone& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const WrapperDrone& from) { WrapperDrone::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(WrapperDrone* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "WrapperDrone"; }
+
+ protected:
+  explicit WrapperDrone(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  WrapperDrone(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const WrapperDrone& from);
+  WrapperDrone(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, WrapperDrone&& from) noexcept
+      : WrapperDrone(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kStatusFieldNumber = 1,
+  };
+  // .Status status = 1;
+  bool has_status() const;
+  private:
+  bool _internal_has_status() const;
+
+  public:
+  void clear_status() ;
+  const ::Status& status() const;
+  [[nodiscard]] ::Status* PROTOBUF_NULLABLE release_status();
+  ::Status* PROTOBUF_NONNULL mutable_status();
+  void set_allocated_status(::Status* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_status(::Status* PROTOBUF_NULLABLE value);
+  ::Status* PROTOBUF_NULLABLE unsafe_arena_release_status();
+
+  private:
+  const ::Status& _internal_status() const;
+  ::Status* PROTOBUF_NONNULL _internal_mutable_status();
+
+  public:
+  void clear_payload();
+  PayloadCase payload_case() const;
+  // @@protoc_insertion_point(class_scope:WrapperDrone)
+ private:
+  class _Internal;
+  void set_has_status();
+  inline bool has_payload() const;
+  inline void clear_has_payload();
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   1, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const WrapperDrone& from_msg);
+    union PayloadUnion {
+      constexpr PayloadUnion() : _constinit_{} {}
+      ::google::protobuf::internal::ConstantInitialized _constinit_;
+      ::Status* PROTOBUF_NULLABLE status_;
+    } payload_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::uint32_t _oneof_case_[1];
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_messages_5fpld_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull WrapperDrone_class_data_;
+// -------------------------------------------------------------------
+
 class AlgoResponseList final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:AlgoResponseList) */ {
  public:
@@ -548,7 +765,7 @@ class AlgoResponseList final : public ::google::protobuf::Message
     return *reinterpret_cast<const AlgoResponseList*>(
         &_AlgoResponseList_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 1;
+  static constexpr int kIndexInFileMessages = 2;
   friend void swap(AlgoResponseList& a, AlgoResponseList& b) { a.Swap(&b); }
   inline void Swap(AlgoResponseList* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1111,6 +1328,100 @@ inline void WrapperAlgo::clear_has_payload() {
 }
 inline WrapperAlgo::PayloadCase WrapperAlgo::payload_case() const {
   return WrapperAlgo::PayloadCase(_impl_._oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// WrapperDrone
+
+// .Status status = 1;
+inline bool WrapperDrone::has_status() const {
+  return payload_case() == kStatus;
+}
+inline bool WrapperDrone::_internal_has_status() const {
+  return payload_case() == kStatus;
+}
+inline void WrapperDrone::set_has_status() {
+  _impl_._oneof_case_[0] = kStatus;
+}
+inline void WrapperDrone::clear_status() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (payload_case() == kStatus) {
+    if (GetArena() == nullptr) {
+      delete _impl_.payload_.status_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.status_);
+    }
+    clear_has_payload();
+  }
+}
+inline ::Status* PROTOBUF_NULLABLE WrapperDrone::release_status() {
+  // @@protoc_insertion_point(field_release:WrapperDrone.status)
+  if (payload_case() == kStatus) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.status_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.payload_.status_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Status& WrapperDrone::_internal_status() const {
+  return payload_case() == kStatus ? *_impl_.payload_.status_ : reinterpret_cast<::Status&>(::_Status_default_instance_);
+}
+inline const ::Status& WrapperDrone::status() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:WrapperDrone.status)
+  return _internal_status();
+}
+inline ::Status* PROTOBUF_NULLABLE WrapperDrone::unsafe_arena_release_status() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:WrapperDrone.status)
+  if (payload_case() == kStatus) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.status_;
+    _impl_.payload_.status_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void WrapperDrone::unsafe_arena_set_allocated_status(
+    ::Status* PROTOBUF_NULLABLE value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_payload();
+  if (value) {
+    set_has_status();
+    _impl_.payload_.status_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:WrapperDrone.status)
+}
+inline ::Status* PROTOBUF_NONNULL WrapperDrone::_internal_mutable_status() {
+  if (payload_case() != kStatus) {
+    clear_payload();
+    set_has_status();
+    _impl_.payload_.status_ = 
+        ::google::protobuf::Message::DefaultConstruct<::Status>(GetArena());
+  }
+  return _impl_.payload_.status_;
+}
+inline ::Status* PROTOBUF_NONNULL WrapperDrone::mutable_status()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::Status* _msg = _internal_mutable_status();
+  // @@protoc_insertion_point(field_mutable:WrapperDrone.status)
+  return _msg;
+}
+
+inline bool WrapperDrone::has_payload() const {
+  return payload_case() != PAYLOAD_NOT_SET;
+}
+inline void WrapperDrone::clear_has_payload() {
+  _impl_._oneof_case_[0] = PAYLOAD_NOT_SET;
+}
+inline WrapperDrone::PayloadCase WrapperDrone::payload_case() const {
+  return WrapperDrone::PayloadCase(_impl_._oneof_case_[0]);
 }
 // -------------------------------------------------------------------
 
