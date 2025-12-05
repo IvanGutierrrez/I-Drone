@@ -1,4 +1,4 @@
-project('I-Drone', 'cpp',
+project('I-Drone-Sim', 'cpp',
   version : '1.0.0',
   default_options : [
     'buildtype=release',
@@ -15,7 +15,5 @@ project('I-Drone', 'cpp',
 # Incluir librerías comunes
 subdir('libs')
 
-# Subproyectos (cada módulo)
-subdir('PLD')
-subdir('Algorithm')
+# Solo compilar el módulo Drone
 subdir('Drone')

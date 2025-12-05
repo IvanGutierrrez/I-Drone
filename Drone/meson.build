@@ -2,7 +2,9 @@ drone_sources = files(
     'src/main.cpp',
     'src/Controller.cpp',
     'src/Communication_Manager.cpp',
-    'src/Drone_Recorder.cpp'
+    'src/Drone_Recorder.cpp',
+    'src/Engine.cpp',
+    'src/PX4_Wrapper.cpp'
 )
 
 executable(

@@ -21,6 +21,7 @@ namespace Struct_Drone {
         std::filesystem::path data_path;
         std::filesystem::path log_path;
         std::string log_name;
+        std::string command_px4;
     };
 
     enum class Status {

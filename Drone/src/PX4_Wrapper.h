@@ -1,28 +1,28 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Config.h                    
+ *  Filename : PX4_Wrapper.h                    
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include <iostream>
-#include <filesystem>
+#ifndef PX4_ENGINE_H
+#define PX4_ENGINE_H
+
+#pragma once
+#include "Engine.h"
 #include "structs/Structs_Drone.h"
 
-namespace Config {
-
-inline Struct_Drone::Config_struct get_config() {
-    Struct_Drone::Config_struct cnf;
-
-    cnf.data_path = "/opt/I-Drone/data/";
-    cnf.log_path = "/opt/I-Drone/logs";
-    cnf.log_name = "drone";
-    cnf.command_px4 = "make -C /root/tfg/PX4-Autopilot px4_sitl gazebo-classic_iris &"; // PX4_INSTANCE=0 
+// Interface
+class PX4_Wrapper: public Engine {
 
 
-    return cnf;
-}
-
+public:
+    PX4_Wrapper(const Struct_Drone::Config_struct &config);
+    ~PX4_Wrapper() override = default;
+    void start_engine() override;
+    void send_command(const std::string &command) override;
 };
+
+#endif

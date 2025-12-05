@@ -1,28 +1,24 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Config.h                    
+ *  Filename : Engine.cpp                    
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include <iostream>
-#include <filesystem>
+#pragma once
 #include "structs/Structs_Drone.h"
 
-namespace Config {
-
-inline Struct_Drone::Config_struct get_config() {
-    Struct_Drone::Config_struct cnf;
-
-    cnf.data_path = "/opt/I-Drone/data/";
-    cnf.log_path = "/opt/I-Drone/logs";
-    cnf.log_name = "drone";
-    cnf.command_px4 = "make -C /root/tfg/PX4-Autopilot px4_sitl gazebo-classic_iris &"; // PX4_INSTANCE=0 
+// Interface
+class Engine {
+protected:
+    Struct_Drone::Config_struct config_;
 
 
-    return cnf;
-}
-
+public:
+    Engine(const Struct_Drone::Config_struct &config) : config_(config){}
+    virtual ~Engine();
+    virtual void start_engine();
+    virtual void send_command(const std::string &command);
 };
