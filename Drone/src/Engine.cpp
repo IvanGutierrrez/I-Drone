@@ -22,3 +22,8 @@ void Engine::start_engine()
 void Engine::send_command(const std::string &command)
 {
 }
+
+void Engine::set_handler(Handlers f)
+{
+    handlers_ = f;
+}

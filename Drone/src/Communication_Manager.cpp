@@ -168,34 +168,10 @@ void Communication_Manager::on_message(const std::string& msg)
 
     std::string data = msg.substr(4);
 
-    auto [type, decoded_msg] = Enc_Dec_Drone::decode_to_drone(data);
-
-    switch (type) {
-        case Enc_Dec_Drone::Drone::UNKNOWN:
-            Logger::log_message(Logger::Type::WARNING, "Unknown message received");
-            break;
-        case Enc_Dec_Drone::Drone::ERROR:
-            Logger::log_message(Logger::Type::WARNING, "Error decoding message");
-            break;
-        case Enc_Dec_Drone::Drone::COMMAND: {
-            auto my_msg = dynamic_cast<DroneCommand*>(decoded_msg.get());
-            if (my_msg) {
-                Logger::log_message(Logger::Type::INFO, "New command received");
-
-                std::string command;
-                if (!Enc_Dec_Drone::decode_command(*my_msg, command))
-                {
-                    Logger::log_message(Logger::Type::WARNING, "Unabled to decode Command message");
-                    return;
-                }
-                
-                message_handler_(command);
-            }
-            break;
-        }
-        default:
-            Logger::log_message(Logger::Type::WARNING, "Unhandled message type");
-            break;
+    if (message_handler_) {
+        message_handler_(data);
+    } else {
+        Logger::log_message(Logger::Type::WARNING, "No message handler set");
     }
 }
 

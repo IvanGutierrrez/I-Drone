@@ -7,7 +7,6 @@
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 #include "Controller.h"
 #include "common_libs/Logger.h"
 
@@ -17,76 +16,37 @@ Controller::Controller(std::shared_ptr<Communication_Manager> comm_mng,
                        const Struct_Drone::Config_struct cnf) : comm_mng_ptr_(std::move(comm_mng)),
                                                                 recorder_ptr_(std::move(rec_mng)),
                                                                 engine_(std::move(engine)),
-                                                                global_config_(cnf),
-                                                                running_(true),
-                                                                command_completed_(true),
-                                                                first_complete_(false)
+                                                                global_config_(cnf)
 {
     comm_mng_ptr_->set_message_handler(std::bind(&Controller::handler_message, this, std::placeholders::_1));
-    // TODO Set command_complete as a handler inside start engine
-    engine_->start_engine();
-    
+    Engine::Handlers handlers;
+    handlers.mission_complete = std::bind(&Controller::mission_complete, this);
+    handlers.error = std::bind(&Controller::error_processing_command, this);
+    engine_->set_handler(handlers);
+    start_engine_thread_ = std::thread(&Engine::start_engine, engine_.get());
 }
 
 Controller::~Controller()
-{
-    running_ = false;
-    cv_add_command_.notify_one();
-    cv_command_complete_.notify_one();
-    
-    if (worker_thread_.joinable()) {
-        worker_thread_.join();
+{    
+    if (start_engine_thread_.joinable()) {
+        start_engine_thread_.join();
     }
 }
 
 void Controller::handler_message(const std::string &message)
 {
-    Logger::log_message(Logger::Type::INFO, "Adding new commands to the list (" + message + ")");
-    
-    {
-        std::lock_guard<std::mutex> lock(commands_mutex_);
-        commands_.push_back(message);
-    }
-    cv_add_command_.notify_one();
+    Logger::log_message(Logger::Type::INFO, "Adding new commands to the list");
+    engine_->send_command(message);
 }
 
-void Controller::process_commands()
+void Controller::mission_complete()
 {
-    while (running_) {
-        std::unique_lock<std::mutex> lock(commands_mutex_);
-        
-        cv_add_command_.wait(lock, [this] { return !commands_.empty() || !running_; });
-        
-        if (!running_) {
-            break;
-        }
-        
-        if (!commands_.empty()) {
-            std::string command = commands_.front();
-            commands_.erase(commands_.begin());
-            lock.unlock();
-            
-            Logger::log_message(Logger::Type::INFO, "Processing command: " + command);
-            command_completed_ = false;
-            engine_->send_command(command);
-            
-            // Wait for command completion
-            std::unique_lock<std::mutex> completion_lock(commands_mutex_);
-            cv_command_complete_.wait(completion_lock, [this] { return command_completed_.load() || !running_; });
-        }
-    }
-    
-    Logger::log_message(Logger::Type::INFO, "Command processor thread stopped");
+    Logger::log_message(Logger::Type::INFO, "Mission completed, task finish");
+    comm_mng_ptr_->set_status(Struct_Drone::Status::FINISH);
 }
 
-void Controller::command_complete()
+void Controller::error_processing_command()
 {
-    if (!first_complete_)
-    {
-        worker_thread_ = std::thread(&Controller::process_commands, this);
-        first_complete_ = true;
-    }
-    Logger::log_message(Logger::Type::INFO, "Command completed, ready for next command");
-    command_completed_ = true;
-    cv_command_complete_.notify_one();
+    Logger::log_message(Logger::Type::ERROR, "Error processing command"); // TODO Think what to do
+    comm_mng_ptr_->set_status(Struct_Drone::Status::ERROR);
 }

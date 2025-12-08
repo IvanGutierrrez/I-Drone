@@ -2,10 +2,33 @@ syntax = "proto3";
 
 message WrapperDroneCommand {
   oneof payload {
-    DroneCommand command_message = 1;
+    DroneCommandString command_message_normal = 1;
   }
 }
 
-message DroneCommand {
-  string command = 1;
+message DroneCommandString {
+  string type_command = 1;
+  DroneCommandMision command = 2;
+}
+
+enum CameraAction {
+  CAMERA_ACTION_NONE = 0;                    // No action
+  CAMERA_ACTION_TAKE_PHOTO = 1;              // Take a single photo
+  CAMERA_ACTION_START_PHOTO_INTERVAL = 2;    // Start capturing photos at regular intervals
+  CAMERA_ACTION_STOP_PHOTO_INTERVAL = 3;     // Stop capturing photos at regular intervals
+  CAMERA_ACTION_START_VIDEO = 4;             // Start capturing video
+  CAMERA_ACTION_STOP_VIDEO = 5;              // Stop capturing video
+  CAMERA_ACTION_START_PHOTO_DISTANCE = 6;    // Start capturing photos at regular distance
+  CAMERA_ACTION_STOP_PHOTO_DISTANCE = 7;     // Stop capturing photos at regular distance
+}
+
+message DroneCommandMision {
+  double latitude_deg = 1;
+  double longitude_deg = 2;
+  float relative_altitude_m = 3;
+  float speed_m_s = 4;
+  bool is_fly_through = 5;
+  float gimbal_pitch_deg = 6;
+  float gimbal_yaw_deg = 7;
+  CameraAction camera_action = 8;
 }
