@@ -22,8 +22,9 @@ namespace Enc_Dec_Drone {
 
     std::pair<Drone, std::unique_ptr<google::protobuf::Message>> decode_to_drone(const std::string& data);
 
-    bool encode_command(const std::string &command, std::string &response);
-    bool decode_command(const DroneCommand &msg, std::string &command);
+    bool encode_command(const Struct_Drone::MessagePX4 &command, std::string &response);
+    
+    bool decode_command(const DroneCommandString &msg, Struct_Drone::MessagePX4 &command);
     
     bool encode_status_drone(const Struct_Drone::Status &status, std::string &message);
 };

@@ -19,3 +19,24 @@ services:
     depends_on:
       - PLD
     restart: unless-stopped
+
+  Drone:
+    image: px4_sim_i-drone:latest
+    container_name: Drone
+    network_mode: "host"
+    privileged: true
+    tty: true
+    stdin_open: true
+    env_file:
+      - .env.drone
+    environment:
+      - DISPLAY=:0
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - $HOME/test/Drone/logs:/opt/I-Drone/logs
+      - $HOME/test/Drone/data:/opt/I-Drone/data
+    command: tail -f /dev/null # /opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345
+    depends_on:
+      - PLD
+    restart: unless-stopped

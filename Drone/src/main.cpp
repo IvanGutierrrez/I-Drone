@@ -13,6 +13,8 @@
 #include "Controller.h"
 #include "Communication_Manager.h"
 #include "Drone_Recorder.h"
+#include "Engine.h"
+#include "PX4_Wrapper.h"
 #include "common_libs/Logger.h"
 #include "common_libs/Signal_Handler.h"
 
@@ -67,8 +69,11 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
 
+    std::shared_ptr<Engine> wrapper_sim_ptr = std::make_shared<PX4_Wrapper>(cnf);
+
     std::shared_ptr<Controller> controller_ptr = std::make_shared<Controller>(comm_mng_ptr,
                                                                               rec_mng_ptr,
+                                                                              wrapper_sim_ptr,
                                                                               cnf);
     
     Signal_Handler signal_handler(io_context, []() {

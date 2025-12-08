@@ -25,32 +25,65 @@ namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
 
-inline constexpr DroneCommand::Impl_::Impl_(
+inline constexpr DroneCommandMision::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        command_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()) {}
+        latitude_deg_{0},
+        longitude_deg_{0},
+        relative_altitude_m_{0},
+        speed_m_s_{0},
+        is_fly_through_{false},
+        gimbal_pitch_deg_{0},
+        gimbal_yaw_deg_{0},
+        camera_action_{static_cast< ::CameraAction >(0)} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR DroneCommand::DroneCommand(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR DroneCommandMision::DroneCommandMision(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(DroneCommand_class_data_.base()),
+    : ::google::protobuf::Message(DroneCommandMision_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct DroneCommandDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR DroneCommandDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~DroneCommandDefaultTypeInternal() {}
+struct DroneCommandMisionDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DroneCommandMisionDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DroneCommandMisionDefaultTypeInternal() {}
   union {
-    DroneCommand _instance;
+    DroneCommandMision _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DroneCommandDefaultTypeInternal _DroneCommand_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DroneCommandMisionDefaultTypeInternal _DroneCommandMision_default_instance_;
+
+inline constexpr DroneCommandString::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        type_command_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        command_{nullptr} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DroneCommandString::DroneCommandString(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(DroneCommandString_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct DroneCommandStringDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DroneCommandStringDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DroneCommandStringDefaultTypeInternal() {}
+  union {
+    DroneCommandString _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DroneCommandStringDefaultTypeInternal _DroneCommandString_default_instance_;
 
 inline constexpr WrapperDroneCommand::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -77,8 +110,8 @@ struct WrapperDroneCommandDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 WrapperDroneCommandDefaultTypeInternal _WrapperDroneCommand_default_instance_;
-static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
-    file_level_enum_descriptors_messages_5fdrone_2eproto = nullptr;
+static const ::_pb::EnumDescriptor* PROTOBUF_NONNULL
+    file_level_enum_descriptors_messages_5fdrone_2eproto[1];
 static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_service_descriptors_messages_5fdrone_2eproto = nullptr;
 const ::uint32_t
@@ -89,45 +122,88 @@ const ::uint32_t
         ::_pbi::kInvalidFieldOffsetTag,
         PROTOBUF_FIELD_OFFSET(::WrapperDroneCommand, _impl_.payload_),
         0x081, // bitmap
-        PROTOBUF_FIELD_OFFSET(::DroneCommand, _impl_._has_bits_),
-        4, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::DroneCommand, _impl_.command_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandString, _impl_._has_bits_),
+        5, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::DroneCommandString, _impl_.type_command_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandString, _impl_.command_),
         0,
+        1,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_._has_bits_),
+        11, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.latitude_deg_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.longitude_deg_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.relative_altitude_m_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.speed_m_s_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.is_fly_through_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.gimbal_pitch_deg_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.gimbal_yaw_deg_),
+        PROTOBUF_FIELD_OFFSET(::DroneCommandMision, _impl_.camera_action_),
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, sizeof(::WrapperDroneCommand)},
-        {4, sizeof(::DroneCommand)},
+        {4, sizeof(::DroneCommandString)},
+        {11, sizeof(::DroneCommandMision)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_WrapperDroneCommand_default_instance_._instance,
-    &::_DroneCommand_default_instance_._instance,
+    &::_DroneCommandString_default_instance_._instance,
+    &::_DroneCommandMision_default_instance_._instance,
 };
 const char descriptor_table_protodef_messages_5fdrone_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\024messages_drone.proto\"J\n\023WrapperDroneCo"
-    "mmand\022(\n\017command_message\030\001 \001(\0132\r.DroneCo"
-    "mmandH\000B\t\n\007payload\"\037\n\014DroneCommand\022\017\n\007co"
-    "mmand\030\001 \001(\tb\006proto3"
+    "\n\024messages_drone.proto\"W\n\023WrapperDroneCo"
+    "mmand\0225\n\026command_message_normal\030\001 \001(\0132\023."
+    "DroneCommandStringH\000B\t\n\007payload\"P\n\022Drone"
+    "CommandString\022\024\n\014type_command\030\001 \001(\t\022$\n\007c"
+    "ommand\030\002 \001(\0132\023.DroneCommandMision\"\341\001\n\022Dr"
+    "oneCommandMision\022\024\n\014latitude_deg\030\001 \001(\001\022\025"
+    "\n\rlongitude_deg\030\002 \001(\001\022\033\n\023relative_altitu"
+    "de_m\030\003 \001(\002\022\021\n\tspeed_m_s\030\004 \001(\002\022\026\n\016is_fly_"
+    "through\030\005 \001(\010\022\030\n\020gimbal_pitch_deg\030\006 \001(\002\022"
+    "\026\n\016gimbal_yaw_deg\030\007 \001(\002\022$\n\rcamera_action"
+    "\030\010 \001(\0162\r.CameraAction*\237\002\n\014CameraAction\022\026"
+    "\n\022CAMERA_ACTION_NONE\020\000\022\034\n\030CAMERA_ACTION_"
+    "TAKE_PHOTO\020\001\022&\n\"CAMERA_ACTION_START_PHOT"
+    "O_INTERVAL\020\002\022%\n!CAMERA_ACTION_STOP_PHOTO"
+    "_INTERVAL\020\003\022\035\n\031CAMERA_ACTION_START_VIDEO"
+    "\020\004\022\034\n\030CAMERA_ACTION_STOP_VIDEO\020\005\022&\n\"CAME"
+    "RA_ACTION_START_PHOTO_DISTANCE\020\006\022%\n!CAME"
+    "RA_ACTION_STOP_PHOTO_DISTANCE\020\007b\006proto3"
 };
 static ::absl::once_flag descriptor_table_messages_5fdrone_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_messages_5fdrone_2eproto = {
     false,
     false,
-    139,
+    719,
     descriptor_table_protodef_messages_5fdrone_2eproto,
     "messages_drone.proto",
     &descriptor_table_messages_5fdrone_2eproto_once,
     nullptr,
     0,
-    2,
+    3,
     schemas,
     file_default_instances,
     TableStruct_messages_5fdrone_2eproto::offsets,
     file_level_enum_descriptors_messages_5fdrone_2eproto,
     file_level_service_descriptors_messages_5fdrone_2eproto,
 };
+const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL CameraAction_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_messages_5fdrone_2eproto);
+  return file_level_enum_descriptors_messages_5fdrone_2eproto[0];
+}
+PROTOBUF_CONSTINIT const uint32_t CameraAction_internal_data_[] = {
+    524288u, 0u, };
 // ===================================================================
 
 class WrapperDroneCommand::_Internal {
@@ -136,18 +212,18 @@ class WrapperDroneCommand::_Internal {
       PROTOBUF_FIELD_OFFSET(::WrapperDroneCommand, _impl_._oneof_case_);
 };
 
-void WrapperDroneCommand::set_allocated_command_message(::DroneCommand* PROTOBUF_NULLABLE command_message) {
+void WrapperDroneCommand::set_allocated_command_message_normal(::DroneCommandString* PROTOBUF_NULLABLE command_message_normal) {
   ::google::protobuf::Arena* message_arena = GetArena();
   clear_payload();
-  if (command_message) {
-    ::google::protobuf::Arena* submessage_arena = command_message->GetArena();
+  if (command_message_normal) {
+    ::google::protobuf::Arena* submessage_arena = command_message_normal->GetArena();
     if (message_arena != submessage_arena) {
-      command_message = ::google::protobuf::internal::GetOwnedMessage(message_arena, command_message, submessage_arena);
+      command_message_normal = ::google::protobuf::internal::GetOwnedMessage(message_arena, command_message_normal, submessage_arena);
     }
-    set_has_command_message();
-    _impl_.payload_.command_message_ = command_message;
+    set_has_command_message_normal();
+    _impl_.payload_.command_message_normal_ = command_message_normal;
   }
-  // @@protoc_insertion_point(field_set_allocated:WrapperDroneCommand.command_message)
+  // @@protoc_insertion_point(field_set_allocated:WrapperDroneCommand.command_message_normal)
 }
 WrapperDroneCommand::WrapperDroneCommand(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -182,8 +258,8 @@ WrapperDroneCommand::WrapperDroneCommand(
   switch (payload_case()) {
     case PAYLOAD_NOT_SET:
       break;
-      case kCommandMessage:
-        _impl_.payload_.command_message_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.payload_.command_message_);
+      case kCommandMessageNormal:
+        _impl_.payload_.command_message_normal_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.payload_.command_message_normal_);
         break;
   }
 
@@ -217,11 +293,11 @@ void WrapperDroneCommand::clear_payload() {
 // @@protoc_insertion_point(one_of_clear_start:WrapperDroneCommand)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   switch (payload_case()) {
-    case kCommandMessage: {
+    case kCommandMessageNormal: {
       if (GetArena() == nullptr) {
-        delete _impl_.payload_.command_message_;
+        delete _impl_.payload_.command_message_normal_;
       } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
-        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.command_message_);
+        ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.command_message_normal_);
       }
       break;
     }
@@ -299,12 +375,12 @@ WrapperDroneCommand::_table_ = {
   }}, {{
     65535, 65535
   }}, {{
-    // .DroneCommand command_message = 1;
-    {PROTOBUF_FIELD_OFFSET(WrapperDroneCommand, _impl_.payload_.command_message_), _Internal::kOneofCaseOffset + 0, 0,
+    // .DroneCommandString command_message_normal = 1;
+    {PROTOBUF_FIELD_OFFSET(WrapperDroneCommand, _impl_.payload_.command_message_normal_), _Internal::kOneofCaseOffset + 0, 0,
     (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
   {{
-      {::_pbi::TcParser::GetTable<::DroneCommand>()},
+      {::_pbi::TcParser::GetTable<::DroneCommandString>()},
   }},
   {{
   }},
@@ -335,10 +411,10 @@ PROTOBUF_NOINLINE void WrapperDroneCommand::Clear() {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // .DroneCommand command_message = 1;
-  if (this_.payload_case() == kCommandMessage) {
+  // .DroneCommandString command_message_normal = 1;
+  if (this_.payload_case() == kCommandMessageNormal) {
     target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
-        1, *this_._impl_.payload_.command_message_, this_._impl_.payload_.command_message_->GetCachedSize(), target,
+        1, *this_._impl_.payload_.command_message_normal_, this_._impl_.payload_.command_message_normal_->GetCachedSize(), target,
         stream);
   }
 
@@ -366,10 +442,10 @@ PROTOBUF_NOINLINE void WrapperDroneCommand::Clear() {
   (void)cached_has_bits;
 
   switch (this_.payload_case()) {
-    // .DroneCommand command_message = 1;
-    case kCommandMessage: {
+    // .DroneCommandString command_message_normal = 1;
+    case kCommandMessageNormal: {
       total_size += 1 +
-                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.payload_.command_message_);
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.payload_.command_message_normal_);
       break;
     }
     case PAYLOAD_NOT_SET: {
@@ -400,11 +476,11 @@ void WrapperDroneCommand::MergeImpl(::google::protobuf::MessageLite& to_msg, con
     }
 
     switch (oneof_from_case) {
-      case kCommandMessage: {
+      case kCommandMessageNormal: {
         if (oneof_needs_init) {
-          _this->_impl_.payload_.command_message_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.payload_.command_message_);
+          _this->_impl_.payload_.command_message_normal_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.payload_.command_message_normal_);
         } else {
-          _this->_impl_.payload_.command_message_->MergeFrom(*from._impl_.payload_.command_message_);
+          _this->_impl_.payload_.command_message_normal_->MergeFrom(*from._impl_.payload_.command_message_normal_);
         }
         break;
       }
@@ -435,184 +511,586 @@ void WrapperDroneCommand::InternalSwap(WrapperDroneCommand* PROTOBUF_RESTRICT PR
 }
 // ===================================================================
 
-class DroneCommand::_Internal {
+class DroneCommandString::_Internal {
  public:
   using HasBits =
-      decltype(::std::declval<DroneCommand>()._impl_._has_bits_);
+      decltype(::std::declval<DroneCommandString>()._impl_._has_bits_);
   static constexpr ::int32_t kHasBitsOffset =
-      8 * PROTOBUF_FIELD_OFFSET(DroneCommand, _impl_._has_bits_);
+      8 * PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_._has_bits_);
 };
 
-DroneCommand::DroneCommand(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+DroneCommandString::DroneCommandString(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, DroneCommand_class_data_.base()) {
+    : ::google::protobuf::Message(arena, DroneCommandString_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:DroneCommand)
+  // @@protoc_insertion_point(arena_constructor:DroneCommandString)
 }
-PROTOBUF_NDEBUG_INLINE DroneCommand::Impl_::Impl_(
+PROTOBUF_NDEBUG_INLINE DroneCommandString::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::DroneCommand& from_msg)
+    const ::DroneCommandString& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
-        command_(arena, from.command_) {}
+        type_command_(arena, from.type_command_) {}
 
-DroneCommand::DroneCommand(
+DroneCommandString::DroneCommandString(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
-    const DroneCommand& from)
+    const DroneCommandString& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, DroneCommand_class_data_.base()) {
+    : ::google::protobuf::Message(arena, DroneCommandString_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  DroneCommand* const _this = this;
+  DroneCommandString* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.command_ = ((cached_has_bits & 0x00000002u) != 0)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.command_)
+                : nullptr;
 
-  // @@protoc_insertion_point(copy_constructor:DroneCommand)
+  // @@protoc_insertion_point(copy_constructor:DroneCommandString)
 }
-PROTOBUF_NDEBUG_INLINE DroneCommand::Impl_::Impl_(
+PROTOBUF_NDEBUG_INLINE DroneCommandString::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
-        command_(arena) {}
+        type_command_(arena) {}
 
-inline void DroneCommand::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+inline void DroneCommandString::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.command_ = {};
 }
-DroneCommand::~DroneCommand() {
-  // @@protoc_insertion_point(destructor:DroneCommand)
+DroneCommandString::~DroneCommandString() {
+  // @@protoc_insertion_point(destructor:DroneCommandString)
   SharedDtor(*this);
 }
-inline void DroneCommand::SharedDtor(MessageLite& self) {
-  DroneCommand& this_ = static_cast<DroneCommand&>(self);
+inline void DroneCommandString::SharedDtor(MessageLite& self) {
+  DroneCommandString& this_ = static_cast<DroneCommandString&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.command_.Destroy();
+  this_._impl_.type_command_.Destroy();
+  delete this_._impl_.command_;
   this_._impl_.~Impl_();
 }
 
-inline void* PROTOBUF_NONNULL DroneCommand::PlacementNew_(
+inline void* PROTOBUF_NONNULL DroneCommandString::PlacementNew_(
     const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
-  return ::new (mem) DroneCommand(arena);
+  return ::new (mem) DroneCommandString(arena);
 }
-constexpr auto DroneCommand::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(DroneCommand),
-                                            alignof(DroneCommand));
+constexpr auto DroneCommandString::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(DroneCommandString),
+                                            alignof(DroneCommandString));
 }
-constexpr auto DroneCommand::InternalGenerateClassData_() {
+constexpr auto DroneCommandString::InternalGenerateClassData_() {
   return ::google::protobuf::internal::ClassDataFull{
       ::google::protobuf::internal::ClassData{
-          &_DroneCommand_default_instance_._instance,
+          &_DroneCommandString_default_instance_._instance,
           &_table_.header,
           nullptr,  // OnDemandRegisterArenaDtor
           nullptr,  // IsInitialized
-          &DroneCommand::MergeImpl,
-          ::google::protobuf::Message::GetNewImpl<DroneCommand>(),
+          &DroneCommandString::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<DroneCommandString>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-          &DroneCommand::SharedDtor,
-          ::google::protobuf::Message::GetClearImpl<DroneCommand>(), &DroneCommand::ByteSizeLong,
-              &DroneCommand::_InternalSerialize,
+          &DroneCommandString::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<DroneCommandString>(), &DroneCommandString::ByteSizeLong,
+              &DroneCommandString::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          PROTOBUF_FIELD_OFFSET(DroneCommand, _impl_._cached_size_),
+          PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_._cached_size_),
           false,
       },
-      &DroneCommand::kDescriptorMethods,
+      &DroneCommandString::kDescriptorMethods,
       &descriptor_table_messages_5fdrone_2eproto,
       nullptr,  // tracker
   };
 }
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
-    ::google::protobuf::internal::ClassDataFull DroneCommand_class_data_ =
-        DroneCommand::InternalGenerateClassData_();
+    ::google::protobuf::internal::ClassDataFull DroneCommandString_class_data_ =
+        DroneCommandString::InternalGenerateClassData_();
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
-DroneCommand::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&DroneCommand_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(DroneCommand_class_data_.tc_table);
-  return DroneCommand_class_data_.base();
+DroneCommandString::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&DroneCommandString_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(DroneCommandString_class_data_.tc_table);
+  return DroneCommandString_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 28, 2>
-DroneCommand::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 1, 39, 2>
+DroneCommandString::_table_ = {
   {
-    PROTOBUF_FIELD_OFFSET(DroneCommand, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
-    DroneCommand_class_data_.base(),
+    2,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    DroneCommandString_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::DroneCommand>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::DroneCommandString>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // string command = 1;
+    // .DroneCommandMision command = 2;
+    {::_pbi::TcParser::FastMtS1,
+     {18, 1, 0, PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_.command_)}},
+    // string type_command = 1;
     {::_pbi::TcParser::FastUS1,
-     {10, 0, 0, PROTOBUF_FIELD_OFFSET(DroneCommand, _impl_.command_)}},
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_.type_command_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // string command = 1;
-    {PROTOBUF_FIELD_OFFSET(DroneCommand, _impl_.command_), _Internal::kHasBitsOffset + 0, 0,
+    // string type_command = 1;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_.type_command_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // .DroneCommandMision command = 2;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandString, _impl_.command_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
   }},
-  // no aux_entries
   {{
-    "\14\7\0\0\0\0\0\0"
-    "DroneCommand"
-    "command"
+      {::_pbi::TcParser::GetTable<::DroneCommandMision>()},
+  }},
+  {{
+    "\22\14\0\0\0\0\0\0"
+    "DroneCommandString"
+    "type_command"
   }},
 };
-PROTOBUF_NOINLINE void DroneCommand::Clear() {
-// @@protoc_insertion_point(message_clear_start:DroneCommand)
+PROTOBUF_NOINLINE void DroneCommandString::Clear() {
+// @@protoc_insertion_point(message_clear_start:DroneCommandString)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    _impl_.command_.ClearNonDefaultToEmpty();
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      _impl_.type_command_.ClearNonDefaultToEmpty();
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      ABSL_DCHECK(_impl_.command_ != nullptr);
+      _impl_.command_->Clear();
+    }
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::uint8_t* PROTOBUF_NONNULL DroneCommand::_InternalSerialize(
+::uint8_t* PROTOBUF_NONNULL DroneCommandString::_InternalSerialize(
     const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
-  const DroneCommand& this_ = static_cast<const DroneCommand&>(base);
+  const DroneCommandString& this_ = static_cast<const DroneCommandString&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::uint8_t* PROTOBUF_NONNULL DroneCommand::_InternalSerialize(
+::uint8_t* PROTOBUF_NONNULL DroneCommandString::_InternalSerialize(
     ::uint8_t* PROTOBUF_NONNULL target,
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-  const DroneCommand& this_ = *this;
+  const DroneCommandString& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:DroneCommand)
+  // @@protoc_insertion_point(serialize_to_array_start:DroneCommandString)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // string command = 1;
+  // string type_command = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (!this_._internal_command().empty()) {
-      const ::std::string& _s = this_._internal_command();
+    if (!this_._internal_type_command().empty()) {
+      const ::std::string& _s = this_._internal_type_command();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DroneCommand.command");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DroneCommandString.type_command");
       target = stream->WriteStringMaybeAliased(1, _s, target);
+    }
+  }
+
+  cached_has_bits = this_._impl_._has_bits_[0];
+  // .DroneCommandMision command = 2;
+  if ((cached_has_bits & 0x00000002u) != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        2, *this_._impl_.command_, this_._impl_.command_->GetCachedSize(), target,
+        stream);
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:DroneCommandString)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t DroneCommandString::ByteSizeLong(const MessageLite& base) {
+  const DroneCommandString& this_ = static_cast<const DroneCommandString&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t DroneCommandString::ByteSizeLong() const {
+  const DroneCommandString& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:DroneCommandString)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // string type_command = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_type_command().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_type_command());
+      }
+    }
+    // .DroneCommandMision command = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      total_size += 1 +
+                    ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.command_);
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void DroneCommandString::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<DroneCommandString*>(&to_msg);
+  auto& from = static_cast<const DroneCommandString&>(from_msg);
+  ::google::protobuf::Arena* arena = _this->GetArena();
+  // @@protoc_insertion_point(class_specific_merge_from_start:DroneCommandString)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_type_command().empty()) {
+        _this->_internal_set_type_command(from._internal_type_command());
+      } else {
+        if (_this->_impl_.type_command_.IsDefault()) {
+          _this->_internal_set_type_command("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      ABSL_DCHECK(from._impl_.command_ != nullptr);
+      if (_this->_impl_.command_ == nullptr) {
+        _this->_impl_.command_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.command_);
+      } else {
+        _this->_impl_.command_->MergeFrom(*from._impl_.command_);
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DroneCommandString::CopyFrom(const DroneCommandString& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:DroneCommandString)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void DroneCommandString::InternalSwap(DroneCommandString* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.type_command_, &other->_impl_.type_command_, arena);
+  swap(_impl_.command_, other->_impl_.command_);
+}
+
+::google::protobuf::Metadata DroneCommandString::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class DroneCommandMision::_Internal {
+ public:
+  using HasBits =
+      decltype(::std::declval<DroneCommandMision>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_._has_bits_);
+};
+
+DroneCommandMision::DroneCommandMision(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, DroneCommandMision_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:DroneCommandMision)
+}
+DroneCommandMision::DroneCommandMision(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const DroneCommandMision& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, DroneCommandMision_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(from._impl_) {
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE DroneCommandMision::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
+
+inline void DroneCommandMision::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, latitude_deg_),
+           0,
+           offsetof(Impl_, camera_action_) -
+               offsetof(Impl_, latitude_deg_) +
+               sizeof(Impl_::camera_action_));
+}
+DroneCommandMision::~DroneCommandMision() {
+  // @@protoc_insertion_point(destructor:DroneCommandMision)
+  SharedDtor(*this);
+}
+inline void DroneCommandMision::SharedDtor(MessageLite& self) {
+  DroneCommandMision& this_ = static_cast<DroneCommandMision&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL DroneCommandMision::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) DroneCommandMision(arena);
+}
+constexpr auto DroneCommandMision::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(DroneCommandMision),
+                                            alignof(DroneCommandMision));
+}
+constexpr auto DroneCommandMision::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_DroneCommandMision_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &DroneCommandMision::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<DroneCommandMision>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &DroneCommandMision::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<DroneCommandMision>(), &DroneCommandMision::ByteSizeLong,
+              &DroneCommandMision::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_._cached_size_),
+          false,
+      },
+      &DroneCommandMision::kDescriptorMethods,
+      &descriptor_table_messages_5fdrone_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull DroneCommandMision_class_data_ =
+        DroneCommandMision::InternalGenerateClassData_();
+
+PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
+DroneCommandMision::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&DroneCommandMision_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(DroneCommandMision_class_data_.tc_table);
+  return DroneCommandMision_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<3, 8, 0, 0, 2>
+DroneCommandMision::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_._has_bits_),
+    0, // no _extensions_
+    8, 56,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967040,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    8,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    DroneCommandMision_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::DroneCommandMision>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // .CameraAction camera_action = 8;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DroneCommandMision, _impl_.camera_action_), 7>(),
+     {64, 7, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.camera_action_)}},
+    // double latitude_deg = 1;
+    {::_pbi::TcParser::FastF64S1,
+     {9, 0, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.latitude_deg_)}},
+    // double longitude_deg = 2;
+    {::_pbi::TcParser::FastF64S1,
+     {17, 1, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.longitude_deg_)}},
+    // float relative_altitude_m = 3;
+    {::_pbi::TcParser::FastF32S1,
+     {29, 2, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.relative_altitude_m_)}},
+    // float speed_m_s = 4;
+    {::_pbi::TcParser::FastF32S1,
+     {37, 3, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.speed_m_s_)}},
+    // bool is_fly_through = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DroneCommandMision, _impl_.is_fly_through_), 4>(),
+     {40, 4, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.is_fly_through_)}},
+    // float gimbal_pitch_deg = 6;
+    {::_pbi::TcParser::FastF32S1,
+     {53, 5, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.gimbal_pitch_deg_)}},
+    // float gimbal_yaw_deg = 7;
+    {::_pbi::TcParser::FastF32S1,
+     {61, 6, 0, PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.gimbal_yaw_deg_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // double latitude_deg = 1;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.latitude_deg_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kDouble)},
+    // double longitude_deg = 2;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.longitude_deg_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kDouble)},
+    // float relative_altitude_m = 3;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.relative_altitude_m_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float speed_m_s = 4;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.speed_m_s_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // bool is_fly_through = 5;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.is_fly_through_), _Internal::kHasBitsOffset + 4, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // float gimbal_pitch_deg = 6;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.gimbal_pitch_deg_), _Internal::kHasBitsOffset + 5, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // float gimbal_yaw_deg = 7;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.gimbal_yaw_deg_), _Internal::kHasBitsOffset + 6, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // .CameraAction camera_action = 8;
+    {PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.camera_action_), _Internal::kHasBitsOffset + 7, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kOpenEnum)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void DroneCommandMision::Clear() {
+// @@protoc_insertion_point(message_clear_start:DroneCommandMision)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    ::memset(&_impl_.latitude_deg_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.camera_action_) -
+        reinterpret_cast<char*>(&_impl_.latitude_deg_)) + sizeof(_impl_.camera_action_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL DroneCommandMision::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const DroneCommandMision& this_ = static_cast<const DroneCommandMision&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL DroneCommandMision::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const DroneCommandMision& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:DroneCommandMision)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // double latitude_deg = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (::absl::bit_cast<::uint64_t>(this_._internal_latitude_deg()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteDoubleToArray(
+          1, this_._internal_latitude_deg(), target);
+    }
+  }
+
+  // double longitude_deg = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (::absl::bit_cast<::uint64_t>(this_._internal_longitude_deg()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteDoubleToArray(
+          2, this_._internal_longitude_deg(), target);
+    }
+  }
+
+  // float relative_altitude_m = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_relative_altitude_m()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          3, this_._internal_relative_altitude_m(), target);
+    }
+  }
+
+  // float speed_m_s = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_speed_m_s()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          4, this_._internal_speed_m_s(), target);
+    }
+  }
+
+  // bool is_fly_through = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_is_fly_through() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_is_fly_through(), target);
+    }
+  }
+
+  // float gimbal_pitch_deg = 6;
+  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_gimbal_pitch_deg()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          6, this_._internal_gimbal_pitch_deg(), target);
+    }
+  }
+
+  // float gimbal_yaw_deg = 7;
+  if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
+    if (::absl::bit_cast<::uint32_t>(this_._internal_gimbal_yaw_deg()) != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteFloatToArray(
+          7, this_._internal_gimbal_yaw_deg(), target);
+    }
+  }
+
+  // .CameraAction camera_action = 8;
+  if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
+    if (this_._internal_camera_action() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteEnumToArray(
+          8, this_._internal_camera_action(), target);
     }
   }
 
@@ -621,31 +1099,74 @@ PROTOBUF_NOINLINE void DroneCommand::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:DroneCommand)
+  // @@protoc_insertion_point(serialize_to_array_end:DroneCommandMision)
   return target;
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::size_t DroneCommand::ByteSizeLong(const MessageLite& base) {
-  const DroneCommand& this_ = static_cast<const DroneCommand&>(base);
+::size_t DroneCommandMision::ByteSizeLong(const MessageLite& base) {
+  const DroneCommandMision& this_ = static_cast<const DroneCommandMision&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::size_t DroneCommand::ByteSizeLong() const {
-  const DroneCommand& this_ = *this;
+::size_t DroneCommandMision::ByteSizeLong() const {
+  const DroneCommandMision& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:DroneCommand)
+  // @@protoc_insertion_point(message_byte_size_start:DroneCommandMision)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // string command = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    // double latitude_deg = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
-      if (!this_._internal_command().empty()) {
-        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                        this_._internal_command());
+      if (::absl::bit_cast<::uint64_t>(this_._internal_latitude_deg()) != 0) {
+        total_size += 9;
+      }
+    }
+    // double longitude_deg = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (::absl::bit_cast<::uint64_t>(this_._internal_longitude_deg()) != 0) {
+        total_size += 9;
+      }
+    }
+    // float relative_altitude_m = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_relative_altitude_m()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float speed_m_s = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_speed_m_s()) != 0) {
+        total_size += 5;
+      }
+    }
+    // bool is_fly_through = 5;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_is_fly_through() != 0) {
+        total_size += 2;
+      }
+    }
+    // float gimbal_pitch_deg = 6;
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_gimbal_pitch_deg()) != 0) {
+        total_size += 5;
+      }
+    }
+    // float gimbal_yaw_deg = 7;
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(this_._internal_gimbal_yaw_deg()) != 0) {
+        total_size += 5;
+      }
+    }
+    // .CameraAction camera_action = 8;
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (this_._internal_camera_action() != 0) {
+        total_size += 1 +
+                      ::_pbi::WireFormatLite::EnumSize(this_._internal_camera_action());
       }
     }
   }
@@ -653,21 +1174,54 @@ PROTOBUF_NOINLINE void DroneCommand::Clear() {
                                              &this_._impl_._cached_size_);
 }
 
-void DroneCommand::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<DroneCommand*>(&to_msg);
-  auto& from = static_cast<const DroneCommand&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:DroneCommand)
+void DroneCommandMision::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<DroneCommandMision*>(&to_msg);
+  auto& from = static_cast<const DroneCommandMision&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:DroneCommandMision)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (!from._internal_command().empty()) {
-      _this->_internal_set_command(from._internal_command());
-    } else {
-      if (_this->_impl_.command_.IsDefault()) {
-        _this->_internal_set_command("");
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (::absl::bit_cast<::uint64_t>(from._internal_latitude_deg()) != 0) {
+        _this->_impl_.latitude_deg_ = from._impl_.latitude_deg_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (::absl::bit_cast<::uint64_t>(from._internal_longitude_deg()) != 0) {
+        _this->_impl_.longitude_deg_ = from._impl_.longitude_deg_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_relative_altitude_m()) != 0) {
+        _this->_impl_.relative_altitude_m_ = from._impl_.relative_altitude_m_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_speed_m_s()) != 0) {
+        _this->_impl_.speed_m_s_ = from._impl_.speed_m_s_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (from._internal_is_fly_through() != 0) {
+        _this->_impl_.is_fly_through_ = from._impl_.is_fly_through_;
+      }
+    }
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_gimbal_pitch_deg()) != 0) {
+        _this->_impl_.gimbal_pitch_deg_ = from._impl_.gimbal_pitch_deg_;
+      }
+    }
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (::absl::bit_cast<::uint32_t>(from._internal_gimbal_yaw_deg()) != 0) {
+        _this->_impl_.gimbal_yaw_deg_ = from._impl_.gimbal_yaw_deg_;
+      }
+    }
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (from._internal_camera_action() != 0) {
+        _this->_impl_.camera_action_ = from._impl_.camera_action_;
       }
     }
   }
@@ -675,24 +1229,27 @@ void DroneCommand::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::go
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void DroneCommand::CopyFrom(const DroneCommand& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:DroneCommand)
+void DroneCommandMision::CopyFrom(const DroneCommandMision& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:DroneCommandMision)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 
-void DroneCommand::InternalSwap(DroneCommand* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+void DroneCommandMision::InternalSwap(DroneCommandMision* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using ::std::swap;
-  auto* arena = GetArena();
-  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.command_, &other->_impl_.command_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.camera_action_)
+      + sizeof(DroneCommandMision::_impl_.camera_action_)
+      - PROTOBUF_FIELD_OFFSET(DroneCommandMision, _impl_.latitude_deg_)>(
+          reinterpret_cast<char*>(&_impl_.latitude_deg_),
+          reinterpret_cast<char*>(&other->_impl_.latitude_deg_));
 }
 
-::google::protobuf::Metadata DroneCommand::GetMetadata() const {
+::google::protobuf::Metadata DroneCommandMision::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)

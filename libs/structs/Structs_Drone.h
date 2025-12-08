@@ -21,6 +21,34 @@ namespace Struct_Drone {
         std::filesystem::path data_path;
         std::filesystem::path log_path;
         std::string log_name;
+        std::string command_px4;
+    };
+
+    enum class CameraAction {
+        None,
+        TakePhoto,
+        StartPhotoInterval,
+        StopPhotoInterval,
+        StartVideo,
+        StopVideo,
+        StartPhotoDistance,
+        StopPhotoDistance
+    };
+
+    struct MissionItem {
+        double latitude_deg;
+        double longitude_deg;
+        float relative_altitude_m;
+        float speed_m_s;
+        bool is_fly_through;
+        float gimbal_pitch_deg;
+        float gimbal_yaw_deg;
+        CameraAction camera_action;
+    };
+
+    struct MessagePX4 {
+        std::string type;
+        MissionItem mission_item;
     };
 
     enum class Status {
