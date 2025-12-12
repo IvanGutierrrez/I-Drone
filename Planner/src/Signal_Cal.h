@@ -8,7 +8,7 @@
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
-#include "structs/Structs_Algo.h"
+#include "structs/Structs_Planner.h"
 #include <iostream>
 #include <memory>
 #include <map>
@@ -30,7 +30,7 @@ class Signal_Cal {
 
 public:
     Signal_Cal();
-    std::vector<Struct_Algo::Coordinate> calculate_signal(const Struct_Algo::Config_struct &global_config,const Struct_Algo::SignalServerConfig &signal_server_conf);
+    std::vector<Struct_Planner::Coordinate> calculate_signal(const Struct_Planner::Config_struct &global_config,const Struct_Planner::SignalServerConfig &signal_server_conf);
 
 private:
     CoverageMatrix read_Coverage_File(const std::string& filename, const std::string& dcfFilename);

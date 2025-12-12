@@ -1,33 +1,33 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Enc_Dec_Algo.cpp                  
+ *  Filename : Enc_Dec_Planner.cpp                  
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include "Enc_Dec_Algo.h"
+#include "Enc_Dec_Planner.h"
 #include <boost/asio/detail/socket_ops.hpp>
-#include "structs/Structs_Algo.h"
+#include "structs/Structs_Planner.h"
 
-namespace Enc_Dec_Algo {
-    std::pair<Algo, std::unique_ptr<google::protobuf::Message>> decode_to_algo(const std::string& data)
+namespace Enc_Dec_Planner {
+    std::pair<Planner, std::unique_ptr<google::protobuf::Message>> decode_to_planner(const std::string& data)
     {
         Wrapper wrapper;
         if (!wrapper.ParseFromString(data)) {
-            return {Algo::UNKNOWN, nullptr};
+            return {Planner::UNKNOWN, nullptr};
         }
 
-        if (wrapper.has_algo_message()) {
-            auto msg = std::make_unique<AlgorithmMessage>(wrapper.algo_message());
-            return {Algo::ConfigMessage, std::move(msg)};
+        if (wrapper.has_planner_message()) {
+            auto msg = std::make_unique<PlannerMessage>(wrapper.planner_message());
+            return {Planner::ConfigMessage, std::move(msg)};
         }
 
-        return {Algo::UNKNOWN, nullptr};
+        return {Planner::UNKNOWN, nullptr};
     }
         
-    bool encode_config_message(const Struct_Algo::SignalServerConfig& signal_msg, const Struct_Algo::DroneData& drone_msg, std::string &data) 
+    bool encode_config_message(const Struct_Planner::SignalServerConfig& signal_msg, const Struct_Planner::DroneData& drone_msg, std::string &data) 
     {
         SignalServerConfigProto protoMsg;
 
@@ -75,12 +75,12 @@ namespace Enc_Dec_Algo {
             dron_proto.add_lat(each.lat);
         }
 
-        AlgorithmMessage complete_mst;
+        PlannerMessage complete_mst;
         *(complete_mst.mutable_signal_server_config()) = protoMsg;
         *(complete_mst.mutable_drone_data()) = dron_proto;
 
         Wrapper wrapper;
-        *(wrapper.mutable_algo_message()) = complete_mst;
+        *(wrapper.mutable_planner_message()) = complete_mst;
 
         std::string serialized_data;
         if (!wrapper.SerializeToString(&serialized_data))
@@ -98,7 +98,7 @@ namespace Enc_Dec_Algo {
     }
 
 
-    bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Algo::SignalServerConfig &msg) 
+    bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Planner::SignalServerConfig &msg) 
     {
         try {
             msg.sdfDirectory = protoMsg.sdf_directory();
@@ -138,14 +138,14 @@ namespace Enc_Dec_Algo {
         return true;
     }
 
-    bool decode_drone_data(const DroneData& protoMsg, Struct_Algo::DroneData &msg)
+    bool decode_drone_data(const DroneData& protoMsg, Struct_Planner::DroneData &msg)
     {
         msg.num_drones = protoMsg.num_drones();
         msg.pos_targets.clear();
         for (int i = 0; i < protoMsg.lon().size(); ++i) {
             if (i >= protoMsg.lat().size())
                 return false;
-            Struct_Algo::Coordinate coordinate(protoMsg.lon(i),protoMsg.lat(i));
+            Struct_Planner::Coordinate coordinate(protoMsg.lon(i),protoMsg.lat(i));
             msg.pos_targets.push_back(coordinate);
         }
         return true;

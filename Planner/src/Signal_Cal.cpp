@@ -132,7 +132,7 @@ std::vector<double> Signal_Cal::parse_Bounds(const std::string& str)
     return values;
 }
 
-std::vector<Struct_Algo::Coordinate> matrixToVector(
+std::vector<Struct_Planner::Coordinate> matrixToVector(
     const CoverageMatrix& matrix,
     double latMax,
     double latMin,
@@ -146,13 +146,13 @@ std::vector<Struct_Algo::Coordinate> matrixToVector(
     double latStep = (latMax - latMin) / rows;
     double lonStep = (lonMax - lonMin) / cols;
 
-    std::vector<Struct_Algo::Coordinate> points;
+    std::vector<Struct_Planner::Coordinate> points;
 
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
             double value = matrix[row][col];
             if (value >= threshold) {
-                Struct_Algo::Coordinate p(lonMin + col * lonStep,latMax - row * latStep);
+                Struct_Planner::Coordinate p(lonMin + col * lonStep,latMax - row * latStep);
                 points.push_back(p);
             }
         }
@@ -161,9 +161,9 @@ std::vector<Struct_Algo::Coordinate> matrixToVector(
     return points;
 }
 
-std::vector<Struct_Algo::Coordinate> Signal_Cal::calculate_signal(const Struct_Algo::Config_struct &global_config, const Struct_Algo::SignalServerConfig &signal_server_conf)
+std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struct_Planner::Config_struct &global_config, const Struct_Planner::SignalServerConfig &signal_server_conf)
 {
-    std::vector<Struct_Algo::Coordinate> points_empty;
+    std::vector<Struct_Planner::Coordinate> points_empty;
     std::string cmd;
     if (!signal_server_conf.toCommand(global_config.signal_server_path,cmd)) {
         Logger::log_message(Logger::Type::ERROR, "Error creating Signal-Server command");

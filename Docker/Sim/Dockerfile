@@ -103,7 +103,7 @@ COPY meson_drone.build /app/meson.build
 
 # Regenerate protobuf files with system protobuf (3.x)
 RUN cd /app/libs/proto && \
-    protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_algo.proto && \
+    protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_planner.proto && \
     protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_drone.proto && \
     protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_pld.proto
 

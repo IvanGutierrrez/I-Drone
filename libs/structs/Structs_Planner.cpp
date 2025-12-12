@@ -1,19 +1,19 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Struct_algo.cpp                   
+ *  Filename : Struct_Planner.cpp                   
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include "Structs_Algo.h"
+#include "Structs_Planner.h"
 #include <string>
 #include <vector>
 #include <sstream>
 #include <filesystem>
 
-namespace Struct_Algo {
+namespace Struct_Planner {
 
 std::ostream& operator<<(std::ostream& os, const DroneData& d)
 {

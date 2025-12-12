@@ -52,26 +52,26 @@ struct TableStruct_messages_5fpld_2eproto {
 extern "C" {
 extern const ::google::protobuf::internal::DescriptorTable descriptor_table_messages_5fpld_2eproto;
 }  // extern "C"
-class AlgoResponse;
-struct AlgoResponseDefaultTypeInternal;
-extern AlgoResponseDefaultTypeInternal _AlgoResponse_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull AlgoResponse_class_data_;
-class AlgoResponseList;
-struct AlgoResponseListDefaultTypeInternal;
-extern AlgoResponseListDefaultTypeInternal _AlgoResponseList_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull AlgoResponseList_class_data_;
+class PlannerResponse;
+struct PlannerResponseDefaultTypeInternal;
+extern PlannerResponseDefaultTypeInternal _PlannerResponse_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull PlannerResponse_class_data_;
+class PlannerResponseList;
+struct PlannerResponseListDefaultTypeInternal;
+extern PlannerResponseListDefaultTypeInternal _PlannerResponseList_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull PlannerResponseList_class_data_;
 class Status;
 struct StatusDefaultTypeInternal;
 extern StatusDefaultTypeInternal _Status_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull Status_class_data_;
-class WrapperAlgo;
-struct WrapperAlgoDefaultTypeInternal;
-extern WrapperAlgoDefaultTypeInternal _WrapperAlgo_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull WrapperAlgo_class_data_;
 class WrapperDrone;
 struct WrapperDroneDefaultTypeInternal;
 extern WrapperDroneDefaultTypeInternal _WrapperDrone_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull WrapperDrone_class_data_;
+class WrapperPlanner;
+struct WrapperPlannerDefaultTypeInternal;
+extern WrapperPlannerDefaultTypeInternal _WrapperPlanner_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull WrapperPlanner_class_data_;
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
@@ -279,30 +279,30 @@ class Status final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull Status_class_data_;
 // -------------------------------------------------------------------
 
-class AlgoResponse final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:AlgoResponse) */ {
+class PlannerResponse final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:PlannerResponse) */ {
  public:
-  inline AlgoResponse() : AlgoResponse(nullptr) {}
-  ~AlgoResponse() PROTOBUF_FINAL;
+  inline PlannerResponse() : PlannerResponse(nullptr) {}
+  ~PlannerResponse() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(AlgoResponse* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(PlannerResponse* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(AlgoResponse));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(PlannerResponse));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR AlgoResponse(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR PlannerResponse(::google::protobuf::internal::ConstantInitialized);
 
-  inline AlgoResponse(const AlgoResponse& from) : AlgoResponse(nullptr, from) {}
-  inline AlgoResponse(AlgoResponse&& from) noexcept
-      : AlgoResponse(nullptr, ::std::move(from)) {}
-  inline AlgoResponse& operator=(const AlgoResponse& from) {
+  inline PlannerResponse(const PlannerResponse& from) : PlannerResponse(nullptr, from) {}
+  inline PlannerResponse(PlannerResponse&& from) noexcept
+      : PlannerResponse(nullptr, ::std::move(from)) {}
+  inline PlannerResponse& operator=(const PlannerResponse& from) {
     CopyFrom(from);
     return *this;
   }
-  inline AlgoResponse& operator=(AlgoResponse&& from) noexcept {
+  inline PlannerResponse& operator=(PlannerResponse&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -330,13 +330,13 @@ class AlgoResponse final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const AlgoResponse& default_instance() {
-    return *reinterpret_cast<const AlgoResponse*>(
-        &_AlgoResponse_default_instance_);
+  static const PlannerResponse& default_instance() {
+    return *reinterpret_cast<const PlannerResponse*>(
+        &_PlannerResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 3;
-  friend void swap(AlgoResponse& a, AlgoResponse& b) { a.Swap(&b); }
-  inline void Swap(AlgoResponse* PROTOBUF_NONNULL other) {
+  friend void swap(PlannerResponse& a, PlannerResponse& b) { a.Swap(&b); }
+  inline void Swap(PlannerResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -344,7 +344,7 @@ class AlgoResponse final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(AlgoResponse* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(PlannerResponse* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -352,13 +352,13 @@ class AlgoResponse final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  AlgoResponse* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<AlgoResponse>(arena);
+  PlannerResponse* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<PlannerResponse>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const AlgoResponse& from);
+  void CopyFrom(const PlannerResponse& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const AlgoResponse& from) { AlgoResponse::MergeImpl(*this, from); }
+  void MergeFrom(const PlannerResponse& from) { PlannerResponse::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -394,18 +394,18 @@ class AlgoResponse final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(AlgoResponse* PROTOBUF_NONNULL other);
+  void InternalSwap(PlannerResponse* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "AlgoResponse"; }
+  static ::absl::string_view FullMessageName() { return "PlannerResponse"; }
 
  protected:
-  explicit AlgoResponse(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  AlgoResponse(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const AlgoResponse& from);
-  AlgoResponse(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, AlgoResponse&& from) noexcept
-      : AlgoResponse(arena) {
+  explicit PlannerResponse(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  PlannerResponse(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const PlannerResponse& from);
+  PlannerResponse(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, PlannerResponse&& from) noexcept
+      : PlannerResponse(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -461,7 +461,7 @@ class AlgoResponse final : public ::google::protobuf::Message
   ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL _internal_mutable_lat();
 
   public:
-  // @@protoc_insertion_point(class_scope:AlgoResponse)
+  // @@protoc_insertion_point(class_scope:PlannerResponse)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -484,7 +484,7 @@ class AlgoResponse final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const AlgoResponse& from_msg);
+        const PlannerResponse& from_msg);
     ::google::protobuf::RepeatedField<double> lon_;
     ::google::protobuf::RepeatedField<double> lat_;
     ::google::protobuf::internal::CachedSize _cached_size_;
@@ -494,7 +494,7 @@ class AlgoResponse final : public ::google::protobuf::Message
   friend struct ::TableStruct_messages_5fpld_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull AlgoResponse_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull PlannerResponse_class_data_;
 // -------------------------------------------------------------------
 
 class WrapperDrone final : public ::google::protobuf::Message
@@ -710,30 +710,30 @@ class WrapperDrone final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull WrapperDrone_class_data_;
 // -------------------------------------------------------------------
 
-class AlgoResponseList final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:AlgoResponseList) */ {
+class PlannerResponseList final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:PlannerResponseList) */ {
  public:
-  inline AlgoResponseList() : AlgoResponseList(nullptr) {}
-  ~AlgoResponseList() PROTOBUF_FINAL;
+  inline PlannerResponseList() : PlannerResponseList(nullptr) {}
+  ~PlannerResponseList() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(AlgoResponseList* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(PlannerResponseList* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(AlgoResponseList));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(PlannerResponseList));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR AlgoResponseList(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR PlannerResponseList(::google::protobuf::internal::ConstantInitialized);
 
-  inline AlgoResponseList(const AlgoResponseList& from) : AlgoResponseList(nullptr, from) {}
-  inline AlgoResponseList(AlgoResponseList&& from) noexcept
-      : AlgoResponseList(nullptr, ::std::move(from)) {}
-  inline AlgoResponseList& operator=(const AlgoResponseList& from) {
+  inline PlannerResponseList(const PlannerResponseList& from) : PlannerResponseList(nullptr, from) {}
+  inline PlannerResponseList(PlannerResponseList&& from) noexcept
+      : PlannerResponseList(nullptr, ::std::move(from)) {}
+  inline PlannerResponseList& operator=(const PlannerResponseList& from) {
     CopyFrom(from);
     return *this;
   }
-  inline AlgoResponseList& operator=(AlgoResponseList&& from) noexcept {
+  inline PlannerResponseList& operator=(PlannerResponseList&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -761,13 +761,13 @@ class AlgoResponseList final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const AlgoResponseList& default_instance() {
-    return *reinterpret_cast<const AlgoResponseList*>(
-        &_AlgoResponseList_default_instance_);
+  static const PlannerResponseList& default_instance() {
+    return *reinterpret_cast<const PlannerResponseList*>(
+        &_PlannerResponseList_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 2;
-  friend void swap(AlgoResponseList& a, AlgoResponseList& b) { a.Swap(&b); }
-  inline void Swap(AlgoResponseList* PROTOBUF_NONNULL other) {
+  friend void swap(PlannerResponseList& a, PlannerResponseList& b) { a.Swap(&b); }
+  inline void Swap(PlannerResponseList* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -775,7 +775,7 @@ class AlgoResponseList final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(AlgoResponseList* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(PlannerResponseList* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -783,13 +783,13 @@ class AlgoResponseList final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  AlgoResponseList* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<AlgoResponseList>(arena);
+  PlannerResponseList* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<PlannerResponseList>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const AlgoResponseList& from);
+  void CopyFrom(const PlannerResponseList& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const AlgoResponseList& from) { AlgoResponseList::MergeImpl(*this, from); }
+  void MergeFrom(const PlannerResponseList& from) { PlannerResponseList::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -825,18 +825,18 @@ class AlgoResponseList final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(AlgoResponseList* PROTOBUF_NONNULL other);
+  void InternalSwap(PlannerResponseList* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "AlgoResponseList"; }
+  static ::absl::string_view FullMessageName() { return "PlannerResponseList"; }
 
  protected:
-  explicit AlgoResponseList(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  AlgoResponseList(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const AlgoResponseList& from);
-  AlgoResponseList(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, AlgoResponseList&& from) noexcept
-      : AlgoResponseList(arena) {
+  explicit PlannerResponseList(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  PlannerResponseList(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const PlannerResponseList& from);
+  PlannerResponseList(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, PlannerResponseList&& from) noexcept
+      : PlannerResponseList(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -855,24 +855,24 @@ class AlgoResponseList final : public ::google::protobuf::Message
   enum : int {
     kItemsFieldNumber = 1,
   };
-  // repeated .AlgoResponse items = 1;
+  // repeated .PlannerResponse items = 1;
   int items_size() const;
   private:
   int _internal_items_size() const;
 
   public:
   void clear_items() ;
-  ::AlgoResponse* PROTOBUF_NONNULL mutable_items(int index);
-  ::google::protobuf::RepeatedPtrField<::AlgoResponse>* PROTOBUF_NONNULL mutable_items();
+  ::PlannerResponse* PROTOBUF_NONNULL mutable_items(int index);
+  ::google::protobuf::RepeatedPtrField<::PlannerResponse>* PROTOBUF_NONNULL mutable_items();
 
   private:
-  const ::google::protobuf::RepeatedPtrField<::AlgoResponse>& _internal_items() const;
-  ::google::protobuf::RepeatedPtrField<::AlgoResponse>* PROTOBUF_NONNULL _internal_mutable_items();
+  const ::google::protobuf::RepeatedPtrField<::PlannerResponse>& _internal_items() const;
+  ::google::protobuf::RepeatedPtrField<::PlannerResponse>* PROTOBUF_NONNULL _internal_mutable_items();
   public:
-  const ::AlgoResponse& items(int index) const;
-  ::AlgoResponse* PROTOBUF_NONNULL add_items();
-  const ::google::protobuf::RepeatedPtrField<::AlgoResponse>& items() const;
-  // @@protoc_insertion_point(class_scope:AlgoResponseList)
+  const ::PlannerResponse& items(int index) const;
+  ::PlannerResponse* PROTOBUF_NONNULL add_items();
+  const ::google::protobuf::RepeatedPtrField<::PlannerResponse>& items() const;
+  // @@protoc_insertion_point(class_scope:PlannerResponseList)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -895,8 +895,8 @@ class AlgoResponseList final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const AlgoResponseList& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::AlgoResponse > items_;
+        const PlannerResponseList& from_msg);
+    ::google::protobuf::RepeatedPtrField< ::PlannerResponse > items_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -904,33 +904,33 @@ class AlgoResponseList final : public ::google::protobuf::Message
   friend struct ::TableStruct_messages_5fpld_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull AlgoResponseList_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull PlannerResponseList_class_data_;
 // -------------------------------------------------------------------
 
-class WrapperAlgo final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:WrapperAlgo) */ {
+class WrapperPlanner final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:WrapperPlanner) */ {
  public:
-  inline WrapperAlgo() : WrapperAlgo(nullptr) {}
-  ~WrapperAlgo() PROTOBUF_FINAL;
+  inline WrapperPlanner() : WrapperPlanner(nullptr) {}
+  ~WrapperPlanner() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(WrapperAlgo* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(WrapperPlanner* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(WrapperAlgo));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(WrapperPlanner));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR WrapperAlgo(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR WrapperPlanner(::google::protobuf::internal::ConstantInitialized);
 
-  inline WrapperAlgo(const WrapperAlgo& from) : WrapperAlgo(nullptr, from) {}
-  inline WrapperAlgo(WrapperAlgo&& from) noexcept
-      : WrapperAlgo(nullptr, ::std::move(from)) {}
-  inline WrapperAlgo& operator=(const WrapperAlgo& from) {
+  inline WrapperPlanner(const WrapperPlanner& from) : WrapperPlanner(nullptr, from) {}
+  inline WrapperPlanner(WrapperPlanner&& from) noexcept
+      : WrapperPlanner(nullptr, ::std::move(from)) {}
+  inline WrapperPlanner& operator=(const WrapperPlanner& from) {
     CopyFrom(from);
     return *this;
   }
-  inline WrapperAlgo& operator=(WrapperAlgo&& from) noexcept {
+  inline WrapperPlanner& operator=(WrapperPlanner&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -958,18 +958,18 @@ class WrapperAlgo final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const WrapperAlgo& default_instance() {
-    return *reinterpret_cast<const WrapperAlgo*>(
-        &_WrapperAlgo_default_instance_);
+  static const WrapperPlanner& default_instance() {
+    return *reinterpret_cast<const WrapperPlanner*>(
+        &_WrapperPlanner_default_instance_);
   }
   enum PayloadCase {
-    kAlgoResponse = 1,
+    kPlannerResponse = 1,
     kStatus = 2,
     PAYLOAD_NOT_SET = 0,
   };
   static constexpr int kIndexInFileMessages = 0;
-  friend void swap(WrapperAlgo& a, WrapperAlgo& b) { a.Swap(&b); }
-  inline void Swap(WrapperAlgo* PROTOBUF_NONNULL other) {
+  friend void swap(WrapperPlanner& a, WrapperPlanner& b) { a.Swap(&b); }
+  inline void Swap(WrapperPlanner* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -977,7 +977,7 @@ class WrapperAlgo final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(WrapperAlgo* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(WrapperPlanner* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -985,13 +985,13 @@ class WrapperAlgo final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  WrapperAlgo* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<WrapperAlgo>(arena);
+  WrapperPlanner* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<WrapperPlanner>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const WrapperAlgo& from);
+  void CopyFrom(const WrapperPlanner& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const WrapperAlgo& from) { WrapperAlgo::MergeImpl(*this, from); }
+  void MergeFrom(const WrapperPlanner& from) { WrapperPlanner::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -1027,18 +1027,18 @@ class WrapperAlgo final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(WrapperAlgo* PROTOBUF_NONNULL other);
+  void InternalSwap(WrapperPlanner* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "WrapperAlgo"; }
+  static ::absl::string_view FullMessageName() { return "WrapperPlanner"; }
 
  protected:
-  explicit WrapperAlgo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  WrapperAlgo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const WrapperAlgo& from);
-  WrapperAlgo(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, WrapperAlgo&& from) noexcept
-      : WrapperAlgo(arena) {
+  explicit WrapperPlanner(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  WrapperPlanner(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const WrapperPlanner& from);
+  WrapperPlanner(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, WrapperPlanner&& from) noexcept
+      : WrapperPlanner(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -1055,26 +1055,26 @@ class WrapperAlgo final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAlgoResponseFieldNumber = 1,
+    kPlannerResponseFieldNumber = 1,
     kStatusFieldNumber = 2,
   };
-  // .AlgoResponseList algo_response = 1;
-  bool has_algo_response() const;
+  // .PlannerResponseList planner_response = 1;
+  bool has_planner_response() const;
   private:
-  bool _internal_has_algo_response() const;
+  bool _internal_has_planner_response() const;
 
   public:
-  void clear_algo_response() ;
-  const ::AlgoResponseList& algo_response() const;
-  [[nodiscard]] ::AlgoResponseList* PROTOBUF_NULLABLE release_algo_response();
-  ::AlgoResponseList* PROTOBUF_NONNULL mutable_algo_response();
-  void set_allocated_algo_response(::AlgoResponseList* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_algo_response(::AlgoResponseList* PROTOBUF_NULLABLE value);
-  ::AlgoResponseList* PROTOBUF_NULLABLE unsafe_arena_release_algo_response();
+  void clear_planner_response() ;
+  const ::PlannerResponseList& planner_response() const;
+  [[nodiscard]] ::PlannerResponseList* PROTOBUF_NULLABLE release_planner_response();
+  ::PlannerResponseList* PROTOBUF_NONNULL mutable_planner_response();
+  void set_allocated_planner_response(::PlannerResponseList* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_planner_response(::PlannerResponseList* PROTOBUF_NULLABLE value);
+  ::PlannerResponseList* PROTOBUF_NULLABLE unsafe_arena_release_planner_response();
 
   private:
-  const ::AlgoResponseList& _internal_algo_response() const;
-  ::AlgoResponseList* PROTOBUF_NONNULL _internal_mutable_algo_response();
+  const ::PlannerResponseList& _internal_planner_response() const;
+  ::PlannerResponseList* PROTOBUF_NONNULL _internal_mutable_planner_response();
 
   public:
   // .Status status = 2;
@@ -1098,10 +1098,10 @@ class WrapperAlgo final : public ::google::protobuf::Message
   public:
   void clear_payload();
   PayloadCase payload_case() const;
-  // @@protoc_insertion_point(class_scope:WrapperAlgo)
+  // @@protoc_insertion_point(class_scope:WrapperPlanner)
  private:
   class _Internal;
-  void set_has_algo_response();
+  void set_has_planner_response();
   void set_has_status();
   inline bool has_payload() const;
   inline void clear_has_payload();
@@ -1125,11 +1125,11 @@ class WrapperAlgo final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const WrapperAlgo& from_msg);
+        const WrapperPlanner& from_msg);
     union PayloadUnion {
       constexpr PayloadUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
-      ::AlgoResponseList* PROTOBUF_NULLABLE algo_response_;
+      ::PlannerResponseList* PROTOBUF_NULLABLE planner_response_;
       ::Status* PROTOBUF_NULLABLE status_;
     } payload_;
     ::google::protobuf::internal::CachedSize _cached_size_;
@@ -1140,7 +1140,7 @@ class WrapperAlgo final : public ::google::protobuf::Message
   friend struct ::TableStruct_messages_5fpld_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull WrapperAlgo_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull WrapperPlanner_class_data_;
 
 // ===================================================================
 
@@ -1156,100 +1156,100 @@ extern const ::google::protobuf::internal::ClassDataFull WrapperAlgo_class_data_
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 
-// WrapperAlgo
+// WrapperPlanner
 
-// .AlgoResponseList algo_response = 1;
-inline bool WrapperAlgo::has_algo_response() const {
-  return payload_case() == kAlgoResponse;
+// .PlannerResponseList planner_response = 1;
+inline bool WrapperPlanner::has_planner_response() const {
+  return payload_case() == kPlannerResponse;
 }
-inline bool WrapperAlgo::_internal_has_algo_response() const {
-  return payload_case() == kAlgoResponse;
+inline bool WrapperPlanner::_internal_has_planner_response() const {
+  return payload_case() == kPlannerResponse;
 }
-inline void WrapperAlgo::set_has_algo_response() {
-  _impl_._oneof_case_[0] = kAlgoResponse;
+inline void WrapperPlanner::set_has_planner_response() {
+  _impl_._oneof_case_[0] = kPlannerResponse;
 }
-inline void WrapperAlgo::clear_algo_response() {
+inline void WrapperPlanner::clear_planner_response() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (payload_case() == kAlgoResponse) {
+  if (payload_case() == kPlannerResponse) {
     if (GetArena() == nullptr) {
-      delete _impl_.payload_.algo_response_;
+      delete _impl_.payload_.planner_response_;
     } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
-      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.algo_response_);
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.planner_response_);
     }
     clear_has_payload();
   }
 }
-inline ::AlgoResponseList* PROTOBUF_NULLABLE WrapperAlgo::release_algo_response() {
-  // @@protoc_insertion_point(field_release:WrapperAlgo.algo_response)
-  if (payload_case() == kAlgoResponse) {
+inline ::PlannerResponseList* PROTOBUF_NULLABLE WrapperPlanner::release_planner_response() {
+  // @@protoc_insertion_point(field_release:WrapperPlanner.planner_response)
+  if (payload_case() == kPlannerResponse) {
     clear_has_payload();
-    auto* temp = _impl_.payload_.algo_response_;
+    auto* temp = _impl_.payload_.planner_response_;
     if (GetArena() != nullptr) {
       temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
     }
-    _impl_.payload_.algo_response_ = nullptr;
+    _impl_.payload_.planner_response_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline const ::AlgoResponseList& WrapperAlgo::_internal_algo_response() const {
-  return payload_case() == kAlgoResponse ? *_impl_.payload_.algo_response_ : reinterpret_cast<::AlgoResponseList&>(::_AlgoResponseList_default_instance_);
+inline const ::PlannerResponseList& WrapperPlanner::_internal_planner_response() const {
+  return payload_case() == kPlannerResponse ? *_impl_.payload_.planner_response_ : reinterpret_cast<::PlannerResponseList&>(::_PlannerResponseList_default_instance_);
 }
-inline const ::AlgoResponseList& WrapperAlgo::algo_response() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:WrapperAlgo.algo_response)
-  return _internal_algo_response();
+inline const ::PlannerResponseList& WrapperPlanner::planner_response() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:WrapperPlanner.planner_response)
+  return _internal_planner_response();
 }
-inline ::AlgoResponseList* PROTOBUF_NULLABLE WrapperAlgo::unsafe_arena_release_algo_response() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:WrapperAlgo.algo_response)
-  if (payload_case() == kAlgoResponse) {
+inline ::PlannerResponseList* PROTOBUF_NULLABLE WrapperPlanner::unsafe_arena_release_planner_response() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:WrapperPlanner.planner_response)
+  if (payload_case() == kPlannerResponse) {
     clear_has_payload();
-    auto* temp = _impl_.payload_.algo_response_;
-    _impl_.payload_.algo_response_ = nullptr;
+    auto* temp = _impl_.payload_.planner_response_;
+    _impl_.payload_.planner_response_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline void WrapperAlgo::unsafe_arena_set_allocated_algo_response(
-    ::AlgoResponseList* PROTOBUF_NULLABLE value) {
+inline void WrapperPlanner::unsafe_arena_set_allocated_planner_response(
+    ::PlannerResponseList* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
   // set the new value.
   clear_payload();
   if (value) {
-    set_has_algo_response();
-    _impl_.payload_.algo_response_ = value;
+    set_has_planner_response();
+    _impl_.payload_.planner_response_ = value;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:WrapperAlgo.algo_response)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:WrapperPlanner.planner_response)
 }
-inline ::AlgoResponseList* PROTOBUF_NONNULL WrapperAlgo::_internal_mutable_algo_response() {
-  if (payload_case() != kAlgoResponse) {
+inline ::PlannerResponseList* PROTOBUF_NONNULL WrapperPlanner::_internal_mutable_planner_response() {
+  if (payload_case() != kPlannerResponse) {
     clear_payload();
-    set_has_algo_response();
-    _impl_.payload_.algo_response_ = 
-        ::google::protobuf::Message::DefaultConstruct<::AlgoResponseList>(GetArena());
+    set_has_planner_response();
+    _impl_.payload_.planner_response_ = 
+        ::google::protobuf::Message::DefaultConstruct<::PlannerResponseList>(GetArena());
   }
-  return _impl_.payload_.algo_response_;
+  return _impl_.payload_.planner_response_;
 }
-inline ::AlgoResponseList* PROTOBUF_NONNULL WrapperAlgo::mutable_algo_response()
+inline ::PlannerResponseList* PROTOBUF_NONNULL WrapperPlanner::mutable_planner_response()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::AlgoResponseList* _msg = _internal_mutable_algo_response();
-  // @@protoc_insertion_point(field_mutable:WrapperAlgo.algo_response)
+  ::PlannerResponseList* _msg = _internal_mutable_planner_response();
+  // @@protoc_insertion_point(field_mutable:WrapperPlanner.planner_response)
   return _msg;
 }
 
 // .Status status = 2;
-inline bool WrapperAlgo::has_status() const {
+inline bool WrapperPlanner::has_status() const {
   return payload_case() == kStatus;
 }
-inline bool WrapperAlgo::_internal_has_status() const {
+inline bool WrapperPlanner::_internal_has_status() const {
   return payload_case() == kStatus;
 }
-inline void WrapperAlgo::set_has_status() {
+inline void WrapperPlanner::set_has_status() {
   _impl_._oneof_case_[0] = kStatus;
 }
-inline void WrapperAlgo::clear_status() {
+inline void WrapperPlanner::clear_status() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (payload_case() == kStatus) {
     if (GetArena() == nullptr) {
@@ -1260,8 +1260,8 @@ inline void WrapperAlgo::clear_status() {
     clear_has_payload();
   }
 }
-inline ::Status* PROTOBUF_NULLABLE WrapperAlgo::release_status() {
-  // @@protoc_insertion_point(field_release:WrapperAlgo.status)
+inline ::Status* PROTOBUF_NULLABLE WrapperPlanner::release_status() {
+  // @@protoc_insertion_point(field_release:WrapperPlanner.status)
   if (payload_case() == kStatus) {
     clear_has_payload();
     auto* temp = _impl_.payload_.status_;
@@ -1274,15 +1274,15 @@ inline ::Status* PROTOBUF_NULLABLE WrapperAlgo::release_status() {
     return nullptr;
   }
 }
-inline const ::Status& WrapperAlgo::_internal_status() const {
+inline const ::Status& WrapperPlanner::_internal_status() const {
   return payload_case() == kStatus ? *_impl_.payload_.status_ : reinterpret_cast<::Status&>(::_Status_default_instance_);
 }
-inline const ::Status& WrapperAlgo::status() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:WrapperAlgo.status)
+inline const ::Status& WrapperPlanner::status() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:WrapperPlanner.status)
   return _internal_status();
 }
-inline ::Status* PROTOBUF_NULLABLE WrapperAlgo::unsafe_arena_release_status() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:WrapperAlgo.status)
+inline ::Status* PROTOBUF_NULLABLE WrapperPlanner::unsafe_arena_release_status() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:WrapperPlanner.status)
   if (payload_case() == kStatus) {
     clear_has_payload();
     auto* temp = _impl_.payload_.status_;
@@ -1292,7 +1292,7 @@ inline ::Status* PROTOBUF_NULLABLE WrapperAlgo::unsafe_arena_release_status() {
     return nullptr;
   }
 }
-inline void WrapperAlgo::unsafe_arena_set_allocated_status(
+inline void WrapperPlanner::unsafe_arena_set_allocated_status(
     ::Status* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
@@ -1302,9 +1302,9 @@ inline void WrapperAlgo::unsafe_arena_set_allocated_status(
     set_has_status();
     _impl_.payload_.status_ = value;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:WrapperAlgo.status)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:WrapperPlanner.status)
 }
-inline ::Status* PROTOBUF_NONNULL WrapperAlgo::_internal_mutable_status() {
+inline ::Status* PROTOBUF_NONNULL WrapperPlanner::_internal_mutable_status() {
   if (payload_case() != kStatus) {
     clear_payload();
     set_has_status();
@@ -1313,21 +1313,21 @@ inline ::Status* PROTOBUF_NONNULL WrapperAlgo::_internal_mutable_status() {
   }
   return _impl_.payload_.status_;
 }
-inline ::Status* PROTOBUF_NONNULL WrapperAlgo::mutable_status()
+inline ::Status* PROTOBUF_NONNULL WrapperPlanner::mutable_status()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::Status* _msg = _internal_mutable_status();
-  // @@protoc_insertion_point(field_mutable:WrapperAlgo.status)
+  // @@protoc_insertion_point(field_mutable:WrapperPlanner.status)
   return _msg;
 }
 
-inline bool WrapperAlgo::has_payload() const {
+inline bool WrapperPlanner::has_payload() const {
   return payload_case() != PAYLOAD_NOT_SET;
 }
-inline void WrapperAlgo::clear_has_payload() {
+inline void WrapperPlanner::clear_has_payload() {
   _impl_._oneof_case_[0] = PAYLOAD_NOT_SET;
 }
-inline WrapperAlgo::PayloadCase WrapperAlgo::payload_case() const {
-  return WrapperAlgo::PayloadCase(_impl_._oneof_case_[0]);
+inline WrapperPlanner::PayloadCase WrapperPlanner::payload_case() const {
+  return WrapperPlanner::PayloadCase(_impl_._oneof_case_[0]);
 }
 // -------------------------------------------------------------------
 
@@ -1425,150 +1425,150 @@ inline WrapperDrone::PayloadCase WrapperDrone::payload_case() const {
 }
 // -------------------------------------------------------------------
 
-// AlgoResponseList
+// PlannerResponseList
 
-// repeated .AlgoResponse items = 1;
-inline int AlgoResponseList::_internal_items_size() const {
+// repeated .PlannerResponse items = 1;
+inline int PlannerResponseList::_internal_items_size() const {
   return _internal_items().size();
 }
-inline int AlgoResponseList::items_size() const {
+inline int PlannerResponseList::items_size() const {
   return _internal_items_size();
 }
-inline void AlgoResponseList::clear_items() {
+inline void PlannerResponseList::clear_items() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.items_.Clear();
 }
-inline ::AlgoResponse* PROTOBUF_NONNULL AlgoResponseList::mutable_items(int index)
+inline ::PlannerResponse* PROTOBUF_NONNULL PlannerResponseList::mutable_items(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:AlgoResponseList.items)
+  // @@protoc_insertion_point(field_mutable:PlannerResponseList.items)
   return _internal_mutable_items()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::AlgoResponse>* PROTOBUF_NONNULL AlgoResponseList::mutable_items()
+inline ::google::protobuf::RepeatedPtrField<::PlannerResponse>* PROTOBUF_NONNULL PlannerResponseList::mutable_items()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:AlgoResponseList.items)
+  // @@protoc_insertion_point(field_mutable_list:PlannerResponseList.items)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_items();
 }
-inline const ::AlgoResponse& AlgoResponseList::items(int index) const
+inline const ::PlannerResponse& PlannerResponseList::items(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:AlgoResponseList.items)
+  // @@protoc_insertion_point(field_get:PlannerResponseList.items)
   return _internal_items().Get(index);
 }
-inline ::AlgoResponse* PROTOBUF_NONNULL AlgoResponseList::add_items()
+inline ::PlannerResponse* PROTOBUF_NONNULL PlannerResponseList::add_items()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::AlgoResponse* _add = _internal_mutable_items()->Add();
-  // @@protoc_insertion_point(field_add:AlgoResponseList.items)
+  ::PlannerResponse* _add = _internal_mutable_items()->Add();
+  // @@protoc_insertion_point(field_add:PlannerResponseList.items)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::AlgoResponse>& AlgoResponseList::items() const
+inline const ::google::protobuf::RepeatedPtrField<::PlannerResponse>& PlannerResponseList::items() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:AlgoResponseList.items)
+  // @@protoc_insertion_point(field_list:PlannerResponseList.items)
   return _internal_items();
 }
-inline const ::google::protobuf::RepeatedPtrField<::AlgoResponse>&
-AlgoResponseList::_internal_items() const {
+inline const ::google::protobuf::RepeatedPtrField<::PlannerResponse>&
+PlannerResponseList::_internal_items() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.items_;
 }
-inline ::google::protobuf::RepeatedPtrField<::AlgoResponse>* PROTOBUF_NONNULL
-AlgoResponseList::_internal_mutable_items() {
+inline ::google::protobuf::RepeatedPtrField<::PlannerResponse>* PROTOBUF_NONNULL
+PlannerResponseList::_internal_mutable_items() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.items_;
 }
 
 // -------------------------------------------------------------------
 
-// AlgoResponse
+// PlannerResponse
 
 // repeated double lon = 1;
-inline int AlgoResponse::_internal_lon_size() const {
+inline int PlannerResponse::_internal_lon_size() const {
   return _internal_lon().size();
 }
-inline int AlgoResponse::lon_size() const {
+inline int PlannerResponse::lon_size() const {
   return _internal_lon_size();
 }
-inline void AlgoResponse::clear_lon() {
+inline void PlannerResponse::clear_lon() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.lon_.Clear();
 }
-inline double AlgoResponse::lon(int index) const {
-  // @@protoc_insertion_point(field_get:AlgoResponse.lon)
+inline double PlannerResponse::lon(int index) const {
+  // @@protoc_insertion_point(field_get:PlannerResponse.lon)
   return _internal_lon().Get(index);
 }
-inline void AlgoResponse::set_lon(int index, double value) {
+inline void PlannerResponse::set_lon(int index, double value) {
   _internal_mutable_lon()->Set(index, value);
-  // @@protoc_insertion_point(field_set:AlgoResponse.lon)
+  // @@protoc_insertion_point(field_set:PlannerResponse.lon)
 }
-inline void AlgoResponse::add_lon(double value) {
+inline void PlannerResponse::add_lon(double value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_lon()->Add(value);
-  // @@protoc_insertion_point(field_add:AlgoResponse.lon)
+  // @@protoc_insertion_point(field_add:PlannerResponse.lon)
 }
-inline const ::google::protobuf::RepeatedField<double>& AlgoResponse::lon() const
+inline const ::google::protobuf::RepeatedField<double>& PlannerResponse::lon() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:AlgoResponse.lon)
+  // @@protoc_insertion_point(field_list:PlannerResponse.lon)
   return _internal_lon();
 }
-inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL AlgoResponse::mutable_lon()
+inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL PlannerResponse::mutable_lon()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:AlgoResponse.lon)
+  // @@protoc_insertion_point(field_mutable_list:PlannerResponse.lon)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_lon();
 }
 inline const ::google::protobuf::RepeatedField<double>&
-AlgoResponse::_internal_lon() const {
+PlannerResponse::_internal_lon() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.lon_;
 }
 inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL
-AlgoResponse::_internal_mutable_lon() {
+PlannerResponse::_internal_mutable_lon() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.lon_;
 }
 
 // repeated double lat = 2;
-inline int AlgoResponse::_internal_lat_size() const {
+inline int PlannerResponse::_internal_lat_size() const {
   return _internal_lat().size();
 }
-inline int AlgoResponse::lat_size() const {
+inline int PlannerResponse::lat_size() const {
   return _internal_lat_size();
 }
-inline void AlgoResponse::clear_lat() {
+inline void PlannerResponse::clear_lat() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.lat_.Clear();
 }
-inline double AlgoResponse::lat(int index) const {
-  // @@protoc_insertion_point(field_get:AlgoResponse.lat)
+inline double PlannerResponse::lat(int index) const {
+  // @@protoc_insertion_point(field_get:PlannerResponse.lat)
   return _internal_lat().Get(index);
 }
-inline void AlgoResponse::set_lat(int index, double value) {
+inline void PlannerResponse::set_lat(int index, double value) {
   _internal_mutable_lat()->Set(index, value);
-  // @@protoc_insertion_point(field_set:AlgoResponse.lat)
+  // @@protoc_insertion_point(field_set:PlannerResponse.lat)
 }
-inline void AlgoResponse::add_lat(double value) {
+inline void PlannerResponse::add_lat(double value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_lat()->Add(value);
-  // @@protoc_insertion_point(field_add:AlgoResponse.lat)
+  // @@protoc_insertion_point(field_add:PlannerResponse.lat)
 }
-inline const ::google::protobuf::RepeatedField<double>& AlgoResponse::lat() const
+inline const ::google::protobuf::RepeatedField<double>& PlannerResponse::lat() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:AlgoResponse.lat)
+  // @@protoc_insertion_point(field_list:PlannerResponse.lat)
   return _internal_lat();
 }
-inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL AlgoResponse::mutable_lat()
+inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL PlannerResponse::mutable_lat()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:AlgoResponse.lat)
+  // @@protoc_insertion_point(field_mutable_list:PlannerResponse.lat)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_lat();
 }
 inline const ::google::protobuf::RepeatedField<double>&
-AlgoResponse::_internal_lat() const {
+PlannerResponse::_internal_lat() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.lat_;
 }
 inline ::google::protobuf::RepeatedField<double>* PROTOBUF_NONNULL
-AlgoResponse::_internal_mutable_lat() {
+PlannerResponse::_internal_mutable_lat() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.lat_;
 }

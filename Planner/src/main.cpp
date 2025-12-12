@@ -13,22 +13,22 @@
 #include "common_libs/Logger.h"
 #include "common_libs/Signal_Handler.h"
 #include "Communication_Manager.h"
-#include "Algorithm_Manager_Interface.h"
-#include "Algorithm_Manager.h"
-#include "structs/Structs_Algo.h"
+#include "Planner_Manager_Interface.h"
+#include "Planner_Manager.h"
+#include "structs/Structs_Planner.h"
 #include "Path_Cal.h"
 #include "Signal_Cal.h"
 
 int main(int argc, char* argv[]) {
     // Initialize logger
-    Struct_Algo::Config_struct cnf = Config::get_config();
+    Struct_Planner::Config_struct cnf = Config::get_config();
     if (!Logger::initialize(cnf.log_path,cnf.log_name))
     {
         std::cout << "Error initializing logger. Exiting program...\n";
         return EXIT_FAILURE;
     }
 
-    Logger::log_message(Logger::Type::INFO, "Algorithm module started");
+    Logger::log_message(Logger::Type::INFO, "Planner module started");
 
     // Parser arguments
     std::string pld_address;
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
-    std::shared_ptr<Algorithm_Recorder> rec_mng_ptr = std::make_shared<Algorithm_Recorder>(cnf.data_path);
+    std::shared_ptr<Planner_Recorder> rec_mng_ptr = std::make_shared<Planner_Recorder>(cnf.data_path);
 
     std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
 
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 
     std::shared_ptr<Signal_Cal> signal_cal_ptr = std::make_shared<Signal_Cal>();
 
-    std::shared_ptr<Algorithm_Manager_Interface> algo_mng_ptr = std::make_shared<Algorithm_Manager>(comm_mng_ptr,
+    std::shared_ptr<Planner_Manager_Interface> planner_mng_ptr = std::make_shared<Planner_Manager>(comm_mng_ptr,
                                                                                                     rec_mng_ptr,
                                                                                                     path_cal_ptr,
                                                                                                     signal_cal_ptr,

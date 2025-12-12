@@ -74,7 +74,7 @@ RUN meson setup build . && \
     meson configure build -Dcpp_std=c++17 && \
     meson compile -C build && \
     mkdir -p /opt/I-Drone && \
-    cp build/Algorithm/Algorithm /opt/I-Drone/ && \
+    cp build/Planner/Planner /opt/I-Drone/ && \
     cp build/PLD/PLD /opt/I-Drone/ && \
     rm -rf /app
 

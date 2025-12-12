@@ -11,9 +11,9 @@
 
 #include <thread>
 #include <chrono>
-#include "Algorithm_Recorder.h"
+#include "Planner_Recorder.h"
 #include "common_libs/Logger.h"
-#include "common_libs/Enc_Dec_Algo.h"
+#include "common_libs/Enc_Dec_Planner.h"
 #include "common_libs/Enc_Dec_PLD.h"
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
@@ -22,13 +22,13 @@ constexpr int CALCULATION_POOL_SIZE = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
                                              const tcp::endpoint& endpoint,
-                                             const std::shared_ptr<Algorithm_Recorder> &rec_mng): io_context_(io_context),
+                                             const std::shared_ptr<Planner_Recorder> &rec_mng): io_context_(io_context),
                                                                                                   calculation_pool_(CALCULATION_POOL_SIZE),
                                                                                                   server_(io_context),
                                                                                                   endpoint_(endpoint),
                                                                                                   recorder_ptr_(std::move(rec_mng)),
                                                                                                   status_timer(io_context_),
-                                                                                                  status_(Struct_Algo::Status::EXPECTING_DATA)
+                                                                                                  status_(Struct_Planner::Status::EXPECTING_DATA)
 {
     Server::handlers handler_obj;
 
@@ -96,7 +96,7 @@ void Communication_Manager::send_status_message(const boost::system::error_code&
     Logger::log_message(Logger::Type::INFO,"Sending status message");
 
     std::string message;
-    if (!Enc_Dec_PLD::encode_status_algo(get_status(),message)) {
+    if (!Enc_Dec_PLD::encode_status_planner(get_status(),message)) {
         Logger::log_message(Logger::Type::WARNING,"Problems encoding status message");
     } else {
         deliver(message);
@@ -108,7 +108,7 @@ void Communication_Manager::send_status_message(const boost::system::error_code&
     }
 }
 
-void Communication_Manager::set_status(const Struct_Algo::Status &new_status)
+void Communication_Manager::set_status(const Struct_Planner::Status &new_status)
 {
     std::lock_guard<std::mutex> lock(mutex_status_);
     status_ = new_status;
@@ -122,7 +122,7 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
     boost::system::error_code cancel_ec;
     status_timer.cancel(cancel_ec);
     
-    if (get_status() == Struct_Algo::Status::FINISH) {
+    if (get_status() == Struct_Planner::Status::FINISH) {
         Logger::log_message(Logger::Type::INFO,"Program task complete, leaving program...");
         io_context_.stop();
         return;
@@ -175,36 +175,36 @@ void Communication_Manager::on_message(const std::string& msg)
     if (shutting_down_) return;
     Logger::log_message(Logger::Type::INFO, "Message received from PLD");
 
-    if (status_ != Struct_Algo::Status::EXPECTING_DATA) {
+    if (status_ != Struct_Planner::Status::EXPECTING_DATA) {
         Logger::log_message(Logger::Type::WARNING, "Task in progress or done, message ignore");
         return;
     }
 
     std::string data = msg.substr(4);
 
-    auto [type, decoded_msg] = Enc_Dec_Algo::decode_to_algo(data);
+    auto [type, decoded_msg] = Enc_Dec_Planner::decode_to_planner(data);
 
     switch (type) {
-        case Enc_Dec_Algo::Algo::UNKNOWN:
+        case Enc_Dec_Planner::Planner::UNKNOWN:
             Logger::log_message(Logger::Type::WARNING, "Unknown message received");
             break;
-        case Enc_Dec_Algo::Algo::ERROR:
+        case Enc_Dec_Planner::Planner::ERROR:
             Logger::log_message(Logger::Type::WARNING, "Error decoding message");
             break;
-        case Enc_Dec_Algo::Algo::ConfigMessage: {
-            auto my_msg = dynamic_cast<AlgorithmMessage*>(decoded_msg.get());
+        case Enc_Dec_Planner::Planner::ConfigMessage: {
+            auto my_msg = dynamic_cast<PlannerMessage*>(decoded_msg.get());
             if (my_msg) {
                 Logger::log_message(Logger::Type::INFO, "Configuration message received");
 
-                Struct_Algo::SignalServerConfig signal_server;
-                if (!Enc_Dec_Algo::decode_signal_server(my_msg->signal_server_config(), signal_server))
+                Struct_Planner::SignalServerConfig signal_server;
+                if (!Enc_Dec_Planner::decode_signal_server(my_msg->signal_server_config(), signal_server))
                 {
                     Logger::log_message(Logger::Type::WARNING, "Unabled to decode Signal-Server message");
                     return;
                 }
 
-                Struct_Algo::DroneData drone_data;
-                if (!Enc_Dec_Algo::decode_drone_data(my_msg->drone_data(), drone_data))
+                Struct_Planner::DroneData drone_data;
+                if (!Enc_Dec_Planner::decode_drone_data(my_msg->drone_data(), drone_data))
                 {
                     Logger::log_message(Logger::Type::WARNING, "Unabled to decode drone data message");
                     return;
@@ -231,7 +231,7 @@ void Communication_Manager::deliver(const std::string &msg)
     server_.deliver(msg);
 }
 
-Struct_Algo::Status Communication_Manager::get_status()
+Struct_Planner::Status Communication_Manager::get_status()
 {
     std::lock_guard<std::mutex> lock(mutex_status_);
     return status_;

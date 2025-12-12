@@ -9,23 +9,23 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
 #include "generated_proto/messages_pld.pb.h"
-#include "structs/Structs_Algo.h"
+#include "structs/Structs_Planner.h"
 #include <string>
 namespace Enc_Dec_PLD {
 
     enum class PLD {
         UNKNOWN,
         ERROR,
-        ALGO_RESPONSE,
-        STATUS_ALGO,
+        Planner_RESPONSE,
+        STATUS_Planner,
         STATUS_DRONE
     };
 
-    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_algo(const std::string& data);
+    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_planner(const std::string& data);
     std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_drone(const std::string& data);
 
-    bool encode_algo_response(const std::vector<std::vector<Struct_Algo::Coordinate>> &result, std::string &msg);
-    bool decode_algo_response(const AlgoResponseList &msg, std::vector<std::vector<Struct_Algo::Coordinate>> &result);
+    bool encode_planner_response(const std::vector<std::vector<Struct_Planner::Coordinate>> &result, std::string &msg);
+    bool decode_planner_response(const PlannerResponseList &msg, std::vector<std::vector<Struct_Planner::Coordinate>> &result);
     
-    bool encode_status_algo(const Struct_Algo::Status &status, std::string &message);
+    bool encode_status_planner(const Struct_Planner::Status &status, std::string &message);
 };

@@ -1,6 +1,6 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Algorithm_Recorder.h                  
+ *  Filename : Planner_Recorder.h                  
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
@@ -11,15 +11,15 @@
 #include <iostream>
 #include <memory>
 #include "common_libs/Recorder.h"
-#include "structs/Structs_Algo.h"
+#include "structs/Structs_Planner.h"
 
-class Algorithm_Recorder {
+class Planner_Recorder {
 
 public:
-    Algorithm_Recorder(const std::filesystem::path &path);
+    Planner_Recorder(const std::filesystem::path &path);
 
-    bool write_signal_output(const std::vector<Struct_Algo::Coordinate> &points);
-    bool write_message_received(const Struct_Algo::SignalServerConfig &sng_data, const Struct_Algo::DroneData &drone_data);
+    bool write_signal_output(const std::vector<Struct_Planner::Coordinate> &points);
+    bool write_message_received(const Struct_Planner::SignalServerConfig &sng_data, const Struct_Planner::DroneData &drone_data);
     bool write_or_output(const std::string &data);
     void close_all();
 

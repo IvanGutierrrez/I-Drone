@@ -8,14 +8,14 @@ services:
     command: tail -f /dev/null # /opt/I-Drone/PLD
     restart: unless-stopped
 
-  Algorithm:
+  Planner:
     image: i-drone:latest
-    container_name: Algorithm
+    container_name: Planner
     network_mode: "host"
     volumes:
-      - $HOME/test/Algorithm/logs:/opt/I-Drone/logs
-      - $HOME/test/Algorithm/data:/opt/I-Drone/data
-    command: tail -f /dev/null # /opt/I-Drone/Algorithm --PLD_Address 127.0.0.1 --PLD_port 12345
+      - $HOME/test/Planner/logs:/opt/I-Drone/logs
+      - $HOME/test/Planner/data:/opt/I-Drone/data
+    command: tail -f /dev/null # /opt/I-Drone/Planner --PLD_Address 127.0.0.1 --PLD_port 12345
     depends_on:
       - PLD
     restart: unless-stopped

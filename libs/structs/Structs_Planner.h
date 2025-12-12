@@ -1,6 +1,6 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Struct_algo.h                   
+ *  Filename : Struct_Planner.h                   
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <filesystem>
 
-namespace Struct_Algo {
+namespace Struct_Planner {
 
 struct Config_struct {
     std::filesystem::path data_path;
