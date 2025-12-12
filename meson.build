@@ -17,4 +17,4 @@ subdir('libs')
 
 # Subproyectos (cada módulo)
 subdir('PLD')
-subdir('Algorithm')
+subdir('Planner')

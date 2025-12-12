@@ -22,11 +22,11 @@
 
 using namespace operations_research;
 
-Path_Cal::Path_Cal(const Struct_Algo::Config_struct &cnf): global_cnf_(cnf)
+Path_Cal::Path_Cal(const Struct_Planner::Config_struct &cnf): global_cnf_(cnf)
 {
 }
 
-double Path_Cal::haversine_m(const Struct_Algo::Coordinate& a, const Struct_Algo::Coordinate& b) {
+double Path_Cal::haversine_m(const Struct_Planner::Coordinate& a, const Struct_Planner::Coordinate& b) {
     static constexpr double R = 6371000.0;
     double dLat = (b.lat - a.lat) * M_PI / 180.0;
     double dLon = (b.lon - a.lon) * M_PI / 180.0;
@@ -39,7 +39,7 @@ double Path_Cal::haversine_m(const Struct_Algo::Coordinate& a, const Struct_Algo
     return 2 * R * asin(sqrt(h));
 }
 
-void Path_Cal::build_knn_graph(const std::vector<Struct_Algo::Coordinate>& points,
+void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& points,
                                int k_neighbors,
                                double max_neighbor_dist_m,
                                std::vector<std::vector<std::pair<int,double>>>& adj)
@@ -156,9 +156,9 @@ std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std
 }
 
 
-void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Algo::Coordinate>& all_points,
+void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Planner::Coordinate>& all_points,
                                               const std::vector<std::vector<std::pair<int,double>>>& adj,
-                                              const std::vector<Struct_Algo::Coordinate>& pos_targets,
+                                              const std::vector<Struct_Planner::Coordinate>& pos_targets,
                                               std::vector<std::vector<int64_t>>& dist_matrix)
 {
     int T = pos_targets.size();
@@ -191,14 +191,14 @@ void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Algo::Coo
     }
 }
 
-std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
-                                                                      const std::vector<Struct_Algo::Coordinate>& pos_targets,
+std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
+                                                                      const std::vector<Struct_Planner::Coordinate>& pos_targets,
                                                                       int num_drones,
-                                                                      const std::vector<Struct_Algo::Coordinate> &points_cp,
+                                                                      const std::vector<Struct_Planner::Coordinate> &points_cp,
                                                                       const std::vector<std::vector<std::pair<int,double>>>& adj,
-                                                                      const std::shared_ptr<Algorithm_Recorder> &rec_mng)
+                                                                      const std::shared_ptr<Planner_Recorder> &rec_mng)
 {
-    std::vector<std::vector<Struct_Algo::Coordinate>> result;
+    std::vector<std::vector<Struct_Planner::Coordinate>> result;
 
     int T = pos_targets.size();
     if (T == 0 || num_drones <= 0) return result;
@@ -288,7 +288,7 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
             idx = solution->Value(routing.NextVar(idx));
         }
 
-        std::vector<Struct_Algo::Coordinate> path_full;
+        std::vector<Struct_Planner::Coordinate> path_full;
 
         for (size_t i = 0; i + 1 < path_target_indices.size(); ++i) {
             int src_target = path_target_indices[i];
@@ -313,7 +313,7 @@ std::vector<std::vector<Struct_Algo::Coordinate>> Path_Cal::solve_vrp(const std:
     return result;
 }
 
-std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Algo::Coordinate> &points_cp, const Struct_Algo::DroneData &drone_data)
+std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Planner::Coordinate> &points_cp, const Struct_Planner::DroneData &drone_data)
 {
     std::vector<size_t> nearest_indices;  
     nearest_indices.reserve(drone_data.pos_targets.size());
@@ -341,10 +341,10 @@ std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Algo::C
     return nearest_indices;
 }
 
-bool Path_Cal::check_targets_signal(Struct_Algo::DroneData &drone_data, const std::vector<Struct_Algo::Coordinate> &points_cp)
+bool Path_Cal::check_targets_signal(Struct_Planner::DroneData &drone_data, const std::vector<Struct_Planner::Coordinate> &points_cp)
 {
     std::vector<size_t> nearest_points = findNearestPoints(points_cp,drone_data);
-    std::vector<Struct_Algo::Coordinate> new_targets;
+    std::vector<Struct_Planner::Coordinate> new_targets;
     for (size_t i = 0; i < drone_data.pos_targets.size(); i++) {
         if (i < static_cast<size_t>(drone_data.num_drones) || haversine_m(drone_data.pos_targets[i], points_cp[nearest_points[i - drone_data.num_drones]]) <= global_cnf_.max_distance_for_neighbor)// Do not look start positions
         {
@@ -360,7 +360,7 @@ bool Path_Cal::check_targets_signal(Struct_Algo::DroneData &drone_data, const st
     return drone_data.pos_targets.size() > static_cast<size_t>(drone_data.num_drones);
 }
 
-bool Path_Cal::calculate_path(Struct_Algo::DroneData &drone_data, std::vector<Struct_Algo::Coordinate> &points_cp, std::vector<std::vector<Struct_Algo::Coordinate>> &result, const std::shared_ptr<Algorithm_Recorder> &rec_mng)
+bool Path_Cal::calculate_path(Struct_Planner::DroneData &drone_data, std::vector<Struct_Planner::Coordinate> &points_cp, std::vector<std::vector<Struct_Planner::Coordinate>> &result, const std::shared_ptr<Planner_Recorder> &rec_mng)
 {
     int num_drones = drone_data.num_drones;
 

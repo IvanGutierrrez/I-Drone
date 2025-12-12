@@ -1,13 +1,13 @@
 /* ============================================================
  *  Proyect  : I-Drone                                   
- *  Filename : Algorithm_Recorder.cpp                   
+ *  Filename : Planner_Recorder.cpp                   
  *  Author   : Iván Gutiérrez                            
  *  License  : GNU General Public License v3.0           
  *
  *  © 2025 Iván Gutiérrez.
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-#include "Algorithm_Recorder.h"
+#include "Planner_Recorder.h"
 #include "common_libs/Logger.h"
 
 constexpr const char message_received_file_name[] = "message_received";
@@ -17,13 +17,13 @@ constexpr const char signal_server_output_file_extension[] = "csv";
 constexpr const char ortools_output_file_name[] = "output_ortools";
 constexpr const char ortools_output_file_extension[] = "txt";
 
-Algorithm_Recorder::Algorithm_Recorder(const std::filesystem::path &path): recorder_msg(path,message_received_file_name,message_received_file_extension),
+Planner_Recorder::Planner_Recorder(const std::filesystem::path &path): recorder_msg(path,message_received_file_name,message_received_file_extension),
                                                                            recorder_sgn(path,signal_server_output_file_name,signal_server_output_file_extension),
                                                                            recorder_or(path,ortools_output_file_name,ortools_output_file_extension)
 {
 }
 
-bool Algorithm_Recorder::write_signal_output(const std::vector<Struct_Algo::Coordinate> &points)
+bool Planner_Recorder::write_signal_output(const std::vector<Struct_Planner::Coordinate> &points)
 {
     std::stringstream data;
     data << "lat,lon,coverage\n";
@@ -32,19 +32,19 @@ bool Algorithm_Recorder::write_signal_output(const std::vector<Struct_Algo::Coor
     return recorder_sgn.write(data.str());
 }
 
-bool Algorithm_Recorder::write_message_received(const Struct_Algo::SignalServerConfig &sng_data, const Struct_Algo::DroneData &drone_data)
+bool Planner_Recorder::write_message_received(const Struct_Planner::SignalServerConfig &sng_data, const Struct_Planner::DroneData &drone_data)
 {
     std::stringstream data;
     data << sng_data << "\n" << drone_data;
     return recorder_msg.write(data.str());
 }
 
-bool Algorithm_Recorder::write_or_output(const std::string &data)
+bool Planner_Recorder::write_or_output(const std::string &data)
 {
     return recorder_or.write(data);
 }
 
-void Algorithm_Recorder::close_all()
+void Planner_Recorder::close_all()
 {
     recorder_msg.close();
     recorder_sgn.close();

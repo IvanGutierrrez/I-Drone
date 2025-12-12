@@ -9,16 +9,16 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
 #include <filesystem>
-#include "structs/Structs_Algo.h"
+#include "structs/Structs_Planner.h"
 
 namespace Config {
 
-inline Struct_Algo::Config_struct get_config() {
-    Struct_Algo::Config_struct cnf;
+inline Struct_Planner::Config_struct get_config() {
+    Struct_Planner::Config_struct cnf;
 
     cnf.data_path = "/opt/I-Drone/data/";
     cnf.log_path = "/opt/I-Drone/logs";
-    cnf.log_name = "algorithm";
+    cnf.log_name = "planner";
     cnf.signal_server_path = "/opt/signal_server/signal-server";
     cnf.executable_path = "/opt/I-Drone";
     cnf.threshold = -90.0;

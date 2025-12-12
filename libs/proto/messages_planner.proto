@@ -2,11 +2,11 @@ syntax = "proto3";
 
 message Wrapper {
   oneof payload {
-    AlgorithmMessage algo_message = 1;
+    PlannerMessage planner_message = 1;
   }
 }
 
-message AlgorithmMessage {
+message PlannerMessage {
     SignalServerConfigProto signal_server_config = 1;
     DroneData drone_data = 2;
 }

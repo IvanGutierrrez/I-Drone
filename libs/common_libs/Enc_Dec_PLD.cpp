@@ -9,25 +9,25 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "Enc_Dec_PLD.h"
 #include <boost/asio/detail/socket_ops.hpp>
-#include "structs/Structs_Algo.h"
+#include "structs/Structs_Planner.h"
 
 namespace Enc_Dec_PLD {
 
-    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_algo(const std::string& data)
+    std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_planner(const std::string& data)
     {
-        WrapperAlgo wrapper;
+        WrapperPlanner wrapper;
         if (!wrapper.ParseFromString(data)) {
             return {PLD::UNKNOWN, nullptr};
         }
 
-        if (wrapper.has_algo_response()) {
-            auto msg = std::make_unique<AlgoResponseList>(wrapper.algo_response());
-            return {PLD::ALGO_RESPONSE, std::move(msg)};
+        if (wrapper.has_planner_response()) {
+            auto msg = std::make_unique<PlannerResponseList>(wrapper.planner_response());
+            return {PLD::Planner_RESPONSE, std::move(msg)};
         }
 
         if (wrapper.has_status()) {
             auto msg = std::make_unique<Status>(wrapper.status());
-            return {PLD::STATUS_ALGO, std::move(msg)};
+            return {PLD::STATUS_Planner, std::move(msg)};
         }
 
         return {PLD::UNKNOWN, nullptr};
@@ -48,12 +48,12 @@ namespace Enc_Dec_PLD {
         return {PLD::UNKNOWN, nullptr};
     }
 
-    bool encode_algo_response(const std::vector<std::vector<Struct_Algo::Coordinate>> &result, std::string &msg)
+    bool encode_planner_response(const std::vector<std::vector<Struct_Planner::Coordinate>> &result, std::string &msg)
     {
-        AlgoResponseList dron_proto;
+        PlannerResponseList dron_proto;
 
         for (const auto &path : result) {
-            AlgoResponse* drone_msg = dron_proto.add_items();
+            PlannerResponse* drone_msg = dron_proto.add_items();
 
             for (const auto &coord : path) {
                 drone_msg->add_lon(coord.lon);
@@ -61,8 +61,8 @@ namespace Enc_Dec_PLD {
             }
         }
 
-        WrapperAlgo wrapper;
-        *(wrapper.mutable_algo_response()) = dron_proto;
+        WrapperPlanner wrapper;
+        *(wrapper.mutable_planner_response()) = dron_proto;
 
         std::string serialized_data;
         if (!wrapper.SerializeToString(&serialized_data))
@@ -79,19 +79,19 @@ namespace Enc_Dec_PLD {
         return true;
     }
 
-    bool decode_algo_response(const AlgoResponseList &proto, std::vector<std::vector<Struct_Algo::Coordinate>> &result)
+    bool decode_planner_response(const PlannerResponseList &proto, std::vector<std::vector<Struct_Planner::Coordinate>> &result)
     {
         result.clear();
         result.reserve(proto.items().size());
 
         for (int d = 0; d < proto.items().size(); ++d)
         {
-            const AlgoResponse &msg = proto.items(d);
+            const PlannerResponse &msg = proto.items(d);
 
             if (msg.lon_size() != msg.lat_size())
                 return false;
 
-            std::vector<Struct_Algo::Coordinate> drone_path;
+            std::vector<Struct_Planner::Coordinate> drone_path;
             drone_path.reserve(msg.lon_size());
 
             for (int i = 0; i < msg.lon_size(); ++i)
@@ -108,9 +108,9 @@ namespace Enc_Dec_PLD {
         return true;
     }
 
-    bool encode_status_algo(const Struct_Algo::Status &status, std::string &message)
+    bool encode_status_planner(const Struct_Planner::Status &status, std::string &message)
     {
-        WrapperAlgo wrapper;
+        WrapperPlanner wrapper;
 
         Status* status_msg = wrapper.mutable_status();
 
