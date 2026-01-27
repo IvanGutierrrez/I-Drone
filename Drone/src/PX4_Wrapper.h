@@ -23,6 +23,7 @@
 #include <condition_variable>
 #include <atomic>
 #include <vector>
+#include <future>
 
 
 // Interface
@@ -39,6 +40,7 @@ private:
     std::mutex mission_mutex_;
     std::condition_variable cv_mission_complete_;
     std::atomic<bool> command_upload_{false};
+    std::mutex start_signal_mutex_;
 
     mavsdk::Mission::MissionItem make_mission_item(
         double latitude_deg,
@@ -53,8 +55,10 @@ private:
     void execute_mission();
 
 public:
-    PX4_Wrapper(const Struct_Drone::Config_struct &config);
+    PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config);
     ~PX4_Wrapper() override = default;
+    void set_start_signal(std::shared_future<void> start_signal) override;
+    void mark_commands_ready() override;
     void start_engine() override;
     void send_command(const std::string &command) override;
     void set_handler(Handlers f) override;

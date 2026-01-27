@@ -8,27 +8,20 @@
  * ============================================================
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
+#include <vector>
+#include <sstream>
+#include <cstdlib>
 #include <boost/asio.hpp>
 #include "Config.h"
 #include "Controller.h"
 #include "Communication_Manager.h"
 #include "Drone_Recorder.h"
-#include "Engine.h"
+#include "Multi_Drone_Manager.h"
 #include "PX4_Wrapper.h"
 #include "common_libs/Logger.h"
 #include "common_libs/Signal_Handler.h"
 
 int main(int argc, char* argv[]) {
-    // Initialize logger
-    Struct_Drone::Config_struct cnf = Config::get_config();
-    if (!Logger::initialize(cnf.log_path,cnf.log_name))
-    {
-        std::cout << "Error initializing logger. Exiting program...\n";
-        return EXIT_FAILURE;
-    }
-
-    Logger::log_message(Logger::Type::INFO, "Drone module started");
-
     // Parser arguments
     std::string pld_address;
     int pld_port = -1;
@@ -41,6 +34,23 @@ int main(int argc, char* argv[]) {
             pld_port = std::stoi(argv[++i]);
         }
     }
+
+    // Get common configuration
+    Struct_Drone::Config_struct config;
+    if (!Config::get_common_config(config)) {
+        std::cout << "Error reading common configuration. Exiting program...\n";
+        return EXIT_FAILURE;
+    }
+    
+    // Initialize logger
+    if (!Logger::initialize(config.log_path, config.log_name))
+    {
+        std::cout << "Error initializing logger. Exiting program...\n";
+        return EXIT_FAILURE;
+    }
+
+    Logger::log_message(Logger::Type::INFO, "Drone module started");
+    Logger::log_message(Logger::Type::INFO, "Number of drones: " + std::to_string(config.num_drones));
 
     if (pld_address.empty() || pld_port == -1) {
         Logger::log_message(Logger::Type::ERROR, "Mandatory arguments missing --PLD_Address y --PLD_port");
@@ -65,16 +75,33 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
+    // Get configuration for each drone
+    for (int i = 0; i < config.num_drones; ++i) {
+        Struct_Drone::Drone_Config drone_cfg;
+        if (!Config::get_drone_config(i, config, drone_cfg)) {
+            Logger::log_message(Logger::Type::ERROR, "Error reading configuration for drone " + std::to_string(i));
+            return EXIT_FAILURE;
+        }
+        config.drones.push_back(drone_cfg);
+    }
+
+    // Create engine instances (PX4_Wrapper)
+    std::vector<std::shared_ptr<Engine>> engines;
+    engines.reserve(config.num_drones);
+    for (const auto &drone_cfg : config.drones) {
+        engines.push_back(std::make_shared<PX4_Wrapper>(drone_cfg, config));
+    }
+
     std::shared_ptr<Drone_Recorder> rec_mng_ptr = std::make_shared<Drone_Recorder>();
 
     std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
 
-    std::shared_ptr<Engine> wrapper_sim_ptr = std::make_shared<PX4_Wrapper>(cnf);
+    std::shared_ptr<Multi_Drone_Manager> drone_manager_ptr = std::make_shared<Multi_Drone_Manager>(engines);
 
     std::shared_ptr<Controller> controller_ptr = std::make_shared<Controller>(comm_mng_ptr,
                                                                               rec_mng_ptr,
-                                                                              wrapper_sim_ptr,
-                                                                              cnf);
+                                                                              drone_manager_ptr,
+                                                                              config);
     
     Signal_Handler signal_handler(io_context, []() {
         Logger::log_message(Logger::Type::INFO, "Shutdown complete");

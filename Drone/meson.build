@@ -4,7 +4,8 @@ drone_sources = files(
     'src/Communication_Manager.cpp',
     'src/Drone_Recorder.cpp',
     'src/Engine.cpp',
-    'src/PX4_Wrapper.cpp'
+    'src/PX4_Wrapper.cpp',
+    'src/Multi_Drone_Manager.cpp'
 )
 
 mavsdk_dep = dependency('MAVSDK', required: false)

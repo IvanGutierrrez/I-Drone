@@ -19,11 +19,13 @@ using std::chrono::seconds;
 using std::this_thread::sleep_for;
 
 constexpr double autopilot_timeout_s = 220.0;
-constexpr const char* connection_url = "udpin://127.0.0.1:14540";
 
-PX4_Wrapper::PX4_Wrapper(const Struct_Drone::Config_struct &config) : Engine(config),
+PX4_Wrapper::PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config) : Engine(drone_config, common_config),
     mavsdk_(nullptr), system_(nullptr), action_(nullptr), mission_(nullptr), telemetry_(nullptr)
 {
+    std::promise<void> ready_promise;
+    ready_promise.set_value();
+    start_signal_ = ready_promise.get_future().share();
 }
 
 Mission::MissionItem PX4_Wrapper::make_mission_item(
@@ -53,21 +55,43 @@ void PX4_Wrapper::set_handler(Handlers f)
     handlers_ = f;
 }
 
+void PX4_Wrapper::set_start_signal(std::shared_future<void> start_signal)
+{
+    std::lock_guard<std::mutex> lock(start_signal_mutex_);
+    start_signal_ = std::move(start_signal);
+}
+
+void PX4_Wrapper::mark_commands_ready()
+{
+    {
+        std::lock_guard<std::mutex> lock(mission_mutex_);
+        command_upload_ = true;
+    }
+    cv_mission_complete_.notify_one();
+}
+
 void PX4_Wrapper::start_engine()
 {
     // Launch PX4 in background (command already has & at the end)
-    Logger::log_message(Logger::Type::INFO, "Starting PX4 Sim...");
-    std::system(config_.command_px4.c_str());
-    
-    // Give it a moment to start
-    sleep_for(std::chrono::seconds(2));
+    if (drone_config_.autostart_px4 && !drone_config_.command_px4.empty()) {
+        Logger::log_message(Logger::Type::INFO, "Starting PX4 Sim...");
+        Logger::log_message(Logger::Type::INFO, "PX4 Command: " + drone_config_.command_px4);
+        int ret = std::system(drone_config_.command_px4.c_str());
+        Logger::log_message(Logger::Type::INFO, "PX4 command executed with return code: " + std::to_string(ret));
+        // Give it a moment to start
+        sleep_for(std::chrono::seconds(2));
+    } else {
+        Logger::log_message(Logger::Type::INFO, "Skipping PX4 autostart (autostart=" + 
+                           std::to_string(drone_config_.autostart_px4) + 
+                           ", command_empty=" + std::to_string(drone_config_.command_px4.empty()) + ")");
+    }
     
     // Create MAVSDK instance as GroundStation
     mavsdk_ = std::make_unique<Mavsdk>(Mavsdk::Configuration{ComponentType::GroundStation});
     
     // Attempt to connect
-    Logger::log_message(Logger::Type::INFO, "Connecting to PX4 at " + std::string(connection_url));
-    ConnectionResult connection_result = mavsdk_->add_any_connection(connection_url);
+    Logger::log_message(Logger::Type::INFO, "Connecting to PX4 at " + drone_config_.connection_url);
+    ConnectionResult connection_result = mavsdk_->add_any_connection(drone_config_.connection_url);
     
     if (connection_result != ConnectionResult::Success) {
         Logger::log_message(Logger::Type::ERROR, "Connection failed: " + std::to_string(static_cast<int>(connection_result)));
@@ -124,6 +148,9 @@ void PX4_Wrapper::send_command(const std::string &command)
                     return;
                 }
                 Logger::log_message(Logger::Type::INFO, "Processing command: " + mission_cmd.type);
+                Logger::log_message(Logger::Type::INFO, "Mission coords: (" + 
+                    std::to_string(mission_cmd.mission_item.latitude_deg) + ", " + 
+                    std::to_string(mission_cmd.mission_item.longitude_deg) + ")");
                 
                 {
                     std::lock_guard<std::mutex> lock(mission_mutex_);
@@ -221,6 +248,14 @@ void PX4_Wrapper::execute_mission()
     
     Logger::log_message(Logger::Type::INFO, "Mission uploaded successfully");
 
+    // Wait for system to be ready (like in the original MAVSDK example)
+    Logger::log_message(Logger::Type::INFO, "Waiting for system to be healthy...");
+    while (!telemetry_->health_all_ok()) {
+        Logger::log_message(Logger::Type::INFO, "Vehicle is getting ready to arm");
+        sleep_for(seconds(1));
+    }
+    Logger::log_message(Logger::Type::INFO, "System is healthy and ready");
+
     Logger::log_message(Logger::Type::INFO, "Arming...");
     const Action::Result arm_result = action_->arm();
     if (arm_result != Action::Result::Success) {
@@ -248,6 +283,21 @@ void PX4_Wrapper::execute_mission()
         }
     });
 
+    {
+        std::shared_future<void> start_signal_copy;
+        {
+            std::lock_guard<std::mutex> lock(start_signal_mutex_);
+            start_signal_copy = start_signal_;
+        }
+
+        if (start_signal_copy.valid()) {
+            Logger::log_message(Logger::Type::INFO, "Waiting for synchronized mission start signal...");
+            start_signal_copy.wait();
+            Logger::log_message(Logger::Type::INFO, "Start signal received, starting mission...");
+        }
+    }
+
+    Logger::log_message(Logger::Type::INFO, "Starting mission...");
     Mission::Result start_mission_result = mission_->start_mission();
     if (start_mission_result != Mission::Result::Success) {
         std::stringstream log;
@@ -256,6 +306,8 @@ void PX4_Wrapper::execute_mission()
         handlers_.error();
         return;
     }
+    
+    Logger::log_message(Logger::Type::INFO, "Mission started successfully!");
 
     while (!want_to_pause) {
         sleep_for(seconds(1));

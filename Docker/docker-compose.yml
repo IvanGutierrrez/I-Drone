@@ -5,7 +5,7 @@ services:
     network_mode: "host"
     volumes:
       - $HOME/test/PLD/logs:/opt/I-Drone/logs
-    command: tail -f /dev/null # /opt/I-Drone/PLD
+    command: tail -f /dev/null #/opt/I-Drone/PLD
     restart: unless-stopped
 
   Planner:
@@ -37,6 +37,10 @@ services:
       - $HOME/test/Drone/logs:/opt/I-Drone/logs
       - $HOME/test/Drone/data:/opt/I-Drone/data
     command: tail -f /dev/null # /opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345
+    #command: >
+      #bash -c "/opt/I-Drone/start_gazebo.sh & 
+      #sleep 3 && 
+      #/opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345"
     depends_on:
       - PLD
     restart: unless-stopped
