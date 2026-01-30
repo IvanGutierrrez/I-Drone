@@ -10,7 +10,6 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <functional>
-#include "Drone_Recorder.h"
 #include "common_libs/Server.h"
 #include "structs/Structs_Drone.h"
 
@@ -24,7 +23,6 @@ private:
     boost::asio::io_context& io_context_;
     Server server_;
     tcp::endpoint endpoint_;
-    std::shared_ptr<Drone_Recorder> recorder_ptr_;
     boost::asio::steady_timer status_timer;
     std::shared_ptr<boost::asio::steady_timer> retry_timer_;
     int attemps_ = 0;
@@ -41,7 +39,7 @@ private:
     Struct_Drone::Status get_status();
 
 public:
-    Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint,const std::shared_ptr<Drone_Recorder> &rec_mng);
+    Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
     ~Communication_Manager();
     void set_status(const Struct_Drone::Status &new_status);
     void set_message_handler(const message_handler &handler);

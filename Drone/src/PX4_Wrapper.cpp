@@ -23,8 +23,15 @@ using std::this_thread::sleep_for;
 
 constexpr double autopilot_timeout_s = 220.0;
 
-PX4_Wrapper::PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config) : Engine(drone_config, common_config),
-    mavsdk_(nullptr), system_(nullptr), action_(nullptr), mission_(nullptr), telemetry_(nullptr)
+static double get_current_timestamp() {
+    return std::chrono::duration<double>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
+}
+
+PX4_Wrapper::PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config, std::shared_ptr<Drone_Recorder> recorder) 
+    : Engine(drone_config, common_config),
+    mavsdk_(nullptr), system_(nullptr), action_(nullptr), mission_(nullptr), telemetry_(nullptr), recorder_(recorder)
 {
     std::promise<void> ready_promise;
     ready_promise.set_value();
@@ -76,6 +83,13 @@ void PX4_Wrapper::mark_commands_ready()
         command_upload_ = true;
     }
     cv_mission_complete_.notify_one();
+}
+
+void PX4_Wrapper::flush_recorder()
+{
+    if (recorder_) {
+        recorder_->flush();
+    }
 }
 
 void PX4_Wrapper::start_engine()
@@ -152,6 +166,46 @@ void PX4_Wrapper::start_engine()
     mission_ = std::make_unique<Mission>(system_);
     telemetry_ = std::make_unique<Telemetry>(system_);
     
+    // Subscribe to telemetry updates for recording
+    if (recorder_) {
+        telemetry_->subscribe_position_velocity_ned([this](Telemetry::PositionVelocityNed pvn) {
+            static auto last_log = std::chrono::steady_clock::now();
+            auto now = std::chrono::steady_clock::now();
+            // Log at 1Hz
+            if (std::chrono::duration_cast<std::chrono::seconds>(now - last_log).count() >= 1) {
+                auto pos = telemetry_->position();
+                auto vel_ned = telemetry_->velocity_ned();
+                auto attitude = telemetry_->attitude_euler();
+                auto battery = telemetry_->battery();
+                auto armed = telemetry_->armed();
+                auto in_air = telemetry_->in_air();
+                auto flight_mode = telemetry_->flight_mode();
+                
+                Drone_Recorder::Telemetry_Record rec{
+                    get_current_timestamp(),
+                    drone_config_.drone_id,
+                    pos.latitude_deg,
+                    pos.longitude_deg,
+                    pos.absolute_altitude_m,
+                    pos.relative_altitude_m,
+                    vel_ned.north_m_s,
+                    vel_ned.east_m_s,
+                    vel_ned.down_m_s,
+                    attitude.roll_deg,
+                    attitude.pitch_deg,
+                    attitude.yaw_deg,
+                    armed,
+                    in_air,
+                    std::to_string(static_cast<int>(flight_mode)),
+                    battery.voltage_v,
+                    battery.remaining_percent
+                };
+                recorder_->log_telemetry(rec);
+                last_log = now;
+            }
+        });
+    }
+    
     // Wait for system to be ready
     Logger::log_message(Logger::Type::INFO, "Waiting for system to be ready...");
     while (!telemetry_->health_all_ok()) {
@@ -194,6 +248,19 @@ void PX4_Wrapper::send_command(const std::string &command)
                 Logger::log_message(Logger::Type::INFO, "Mission coords: (" + 
                     std::to_string(mission_cmd.mission_item.latitude_deg) + ", " + 
                     std::to_string(mission_cmd.mission_item.longitude_deg) + ")");
+                
+                if (recorder_) {
+                    Drone_Recorder::Command_Log cmd_log{
+                        get_current_timestamp(),
+                        drone_config_.drone_id,
+                        "COMMAND_RECEIVED",
+                        "SUCCESS",
+                        "Type: " + mission_cmd.type + " at (" + 
+                        std::to_string(mission_cmd.mission_item.latitude_deg) + ", " +
+                        std::to_string(mission_cmd.mission_item.longitude_deg) + ")"
+                    };
+                    recorder_->log_command(cmd_log);
+                }
                 
                 {
                     std::lock_guard<std::mutex> lock(mission_mutex_);
@@ -357,6 +424,21 @@ bool PX4_Wrapper::perform_takeoff() {
     }
     Logger::log_message(Logger::Type::INFO, "Reached takeoff altitude (" + 
                        std::to_string(current_altitude) + "m), starting mission...");
+    
+    // Log takeoff event
+    if (recorder_) {
+        auto pos = telemetry_->position();
+        Drone_Recorder::Mission_Event event{
+            get_current_timestamp(),
+            drone_config_.drone_id,
+            "TAKEOFF",
+            -1,
+            pos.latitude_deg,
+            pos.longitude_deg
+        };
+        recorder_->log_mission_event(event);
+    }
+    
     return true;
 }
 
@@ -373,6 +455,21 @@ bool PX4_Wrapper::start_mission_execution() {
     }
     
     Logger::log_message(Logger::Type::INFO, "Mission started successfully!");
+    
+    // Log mission start event
+    if (recorder_) {
+        auto pos = telemetry_->position();
+        Drone_Recorder::Mission_Event event{
+            get_current_timestamp(),
+            drone_config_.drone_id,
+            "MISSION_START",
+            -1,
+            pos.latitude_deg,
+            pos.longitude_deg
+        };
+        recorder_->log_mission_event(event);
+    }
+    
     return true;
 }
 
@@ -381,6 +478,20 @@ void PX4_Wrapper::wait_mission_completion() {
         sleep_for(seconds(1));
     }
     Logger::log_message(Logger::Type::INFO, "Mission completed, returning home");
+    
+    // Log mission complete event
+    if (recorder_) {
+        auto pos = telemetry_->position();
+        Drone_Recorder::Mission_Event event{
+            get_current_timestamp(),
+            drone_config_.drone_id,
+            "MISSION_COMPLETE",
+            -1,
+            pos.latitude_deg,
+            pos.longitude_deg
+        };
+        recorder_->log_mission_event(event);
+    }
 }
 
 bool PX4_Wrapper::return_to_launch() {
@@ -394,6 +505,20 @@ bool PX4_Wrapper::return_to_launch() {
             handlers_.error(drone_config_.drone_id);
         }
         return false;
+    }
+
+    // Log RTL start event
+    if (recorder_) {
+        auto pos = telemetry_->position();
+        Drone_Recorder::Mission_Event event{
+            get_current_timestamp(),
+            drone_config_.drone_id,
+            "RTL_START",
+            -1,
+            pos.latitude_deg,
+            pos.longitude_deg
+        };
+        recorder_->log_mission_event(event);
     }
 
     sleep_for(seconds(2));
@@ -426,10 +551,24 @@ void PX4_Wrapper::execute_mission()
     if (!wait_system_healthy()) return;
     if (!arm_vehicle()) return;
     
-    mission_->subscribe_mission_progress([](Mission::MissionProgress mission_progress) {
+    mission_->subscribe_mission_progress([this, mission_items](Mission::MissionProgress mission_progress) {
         std::stringstream log;
         log << "Mission status update: " << mission_progress.current << " / " << mission_progress.total;
         Logger::log_message(Logger::Type::INFO, log.str());
+        
+        // Log waypoint reached event
+        if (recorder_ && mission_progress.current < mission_items.size()) {
+            const auto& item = mission_items[mission_progress.current];
+            Drone_Recorder::Mission_Event event{
+                get_current_timestamp(),
+                drone_config_.drone_id,
+                "WAYPOINT_REACHED",
+                mission_progress.current,
+                item.latitude_deg,
+                item.longitude_deg
+            };
+            recorder_->log_mission_event(event);
+        }
     });
     
     wait_for_start_signal();
@@ -437,6 +576,12 @@ void PX4_Wrapper::execute_mission()
     if (!start_mission_execution()) return;
     wait_mission_completion();
     if (!return_to_launch()) return;
+    
+    // Flush all remaining data
+    if (recorder_) {
+        recorder_->flush();
+        Logger::log_message(Logger::Type::INFO, "Recorder data flushed");
+    }
     
     handlers_.mission_complete();
 }

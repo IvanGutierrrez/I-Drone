@@ -18,13 +18,11 @@ constexpr int NUMBER_ATTEMPS_MAX = 10;
 constexpr int RATE_STATUS_MESSAGE = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
-                                             const tcp::endpoint& endpoint,
-                                             const std::shared_ptr<Drone_Recorder> &rec_mng): io_context_(io_context),
-                                                                                              server_(io_context),
-                                                                                              endpoint_(endpoint),
-                                                                                              recorder_ptr_(std::move(rec_mng)),
-                                                                                              status_timer(io_context_),
-                                                                                              status_(Struct_Drone::Status::STARTING_SIM)
+                                             const tcp::endpoint& endpoint): io_context_(io_context),
+                                                                                server_(io_context),
+                                                                                endpoint_(endpoint),
+                                                                                status_timer(io_context_),
+                                                                                status_(Struct_Drone::Status::STARTING_SIM)
 {
     Server::handlers handler_obj;
 

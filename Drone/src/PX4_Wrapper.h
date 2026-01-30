@@ -12,6 +12,7 @@
 
 #pragma once
 #include "Engine.h"
+#include "Drone_Recorder.h"
 #include "structs/Structs_Drone.h"
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
@@ -35,6 +36,7 @@ private:
     std::unique_ptr<mavsdk::Action> action_;
     std::unique_ptr<mavsdk::Mission> mission_;
     std::unique_ptr<mavsdk::Telemetry> telemetry_;
+    std::shared_ptr<Drone_Recorder> recorder_;
     
     std::mutex mission_mutex_;
     std::condition_variable cv_mission_complete_;
@@ -67,10 +69,11 @@ private:
     void cleanup_px4_process();
 
 public:
-    PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config);
+    PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config, std::shared_ptr<Drone_Recorder> recorder);
     ~PX4_Wrapper() override;
     void set_start_signal(std::shared_future<void> start_signal) override;
     void mark_commands_ready() override;
+    void flush_recorder() override;
     void start_engine() override;
     void send_command(const std::string &command) override;
     void set_handler(Handlers f) override;

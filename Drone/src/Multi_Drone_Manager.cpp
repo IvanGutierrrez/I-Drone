@@ -64,6 +64,9 @@ void Multi_Drone_Manager::dispatch_command(const std::string &message)
                     drone->mark_commands_ready();
                 }
                 
+                // Release start signal to allow drones to takeoff
+                ensure_start_signal();
+                
                 // Notify that missions are ready to execute
                 {
                     std::lock_guard<std::mutex> lock(handlers_mutex_);
@@ -71,9 +74,10 @@ void Multi_Drone_Manager::dispatch_command(const std::string &message)
                         handlers_.missions_ready();
                     }
                 }
-                
-                ensure_start_signal();
-                return;
+            } else {
+                // Round-robin distribution to drones
+                size_t target_drone = next_drone_.fetch_add(1) % drones_.size();
+                drones_[target_drone]->send_command(message);
             }
         }
     } else if (decoded.first == Enc_Dec_Drone::Drone::ERROR) {
@@ -87,13 +91,16 @@ void Multi_Drone_Manager::dispatch_command(const std::string &message)
         Logger::log_message(Logger::Type::WARNING, "Unknown message type in Multi_Drone_Manager");
         std::lock_guard<std::mutex> lock(handlers_mutex_);
         if (handlers_.error) {
-            handlers_.error(-1); // -1 indicates error not from specific drone
+            handlers_.error(-1);
         }
-        return;
     }
+}
 
-    const auto idx = next_drone_.fetch_add(1) % drones_.size();
-    drones_[idx]->send_command(message);
+void Multi_Drone_Manager::flush_all_recorders()
+{
+    for (auto& drone : drones_) {
+        drone->flush_recorder();
+    }
 }
 
 void Multi_Drone_Manager::on_drone_complete()

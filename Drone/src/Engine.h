@@ -31,6 +31,7 @@ public:
     virtual void set_handler(Handlers f);
     virtual void set_start_signal(std::shared_future<void> start_signal);
     virtual void mark_commands_ready();
+    virtual void flush_recorder() {};
 
 protected:
     Struct_Drone::Drone_Config drone_config_;

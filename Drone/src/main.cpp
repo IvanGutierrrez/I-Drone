@@ -14,6 +14,7 @@
 #include "Controller.h"
 #include "Communication_Manager.h"
 #include "Drone_Recorder.h"
+#include "PX4_Drone_Recorder.h"
 #include "Multi_Drone_Manager.h"
 #include "PX4_Wrapper.h"
 #include "Simulation_Cleaner.h"
@@ -88,23 +89,23 @@ int main(int argc, char* argv[]) {
     std::vector<std::shared_ptr<Engine>> engines;
     engines.reserve(config.num_drones);
     for (const auto &drone_cfg : config.drones) {
-        engines.push_back(std::make_shared<PX4_Wrapper>(drone_cfg, config));
+        std::shared_ptr<Drone_Recorder> recorder = std::make_shared<PX4_Drone_Recorder>(drone_cfg.drone_id, config.data_path.string());
+        engines.push_back(std::make_shared<PX4_Wrapper>(drone_cfg, config, recorder));
     }
 
-    std::shared_ptr<Drone_Recorder> rec_mng_ptr = std::make_shared<Drone_Recorder>();
-
-    std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
+    std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context, pld_endpoint);
 
     std::shared_ptr<Multi_Drone_Manager> drone_manager_ptr = std::make_shared<Multi_Drone_Manager>(engines);
 
     std::shared_ptr<Controller> controller_ptr = std::make_shared<Controller>(comm_mng_ptr,
-                                                                              rec_mng_ptr,
                                                                               drone_manager_ptr,
                                                                               config);
         
     std::unique_ptr<Simulation_Cleaner> sim_cleanup = std::make_unique<Gazebo_Cleaner>();
                                                                               
-    Signal_Handler signal_handler(io_context, [&sim_cleanup]() {
+    Signal_Handler signal_handler(io_context, [&sim_cleanup, &drone_manager_ptr]() {
+        Logger::log_message(Logger::Type::INFO, "Signal received, flushing recorders...");
+        drone_manager_ptr->flush_all_recorders();
         sim_cleanup->cleanup();
         Logger::log_message(Logger::Type::INFO, "Shutdown complete");
     });
