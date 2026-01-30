@@ -22,7 +22,8 @@ Controller::Controller(std::shared_ptr<Communication_Manager> comm_mng,
 
     Multi_Drone_Manager::Handlers handlers;
     handlers.all_missions_complete = std::bind(&Controller::mission_complete, this);
-    handlers.error = std::bind(&Controller::error_processing_command, this);
+    handlers.error = std::bind(&Controller::error_callback, this, std::placeholders::_1);
+    handlers.missions_ready = std::bind(&Controller::missions_ready, this);
     drone_manager_->set_handlers(handlers);
     drone_manager_->start_all();
 }
@@ -43,8 +44,14 @@ void Controller::mission_complete()
     comm_mng_ptr_->set_status(Struct_Drone::Status::FINISH);
 }
 
-void Controller::error_processing_command()
+void Controller::error_callback(int drone_id)
 {
-    Logger::log_message(Logger::Type::ERROR, "Error processing command"); // TODO Think what to do
+    Logger::log_message(Logger::Type::ERROR, "Error call from drone " + std::to_string(drone_id));
     comm_mng_ptr_->set_status(Struct_Drone::Status::ERROR);
+}
+
+void Controller::missions_ready()
+{
+    Logger::log_message(Logger::Type::INFO, "All missions ready, starting execution");
+    comm_mng_ptr_->set_status(Struct_Drone::Status::EXECUTING_MISSION);
 }

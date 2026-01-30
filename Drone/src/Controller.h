@@ -25,7 +25,8 @@ public:
     ~Controller();
     void handler_message(const std::string &message);
     void mission_complete();
-    void error_processing_command();
+    void error_callback(int drone_id);
+    void missions_ready();
 
 private:
     std::shared_ptr<Communication_Manager> comm_mng_ptr_;

@@ -10,13 +10,19 @@ if [ ! -z "$DRONE_0_HOME_LAT" ]; then
   export PX4_HOME_ALT=$DRONE_0_HOME_ALT
 fi
 
-# Use empty world (standard PX4 approach)
-WORLD_FILE="/root/tfg/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/empty.world"
+# Use multi_drone world with camera tracking
+WORLD_FILE="/opt/I-Drone/multi_drone.world"
+
+# Initialize simulation processes tracking file
+echo "# Simulation processes for cleanup" > /tmp/simulation_processes.pid
 
 echo "Starting Gazebo Classic for multi-drone simulation..."
 gzserver --verbose ${WORLD_FILE} &
 GZSERVER_PID=$!
 echo "Gazebo server started. PID: $GZSERVER_PID"
+
+# Register process for cleanup
+echo "gzserver:$GZSERVER_PID" >> /tmp/simulation_processes.pid
 
 # Wait for Gazebo to be ready
 echo "Waiting for Gazebo server to be ready..."
@@ -31,6 +37,8 @@ fi
 if [ ! -z "$DISPLAY" ]; then
   echo "Starting Gazebo GUI..."
   gzclient &
+  GZCLIENT_PID=$!
+  echo "gzclient:$GZCLIENT_PID" >> /tmp/simulation_processes.pid
   echo "Gazebo GUI started"
 fi
 

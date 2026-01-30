@@ -135,6 +135,23 @@ inline bool get_drone_config(int drone_id, const Struct_Drone::Config_struct& co
         drone_cnf.autostart_px4 = (std::string(autostart_env) != "0" && std::string(autostart_env) != "false");
     }
     
+    // Read takeoff altitude (optional, defaults to 10m)
+    std::string takeoff_alt_env_key = "DRONE_" + std::to_string(drone_id) + "_TAKEOFF_ALTITUDE";
+    const char* takeoff_alt_env = std::getenv(takeoff_alt_env_key.c_str());
+    drone_cnf.takeoff_altitude_m = 10.0f; // Default
+    if (takeoff_alt_env) {
+        try {
+            drone_cnf.takeoff_altitude_m = std::stof(takeoff_alt_env);
+            if (drone_cnf.takeoff_altitude_m <= 0.0f) {
+                std::cerr << "WARNING: Invalid takeoff altitude for drone " << drone_id << ", using default 10m" << std::endl;
+                drone_cnf.takeoff_altitude_m = 10.0f;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "WARNING: Could not parse takeoff altitude for drone " << drone_id << ", using default 10m" << std::endl;
+            drone_cnf.takeoff_altitude_m = 10.0f;
+        }
+    }
+    
     return true;
 }
 

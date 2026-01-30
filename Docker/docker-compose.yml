@@ -43,4 +43,4 @@ services:
       #/opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345"
     depends_on:
       - PLD
-    restart: unless-stopped
+    restart: "no"

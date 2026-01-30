@@ -20,7 +20,8 @@ class Multi_Drone_Manager {
 public:
     struct Handlers {
         f_handler_normal all_missions_complete = nullptr;
-        f_handler_normal error = nullptr;
+        std::function<void(int drone_id)> error = nullptr;
+        f_handler_normal missions_ready = nullptr;
     };
 
     explicit Multi_Drone_Manager(std::vector<std::shared_ptr<Engine>> engines);
@@ -32,7 +33,7 @@ public:
 
 private:
     void on_drone_complete();
-    void on_drone_error();
+    void on_drone_error(int drone_id);
     void ensure_start_signal();
 
     std::vector<std::shared_ptr<Engine>> drones_;

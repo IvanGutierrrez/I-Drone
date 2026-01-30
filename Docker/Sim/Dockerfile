@@ -118,10 +118,9 @@ RUN meson setup build . && \
 
 # --- Copy Gazebo startup scripts ---
 COPY Docker/Sim/start_gazebo.sh /opt/I-Drone/start_gazebo.sh
-COPY Docker/Sim/start_gazebo_gui.sh /opt/I-Drone/start_gazebo_gui.sh
 COPY Docker/Sim/generate_iris_sdf.sh /opt/I-Drone/generate_iris_sdf.sh
 COPY Docker/Sim/multi_drone.world /opt/I-Drone/multi_drone.world
-RUN chmod +x /opt/I-Drone/start_gazebo.sh /opt/I-Drone/start_gazebo_gui.sh /opt/I-Drone/generate_iris_sdf.sh
+RUN chmod +x /opt/I-Drone/start_gazebo.sh /opt/I-Drone/generate_iris_sdf.sh
 
 # --- Final working directory ---
 WORKDIR /opt/I-Drone

@@ -9,8 +9,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
 #include <vector>
-#include <sstream>
-#include <cstdlib>
 #include <boost/asio.hpp>
 #include "Config.h"
 #include "Controller.h"
@@ -18,6 +16,8 @@
 #include "Drone_Recorder.h"
 #include "Multi_Drone_Manager.h"
 #include "PX4_Wrapper.h"
+#include "Simulation_Cleaner.h"
+#include "Gazebo_Cleaner.h"
 #include "common_libs/Logger.h"
 #include "common_libs/Signal_Handler.h"
 
@@ -85,7 +85,6 @@ int main(int argc, char* argv[]) {
         config.drones.push_back(drone_cfg);
     }
 
-    // Create engine instances (PX4_Wrapper)
     std::vector<std::shared_ptr<Engine>> engines;
     engines.reserve(config.num_drones);
     for (const auto &drone_cfg : config.drones) {
@@ -102,8 +101,11 @@ int main(int argc, char* argv[]) {
                                                                               rec_mng_ptr,
                                                                               drone_manager_ptr,
                                                                               config);
-    
-    Signal_Handler signal_handler(io_context, []() {
+        
+    std::unique_ptr<Simulation_Cleaner> sim_cleanup = std::make_unique<Gazebo_Cleaner>();
+                                                                              
+    Signal_Handler signal_handler(io_context, [&sim_cleanup]() {
+        sim_cleanup->cleanup();
         Logger::log_message(Logger::Type::INFO, "Shutdown complete");
     });
 
@@ -111,5 +113,9 @@ int main(int argc, char* argv[]) {
     io_context.run();
 
     Logger::log_message(Logger::Type::INFO, "No more async functions to do, exiting program...");
+    
+    // Cleanup simulation resources on normal exit
+    sim_cleanup->cleanup();
+    
     Logger::close();
 }

@@ -39,11 +39,11 @@ void Multi_Drone_Manager::set_handlers(Handlers handlers)
     std::lock_guard<std::mutex> lock(handlers_mutex_);
     handlers_ = std::move(handlers);
 
-    for (auto &drone : drones_) {
+    for (size_t i = 0; i < drones_.size(); ++i) {
         Engine::Handlers drone_handlers;
         drone_handlers.mission_complete = std::bind(&Multi_Drone_Manager::on_drone_complete, this);
-        drone_handlers.error = std::bind(&Multi_Drone_Manager::on_drone_error, this);
-        drone->set_handler(drone_handlers);
+        drone_handlers.error = [this, i](int drone_id) { this->on_drone_error(drone_id); };
+        drones_[i]->set_handler(drone_handlers);
     }
 }
 
@@ -63,10 +63,33 @@ void Multi_Drone_Manager::dispatch_command(const std::string &message)
                 for (auto &drone : drones_) {
                     drone->mark_commands_ready();
                 }
+                
+                // Notify that missions are ready to execute
+                {
+                    std::lock_guard<std::mutex> lock(handlers_mutex_);
+                    if (handlers_.missions_ready) {
+                        handlers_.missions_ready();
+                    }
+                }
+                
                 ensure_start_signal();
                 return;
             }
         }
+    } else if (decoded.first == Enc_Dec_Drone::Drone::ERROR) {
+        Logger::log_message(Logger::Type::ERROR, "Error decoding message in Multi_Drone_Manager");
+        std::lock_guard<std::mutex> lock(handlers_mutex_);
+        if (handlers_.error) {
+            handlers_.error(-1); // -1 indicates error not from specific drone
+        }
+        return;
+    } else if (decoded.first == Enc_Dec_Drone::Drone::UNKNOWN) {
+        Logger::log_message(Logger::Type::WARNING, "Unknown message type in Multi_Drone_Manager");
+        std::lock_guard<std::mutex> lock(handlers_mutex_);
+        if (handlers_.error) {
+            handlers_.error(-1); // -1 indicates error not from specific drone
+        }
+        return;
     }
 
     const auto idx = next_drone_.fetch_add(1) % drones_.size();
@@ -84,12 +107,13 @@ void Multi_Drone_Manager::on_drone_complete()
     }
 }
 
-void Multi_Drone_Manager::on_drone_error()
+void Multi_Drone_Manager::on_drone_error(int drone_id)
 {
-    std::call_once(error_once_flag_, [this]() {
+    std::call_once(error_once_flag_, [this, drone_id]() {
+        Logger::log_message(Logger::Type::ERROR, "Drone " + std::to_string(drone_id) + " reported an error");
         std::lock_guard<std::mutex> lock(handlers_mutex_);
         if (handlers_.error) {
-            handlers_.error();
+            handlers_.error(drone_id);
         }
     });
 }

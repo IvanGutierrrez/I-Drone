@@ -20,7 +20,7 @@ class Engine {
 public:
     struct Handlers {
         f_handler_normal mission_complete = 0;
-        f_handler_normal error = 0;
+        std::function<void(int drone_id)> error = 0;
     };
 
     Engine(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config) 
