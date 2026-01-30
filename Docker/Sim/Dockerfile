@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     ninja-build \
     libboost-all-dev \
+    netcat \
     && pip3 install --upgrade meson \
     && rm -rf /var/lib/apt/lists/*
 
@@ -74,7 +75,8 @@ WORKDIR /root/tfg
 RUN git clone https://github.com/PX4/PX4-Autopilot.git /root/tfg/PX4-Autopilot && \
     cd /root/tfg/PX4-Autopilot && \
     git submodule update --init --recursive && \
-    git config --global --add safe.directory /root/tfg/PX4-Autopilot
+    git config --global --add safe.directory /root/tfg/PX4-Autopilot && \
+    DONT_RUN=1 make px4_sitl_default gazebo-classic
 
 # --- MAVSDK ---
 # Clone MAVSDK
@@ -113,6 +115,12 @@ RUN meson setup build . && \
     mkdir -p /opt/I-Drone && \
     cp build/Drone/Drone /opt/I-Drone/ && \
     rm -rf /app
+
+# --- Copy Gazebo startup scripts ---
+COPY Docker/Sim/start_gazebo.sh /opt/I-Drone/start_gazebo.sh
+COPY Docker/Sim/generate_iris_sdf.sh /opt/I-Drone/generate_iris_sdf.sh
+COPY Docker/Sim/multi_drone.world /opt/I-Drone/multi_drone.world
+RUN chmod +x /opt/I-Drone/start_gazebo.sh /opt/I-Drone/generate_iris_sdf.sh
 
 # --- Final working directory ---
 WORKDIR /opt/I-Drone

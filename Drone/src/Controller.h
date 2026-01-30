@@ -13,27 +13,24 @@
 #include "structs/Structs_Drone.h"
 #include "Communication_Manager.h"
 #include "Drone_Recorder.h"
-#include "Engine.h"
+#include "Multi_Drone_Manager.h"
 
 class Controller {
 
 public:
     Controller(std::shared_ptr<Communication_Manager> comm_mng, 
                std::shared_ptr<Drone_Recorder> rec_mng,
-               std::shared_ptr<Engine> engine,
-               const Struct_Drone::Config_struct cnf);
+               std::shared_ptr<Multi_Drone_Manager> drone_manager,
+               const Struct_Drone::Config_struct &cnf);
     ~Controller();
     void handler_message(const std::string &message);
     void mission_complete();
-    void error_processing_command();
+    void error_callback(int drone_id);
+    void missions_ready();
 
 private:
-    void engine_started();
-
     std::shared_ptr<Communication_Manager> comm_mng_ptr_;
     std::shared_ptr<Drone_Recorder> recorder_ptr_;
-    std::shared_ptr<Engine> engine_;
+    std::shared_ptr<Multi_Drone_Manager> drone_manager_;
     Struct_Drone::Config_struct global_config_;
-    
-    std::thread start_engine_thread_;
 };

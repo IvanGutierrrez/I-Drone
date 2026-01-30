@@ -18,11 +18,11 @@
 #include <mavsdk/plugins/mission/mission.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 #include <memory>
-#include <optional>
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
 #include <vector>
+#include <future>
 
 
 // Interface
@@ -39,6 +39,8 @@ private:
     std::mutex mission_mutex_;
     std::condition_variable cv_mission_complete_;
     std::atomic<bool> command_upload_{false};
+    std::mutex start_signal_mutex_;
+    pid_t px4_pid_{-1}; // Track PX4 process for cleanup
 
     mavsdk::Mission::MissionItem make_mission_item(
         double latitude_deg,
@@ -49,12 +51,26 @@ private:
         float gimbal_pitch_deg,
         float gimbal_yaw_deg,
         mavsdk::Mission::MissionItem::CameraAction camera_action);
-        
+    
+    mavsdk::Mission::MissionItem::CameraAction convert_camera_action(Struct_Drone::CameraAction action);
+    std::vector<mavsdk::Mission::MissionItem> build_mission_items();
+    bool upload_mission_plan(const std::vector<mavsdk::Mission::MissionItem>& mission_items);
+    bool wait_system_healthy();
+    bool arm_vehicle();
+    bool perform_takeoff();
+    void wait_for_start_signal();
+    bool start_mission_execution();
+    void wait_mission_completion();
+    bool return_to_launch();
+    
     void execute_mission();
+    void cleanup_px4_process();
 
 public:
-    PX4_Wrapper(const Struct_Drone::Config_struct &config);
-    ~PX4_Wrapper() override = default;
+    PX4_Wrapper(const Struct_Drone::Drone_Config &drone_config, const Struct_Drone::Config_struct &common_config);
+    ~PX4_Wrapper() override;
+    void set_start_signal(std::shared_future<void> start_signal) override;
+    void mark_commands_ready() override;
     void start_engine() override;
     void send_command(const std::string &command) override;
     void set_handler(Handlers f) override;

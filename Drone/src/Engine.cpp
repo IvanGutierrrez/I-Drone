@@ -23,6 +23,15 @@ void Engine::send_command(const std::string &command)
 {
 }
 
+void Engine::set_start_signal(std::shared_future<void> signal)
+{
+    start_signal_ = signal;
+}
+
+void Engine::mark_commands_ready()
+{
+}
+
 void Engine::set_handler(Handlers f)
 {
     handlers_ = f;

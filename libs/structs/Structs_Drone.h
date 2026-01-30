@@ -17,11 +17,23 @@
 
 namespace Struct_Drone {
 
+    struct Drone_Config {
+        int drone_id = 0;
+        std::string connection_url;
+        std::string command_px4;
+        bool autostart_px4 = true;
+        double home_lat = 0.0;
+        double home_lon = 0.0;
+        double home_alt = 0.0;
+        float takeoff_altitude_m = 10.0f;
+    };
+
     struct Config_struct {
         std::filesystem::path data_path;
         std::filesystem::path log_path;
         std::string log_name;
-        std::string command_px4;
+        int num_drones = 1;
+        std::vector<Drone_Config> drones;
     };
 
     enum class CameraAction {
@@ -54,8 +66,7 @@ namespace Struct_Drone {
     enum class Status {
         STARTING_SIM,
         ERROR,
-        EXECUTING_COMMAND,
-        WAITING_COMMAND,
+        EXECUTING_MISSION,
         FINISH
     };
 
@@ -65,10 +76,8 @@ namespace Struct_Drone {
                 return "STARTING_SIM";
             case Status::ERROR:
                 return "ERROR";
-            case Status::EXECUTING_COMMAND:
-                return "EXECUTING_COMMAND";
-            case Status::WAITING_COMMAND:
-                return "WAITING_COMMAND";
+            case Status::EXECUTING_MISSION:
+                return "EXECUTING_MISSION";
             case Status::FINISH:
                 return "FINISH";
             default:

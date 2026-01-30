@@ -108,7 +108,6 @@ void Communication_Manager::set_status(const Struct_Drone::Status &new_status)
 void Communication_Manager::on_error(const boost::system::error_code& ec, const Type_Error &type_error)
 {    
     if (shutting_down_) return;
-    Logger::log_message(Logger::Type::WARNING, "on_error callback triggered");
     
     boost::system::error_code cancel_ec;
     status_timer.cancel(cancel_ec);
@@ -117,7 +116,13 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
         Logger::log_message(Logger::Type::INFO,"Program task complete, leaving program...");
         io_context_.stop();
         return;
+    } else if (get_status() == Struct_Drone::Status::ERROR) {
+        Logger::log_message(Logger::Type::ERROR, "Error detected, shutting down program...");
+        io_context_.stop();
+        return;
     }
+
+    Logger::log_message(Logger::Type::WARNING, "on_error callback triggered");
     std::string log;
     switch (type_error){
         case Type_Error::CONNECTING:
