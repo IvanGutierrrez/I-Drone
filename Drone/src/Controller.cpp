@@ -11,10 +11,8 @@
 #include "common_libs/Logger.h"
 
 Controller::Controller(std::shared_ptr<Communication_Manager> comm_mng, 
-                       std::shared_ptr<Drone_Recorder> rec_mng,
                        std::shared_ptr<Multi_Drone_Manager> drone_manager,
                        const Struct_Drone::Config_struct &cnf) : comm_mng_ptr_(std::move(comm_mng)),
-                                                                recorder_ptr_(std::move(rec_mng)),
                                                                 drone_manager_(std::move(drone_manager)),
                                                                 global_config_(cnf)
 {

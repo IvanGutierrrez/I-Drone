@@ -30,6 +30,7 @@ public:
     void set_handlers(Handlers handlers);
     void start_all();
     void dispatch_command(const std::string &message);
+    void flush_all_recorders();
 
 private:
     void on_drone_complete();

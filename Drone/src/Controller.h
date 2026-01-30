@@ -12,14 +12,12 @@
 #include <thread>
 #include "structs/Structs_Drone.h"
 #include "Communication_Manager.h"
-#include "Drone_Recorder.h"
 #include "Multi_Drone_Manager.h"
 
 class Controller {
 
 public:
     Controller(std::shared_ptr<Communication_Manager> comm_mng, 
-               std::shared_ptr<Drone_Recorder> rec_mng,
                std::shared_ptr<Multi_Drone_Manager> drone_manager,
                const Struct_Drone::Config_struct &cnf);
     ~Controller();
@@ -30,7 +28,6 @@ public:
 
 private:
     std::shared_ptr<Communication_Manager> comm_mng_ptr_;
-    std::shared_ptr<Drone_Recorder> recorder_ptr_;
     std::shared_ptr<Multi_Drone_Manager> drone_manager_;
     Struct_Drone::Config_struct global_config_;
 };
