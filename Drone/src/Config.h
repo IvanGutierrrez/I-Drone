@@ -89,40 +89,41 @@ inline bool get_drone_config(int drone_id, const Struct_Drone::Config_struct& co
     if (px4_cmd_env && std::string(px4_cmd_env) != "") {
         drone_cnf.command_px4 = std::string(px4_cmd_env);
     } else {
-        // Build PX4 command: spawn model + run PX4 directly (avoid sitl_run.sh)
-        // Calculate spawn position based on drone_id
-        double spawn_x = (drone_id % 2) * 2.0;  // 0, 2, 0, 2...
-        double spawn_y = (drone_id / 2) * 2.0;  // 0, 0, 2, 2...
+        // Build PX4 command using official multi-drone approach
+        // Create separate working directory for each instance (like sitl_multiple_run.sh)
+        std::string working_dir = common_config.data_path.string() + "px4_rootfs_" + std::to_string(drone_id);
+        
+        // Calculate spawn position
+        double spawn_x = (drone_id % 2) * 2.0;
+        double spawn_y = (drone_id / 2) * 2.0;
         
         drone_cnf.command_px4 = std::string("bash -c '") +
-                                // Set environment for Gazebo interaction
+                                // Set Gazebo environment
                                 "export GAZEBO_MODEL_PATH=/root/tfg/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models:${GAZEBO_MODEL_PATH} && " +
                                 "export GAZEBO_PLUGIN_PATH=/root/tfg/PX4-Autopilot/build/px4_sitl_default/build_gazebo-classic:${GAZEBO_PLUGIN_PATH} && " +
-                                // Wait for Gazebo to be ready (poll port 11345)
+                                // Wait for Gazebo
                                 "timeout 30 bash -c \"until nc -z localhost 11345 2>/dev/null; do sleep 0.5; done\" && " +
-                                // Staggered delay to ensure sequential spawning
+                                // Staggered spawn
                                 "sleep " + std::to_string(drone_id * 3) + " && " +
-                                // Generate custom SDF with unique TCP port
+                                // Generate SDF using jinja (official method)
                                 "/opt/I-Drone/generate_iris_sdf.sh " + std::to_string(drone_id) + 
                                 " /tmp/iris_" + std::to_string(drone_id) + ".sdf && " +
-                                // Spawn iris model with unique name and custom SDF
+                                // Spawn model
                                 "gz model --spawn-file=/tmp/iris_" + std::to_string(drone_id) + ".sdf" +
                                 " --model-name=iris_" + std::to_string(drone_id) +
-                                " -x " + std::to_string(spawn_x) + " -y " + std::to_string(spawn_y) + " -z 0.1 && " +
+                                " -x " + std::to_string(spawn_x) + " -y " + std::to_string(spawn_y) + " -z 0.83 && " +
                                 "sleep 1 && " +
-                                // Run PX4
-                                "cd /root/tfg/PX4-Autopilot/build/px4_sitl_default && " +
+                                // Create working directory for this instance
+                                "mkdir -p " + working_dir + " && " +
+                                "cd " + working_dir + " && " +
+                                // Run PX4 with instance-specific settings (no lockstep - official multi-drone approach)
                                 "PX4_HOME_LAT=" + std::to_string(drone_cnf.home_lat) + 
                                 " PX4_HOME_LON=" + std::to_string(drone_cnf.home_lon) + 
                                 " PX4_HOME_ALT=" + std::to_string(drone_cnf.home_alt) + 
-                                " PX4_SYS_AUTOSTART=4001" +
-                                " PX4_INSTANCE=" + std::to_string(drone_id) +
-                                " PX4_SIMULATOR=gazebo-classic" +
-                                " PX4_SIM_MODEL=iris" +
-                                " PX4_GZ_MODEL_NAME=iris_" + std::to_string(drone_id) +
-                                // Only drone 0 uses lockstep (drives Gazebo time), others use real-time
-                                (drone_id == 0 ? "" : " PX4_SIM_SPEED_FACTOR=1") +
-                                " bin/px4 -i " + std::to_string(drone_id) + " -d -s etc/init.d-posix/rcS" +
+                                " PX4_SIM_MODEL=gazebo-classic_iris" +
+                                " /root/tfg/PX4-Autopilot/build/px4_sitl_default/bin/px4" +
+                                " -i " + std::to_string(drone_id) +
+                                " -d /root/tfg/PX4-Autopilot/build/px4_sitl_default/etc" +
                                 "' > " + common_config.data_path.string() + "px4_logs_" + std::to_string(drone_id) + ".txt 2>&1 &";
     }
     

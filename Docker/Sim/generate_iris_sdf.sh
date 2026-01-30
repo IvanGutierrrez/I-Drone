@@ -1,37 +1,30 @@
 #!/bin/bash
-# Generate iris SDF with custom TCP/UDP ports for multi-drone setup
+# Generate iris SDF using PX4's official jinja template
 # Usage: ./generate_iris_sdf.sh <instance_id> <output_file>
 
 INSTANCE=$1
 OUTPUT=$2
-BASE_SDF="/root/tfg/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/iris.sdf"
 
-# Calculate ports for lockstep: 4560 + instance, 14560 + instance
+PX4_DIR="/root/tfg/PX4-Autopilot"
+MODEL="iris"
+
+# Calculate unique ports per instance
 TCP_PORT=$((4560 + INSTANCE))
 UDP_PORT=$((14560 + INSTANCE))
+MAVLINK_ID=$((1 + INSTANCE))
+GST_UDP_PORT=$((5600 + INSTANCE))
+CAM_UDP_PORT=$((14530 + INSTANCE))
 
-# Copy base SDF
-cp "$BASE_SDF" "$OUTPUT"
+# Use PX4's official jinja generator (same as sitl_multiple_run.sh)
+python3 ${PX4_DIR}/Tools/simulation/gazebo-classic/sitl_gazebo-classic/scripts/jinja_gen.py \
+    ${PX4_DIR}/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/${MODEL}/${MODEL}.sdf.jinja \
+    ${PX4_DIR}/Tools/simulation/gazebo-classic/sitl_gazebo-classic \
+    --mavlink_tcp_port ${TCP_PORT} \
+    --mavlink_udp_port ${UDP_PORT} \
+    --mavlink_id ${MAVLINK_ID} \
+    --gst_udp_port ${GST_UDP_PORT} \
+    --video_uri ${GST_UDP_PORT} \
+    --mavlink_cam_udp_port ${CAM_UDP_PORT} \
+    --output-file ${OUTPUT}
 
-# Add tcp_port in mavlink_interface plugin if not present
-if ! grep -q "<tcp_port>" "$OUTPUT"; then
-  sed -i "s|<plugin name='mavlink_interface' filename='libgazebo_mavlink_interface.so'>|<plugin name='mavlink_interface' filename='libgazebo_mavlink_interface.so'>\n      <tcp_port>${TCP_PORT}</tcp_port>|" "$OUTPUT"
-fi
-
-# Update existing mavlink_tcp_port and mavlink_udp_port
-sed -i "s|<mavlink_tcp_port>[0-9]*</mavlink_tcp_port>|<mavlink_tcp_port>${TCP_PORT}</mavlink_tcp_port>|g" "$OUTPUT"
-sed -i "s|<mavlink_udp_port>[0-9]*</mavlink_udp_port>|<mavlink_udp_port>${UDP_PORT}</mavlink_udp_port>|g" "$OUTPUT"
-
-# Enable lockstep only for first drone (instance 0) to drive Gazebo time
-if [ "$INSTANCE" -eq 0 ]; then
-  sed -i "s|<enable_lockstep>0</enable_lockstep>|<enable_lockstep>1</enable_lockstep>|g" "$OUTPUT"
-  sed -i "s|<enable_lockstep>false</enable_lockstep>|<enable_lockstep>true</enable_lockstep>|g" "$OUTPUT"
-  echo "Generated SDF for instance $INSTANCE: TCP=$TCP_PORT, UDP=$UDP_PORT (lockstep ENABLED - master)"
-else
-  sed -i "s|<enable_lockstep>1</enable_lockstep>|<enable_lockstep>0</enable_lockstep>|g" "$OUTPUT"
-  sed -i "s|<enable_lockstep>true</enable_lockstep>|<enable_lockstep>false</enable_lockstep>|g" "$OUTPUT"
-  echo "Generated SDF for instance $INSTANCE: TCP=$TCP_PORT, UDP=$UDP_PORT (lockstep disabled - slave)"
-fi
-
-# Increase sensor update rates
-sed -i "s|<update_rate>[0-9]*</update_rate>|<update_rate>250</update_rate>|g" "$OUTPUT"
+echo "Generated SDF for instance ${INSTANCE}: TCP=${TCP_PORT}, UDP=${UDP_PORT}, ID=${MAVLINK_ID}"

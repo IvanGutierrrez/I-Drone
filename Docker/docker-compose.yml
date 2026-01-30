@@ -39,7 +39,7 @@ services:
     command: tail -f /dev/null # /opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345
     #command: >
       #bash -c "/opt/I-Drone/start_gazebo.sh & 
-      #sleep 3 && 
+      #sleep 5 && 
       #/opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345"
     depends_on:
       - PLD

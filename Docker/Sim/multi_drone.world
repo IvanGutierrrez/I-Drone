@@ -39,6 +39,15 @@
       <camera name='user_camera'>
         <pose>-5 0 3 0 0.3 0</pose>
         <view_controller>orbit</view_controller>
+        <track_visual>
+          <name>iris_0</name>
+          <min_dist>2.0</min_dist>
+          <max_dist>10.0</max_dist>
+          <static>false</static>
+          <use_model_frame>true</use_model_frame>
+          <xyz>-3 0 1</xyz>
+          <inherit_yaw>true</inherit_yaw>
+        </track_visual>
       </camera>
     </gui>
   </world>
