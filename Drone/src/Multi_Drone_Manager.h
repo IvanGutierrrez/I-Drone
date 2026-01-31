@@ -48,5 +48,6 @@ private:
 
     std::atomic<size_t> completed_{0};
     std::atomic<size_t> next_drone_{0};
+    size_t current_drone_index_{0};
     std::mutex handlers_mutex_;
 };

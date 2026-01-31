@@ -16,10 +16,15 @@ WORLD_FILE="/opt/I-Drone/multi_drone.world"
 # Initialize simulation processes tracking file
 echo "# Simulation processes for cleanup" > /tmp/simulation_processes.pid
 
-echo "Starting Gazebo Classic for multi-drone simulation..."
-gzserver --verbose ${WORLD_FILE} &
+# Configure recording path for Gazebo
+RECORDING_DIR="/opt/I-Drone/data/recordings"
+mkdir -p ${RECORDING_DIR}
+
+echo "Starting Gazebo Classic for multi-drone simulation with recording..."
+gzserver --verbose -r --record_path ${RECORDING_DIR} ${WORLD_FILE} &
 GZSERVER_PID=$!
-echo "Gazebo server started. PID: $GZSERVER_PID"
+echo "Gazebo server started with recording enabled. PID: $GZSERVER_PID"
+echo "Recordings will be saved to: ${RECORDING_DIR}/<timestamp>/gzserver/state.log"
 
 # Register process for cleanup
 echo "gzserver:$GZSERVER_PID" >> /tmp/simulation_processes.pid
@@ -28,7 +33,7 @@ echo "gzserver:$GZSERVER_PID" >> /tmp/simulation_processes.pid
 echo "Waiting for Gazebo server to be ready..."
 timeout 30 bash -c "until nc -z localhost 11345 2>/dev/null; do sleep 0.5; done"
 if [ $? -eq 0 ]; then
-  echo "Gazebo server ready"
+  echo "Gazebo server ready and recording"
 else
   echo "Warning: Gazebo port check timed out"
 fi

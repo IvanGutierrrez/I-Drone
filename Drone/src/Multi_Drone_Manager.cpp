@@ -75,9 +75,23 @@ void Multi_Drone_Manager::dispatch_command(const std::string &message)
                     }
                 }
             } else {
-                // Round-robin distribution to drones
-                size_t target_drone = next_drone_.fetch_add(1) % drones_.size();
-                drones_[target_drone]->send_command(message);
+                // Group commands by START-FINISH blocks
+                // START begins a mission for current drone, FINISH completes it
+                std::string cmd_type = command->type_command();
+                
+                if (cmd_type == "START") {
+                    current_drone_index_ = (current_drone_index_ + 1) % drones_.size();
+                    Logger::log_message(Logger::Type::INFO, 
+                        "Starting mission block for Drone " + std::to_string(current_drone_index_));
+                }
+                
+                // Send command to current drone
+                drones_[current_drone_index_]->send_command(message);
+                
+                if (cmd_type == "FINISH") {
+                    Logger::log_message(Logger::Type::INFO, 
+                        "Finished mission block for Drone " + std::to_string(current_drone_index_));
+                }
             }
         }
     } else if (decoded.first == Enc_Dec_Drone::Drone::ERROR) {

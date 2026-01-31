@@ -27,4 +27,14 @@ python3 ${PX4_DIR}/Tools/simulation/gazebo-classic/sitl_gazebo-classic/scripts/j
     --mavlink_cam_udp_port ${CAM_UDP_PORT} \
     --output-file ${OUTPUT}
 
-echo "Generated SDF for instance ${INSTANCE}: TCP=${TCP_PORT}, UDP=${UDP_PORT}, ID=${MAVLINK_ID}"
+echo "Generated base SDF for instance ${INSTANCE}: TCP=${TCP_PORT}, UDP=${UDP_PORT}, ID=${MAVLINK_ID}"
+
+# Add camera sensor using Python XML parser
+TEMP_SDF="${OUTPUT}.tmp"
+mv ${OUTPUT} ${TEMP_SDF}
+python3 /root/tfg/add_camera_to_sdf.py ${TEMP_SDF} ${OUTPUT} ${INSTANCE}
+rm ${TEMP_SDF}
+
+echo "Added camera to ${OUTPUT}"
+
+
