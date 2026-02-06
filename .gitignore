@@ -45,3 +45,20 @@ build*/
 meson-logs/
 meson-private/
 .vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
