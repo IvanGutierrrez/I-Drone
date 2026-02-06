@@ -4,8 +4,11 @@ services:
     container_name: PLD
     network_mode: "host"
     volumes:
+      - $HOME/.ssh:/tmp/.ssh:ro
       - $HOME/test/PLD/logs:/opt/I-Drone/logs
-    command: tail -f /dev/null #/opt/I-Drone/PLD
+      - ./entrypoint-pld.sh:/entrypoint.sh:ro
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    command: tail -f /dev/null #/opt/I-Drone/PLD --Own_Address 127.0.0.1 --Own_port 12345
     restart: unless-stopped
 
   Planner:
@@ -15,10 +18,8 @@ services:
     volumes:
       - $HOME/test/Planner/logs:/opt/I-Drone/logs
       - $HOME/test/Planner/data:/opt/I-Drone/data
-    command: tail -f /dev/null # /opt/I-Drone/Planner --PLD_Address 127.0.0.1 --PLD_port 12345
-    depends_on:
-      - PLD
-    restart: unless-stopped
+    command: /opt/I-Drone/Planner --PLD_Address 127.0.0.1 --PLD_port 12346
+    restart: "no"
 
   Drone:
     image: px4_sim_i-drone:latest
@@ -41,6 +42,14 @@ services:
       #bash -c "/opt/I-Drone/start_gazebo.sh & 
       #sleep 5 && 
       #/opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345"
-    depends_on:
-      - PLD
+    restart: "no"
+
+  Client:
+    image: i-drone-client:latest
+    container_name: Client
+    network_mode: "host"
+    volumes:
+      - $HOME/repo/I-Drone/I-Drone/Client:/app
+    working_dir: /app/src
+    command: tail -f /dev/null #python3 Client.py
     restart: "no"

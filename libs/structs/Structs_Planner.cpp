@@ -121,4 +121,44 @@ std::ostream& operator<<(std::ostream& os, const SignalServerConfig& c)
     return os;
 }
 
+void DroneData::clear()
+{
+    num_drones = 0;
+    pos_targets.clear();
+}
+
+void SignalServerConfig::clear()
+{
+    sdfDirectory.clear();
+    outputFile.clear();
+    userTerrainFile.clear();
+    terrainBackground.clear();
+
+    latitude = 0;
+    longitude = 0;
+    txHeight = 0;
+    rxHeights.clear();
+
+    frequencyMHz = 0;
+    erpWatts = 0;
+    rxThreshold = 0;
+    horizontalPol = 0;
+
+    groundClutter = 0;
+    terrainCode = 0;
+    terrainDielectric = 0;
+    terrainConductivity = 0;
+    climateCode = 0;
+
+    propagationModel = 0;
+    knifeEdgeDiff = 0;
+    win32TileNames = 0;
+    debugMode = 0;
+    metricUnits = 0;
+    plotDbm = 0;
+
+    radius = 0;
+    resolution = 0;
+}
+
 };

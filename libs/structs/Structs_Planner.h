@@ -30,6 +30,7 @@ struct Config_struct {
 };
 
 enum class Status {
+    UNKNOWN,
     EXPECTING_DATA,
     ERROR,
     CALCULATING,
@@ -46,9 +47,24 @@ inline std::string to_string(Status status) {
             return "CALCULATING";
         case Status::FINISH:
             return "FINISH";
+        case Status::UNKNOWN:
+            return "UNKNOWN";
         default:
-            return std::string();
+            return "UNKNOWN";
     }
+}
+
+inline Status to_enum(const std::string& str) {
+    if (str == "EXPECTING_DATA")
+        return Status::EXPECTING_DATA;
+    else if (str == "ERROR")
+        return Status::ERROR;
+    else if (str == "CALCULATING")
+        return Status::CALCULATING;
+    else if (str == "FINISH")
+        return Status::FINISH;
+    else
+        return Status::UNKNOWN;
 }
 
 struct CoveragePoint {
@@ -82,6 +98,8 @@ public:
     DroneData() = default;
 
     friend std::ostream& operator<<(std::ostream& os, const DroneData& c);
+
+    void clear();
 };
 
 class SignalServerConfig {
@@ -129,6 +147,18 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const SignalServerConfig& c);
 
     bool toCommand(const std::string& exePath, std::string &cmd_final) const;
+
+    void clear();
+};
+
+struct Planner_info{
+    SignalServerConfig signal_server_config;
+    DroneData dron_data;
+
+    void clear(){
+        signal_server_config.clear();
+        dron_data.clear();
+    }
 };
 
 

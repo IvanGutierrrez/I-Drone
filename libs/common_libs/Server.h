@@ -37,6 +37,7 @@ public:
     ~Server();
     void set_handlers(const handlers &handlers);
     void start_listening(const tcp::endpoint& endpoint);
+    void accept_new_connection();
     void connect(const tcp::endpoint& endpoint);
     void deliver(const std::string &message);
     void server_close();
@@ -46,6 +47,7 @@ private:
     tcp::acceptor acceptor_;
     handlers handlers_;
     std::shared_ptr<tcp::socket> current_client_;
+    bool is_listening_;
 
     void start_read(std::shared_ptr<tcp::socket> socket);
 };

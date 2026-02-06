@@ -10,6 +10,7 @@
 #include "Logger.h"
 #include <iostream>
 #include <chrono>
+#include <fstream>
 
 namespace Logger{
 
@@ -34,6 +35,19 @@ bool initialize(const std::filesystem::path &path,
                        const std::string &name)
 {
     try {
+        if (!std::filesystem::exists(path)) {
+            std::filesystem::create_directories(path);
+        }
+
+        std::filesystem::path test_file = path / ".write_test";
+        std::ofstream test_stream(test_file);
+        if (!test_stream.is_open()) {
+            std::cout << "Cannot write to directory: " << path << std::endl;
+            return false;
+        }
+        test_stream.close();
+        std::filesystem::remove(test_file);
+        
         std::stringstream filename;
         filename << name << getTimeFormatted();
         rec_ = std::make_unique<Recorder>(path,filename.str(),"log");

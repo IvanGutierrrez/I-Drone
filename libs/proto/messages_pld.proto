@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "messages_planner.proto";
+
 message WrapperPlanner {
   oneof payload {
     PlannerResponseList planner_response = 1;
@@ -24,4 +26,32 @@ message PlannerResponse {
 
 message Status {
     string type_status = 1;
+}
+
+message WrapperFromClient {
+  oneof payload {
+    Config_mission config = 1;
+  }
+}
+
+message WrapperPLD {
+  oneof payload {
+    Status status = 1;
+  }
+}
+
+message Config_mission {
+  PlannerMessage planner_config = 1;
+  Info_Module info_planner = 2;
+  Info_Module info_drone = 3;
+}
+
+message Info_Module {
+  string docker_name = 1;
+  string docker_file = 2;
+  string module_ip = 3;
+  string ssh_ip = 4;
+  string port = 5;
+  string user = 6;
+  string key = 7;
 }

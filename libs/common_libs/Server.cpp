@@ -11,12 +11,12 @@
 
 
 Server::Server(boost::asio::io_context& io_context)
-        : io_context_(io_context), acceptor_(io_context) 
+        : io_context_(io_context), acceptor_(io_context), is_listening_(false)
 {
 }
 
 Server::Server(boost::asio::io_context& io_context,  const handlers &handlers)
-        : io_context_(io_context), acceptor_(io_context), handlers_(handlers)
+        : io_context_(io_context), acceptor_(io_context), handlers_(handlers), is_listening_(false)
 {
 }
 
@@ -56,25 +56,52 @@ void Server::start_listening(const tcp::endpoint& endpoint)
 {
     boost::system::error_code ec;
 
-    if (!acceptor_.is_open()) {
-        acceptor_.open(endpoint.protocol(), ec);
+    if (!is_listening_) {
+        if (!acceptor_.is_open()) {
+            acceptor_.open(endpoint.protocol(), ec);
+            if (ec) {
+                if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
+                return;
+            }
+        }
+
+        acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
+
+        acceptor_.bind(endpoint, ec);
         if (ec) {
             if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
             return;
         }
+
+        acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
+        if (ec) {
+            if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
+            return;
+        }
+        
+        is_listening_ = true;
     }
 
-    acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
+    auto new_socket = std::make_shared<tcp::socket>(io_context_);
 
-    acceptor_.bind(endpoint, ec);
-    if (ec) {
-        if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
-        return;
-    }
+    acceptor_.async_accept(*new_socket,
+        [this, new_socket](const boost::system::error_code& error) {
+            if (error) {
+                if (handlers_.call_error)
+                    handlers_.call_error(error, Type_Error::CONNECTING);
+            } else {
+                if (handlers_.call_connect)
+                    handlers_.call_connect();
 
-    acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
-    if (ec) {
-        if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
+                current_client_ = new_socket;
+                start_read(current_client_);
+            }
+        });
+}
+
+void Server::accept_new_connection()
+{
+    if (!is_listening_) {
         return;
     }
 
