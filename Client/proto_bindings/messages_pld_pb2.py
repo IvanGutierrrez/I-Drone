@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import messages_planner_pb2 as messages__planner__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12messages_pld.proto\x1a\x16messages_planner.proto\"h\n\x0eWrapperPlanner\x12\x30\n\x10planner_response\x18\x01 \x01(\x0b\x32\x14.PlannerResponseListH\x00\x12\x19\n\x06status\x18\x02 \x01(\x0b\x32\x07.StatusH\x00\x42\t\n\x07payload\"4\n\x0cWrapperDrone\x12\x19\n\x06status\x18\x01 \x01(\x0b\x32\x07.StatusH\x00\x42\t\n\x07payload\"6\n\x13PlannerResponseList\x12\x1f\n\x05items\x18\x01 \x03(\x0b\x32\x10.PlannerResponse\"+\n\x0fPlannerResponse\x12\x0b\n\x03lon\x18\x01 \x03(\x01\x12\x0b\n\x03lat\x18\x02 \x03(\x01\"\x1d\n\x06Status\x12\x13\n\x0btype_status\x18\x01 \x01(\t\"A\n\x11WrapperFromClient\x12!\n\x06\x63onfig\x18\x01 \x01(\x0b\x32\x0f.Config_missionH\x00\x42\t\n\x07payload\"2\n\nWrapperPLD\x12\x19\n\x06status\x18\x01 \x01(\x0b\x32\x07.StatusH\x00\x42\t\n\x07payload\"\x7f\n\x0e\x43onfig_mission\x12\'\n\x0eplanner_config\x18\x01 \x01(\x0b\x32\x0f.PlannerMessage\x12\"\n\x0cinfo_planner\x18\x02 \x01(\x0b\x32\x0c.Info_Module\x12 \n\ninfo_drone\x18\x03 \x01(\x0b\x32\x0c.Info_Module\"\x83\x01\n\x0bInfo_Module\x12\x13\n\x0b\x64ocker_name\x18\x01 \x01(\t\x12\x13\n\x0b\x64ocker_file\x18\x02 \x01(\t\x12\x11\n\tmodule_ip\x18\x03 \x01(\t\x12\x0e\n\x06ssh_ip\x18\x04 \x01(\t\x12\x0c\n\x04port\x18\x05 \x01(\t\x12\x0c\n\x04user\x18\x06 \x01(\t\x12\x0b\n\x03key\x18\x07 \x01(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12messages_pld.proto\x1a\x16messages_planner.proto\"h\n\x0eWrapperPlanner\x12\x30\n\x10planner_response\x18\x01 \x01(\x0b\x32\x14.PlannerResponseListH\x00\x12\x19\n\x06status\x18\x02 \x01(\x0b\x32\x07.StatusH\x00\x42\t\n\x07payload\"4\n\x0cWrapperDrone\x12\x19\n\x06status\x18\x01 \x01(\x0b\x32\x07.StatusH\x00\x42\t\n\x07payload\"6\n\x13PlannerResponseList\x12\x1f\n\x05items\x18\x01 \x03(\x0b\x32\x10.PlannerResponse\"+\n\x0fPlannerResponse\x12\x0b\n\x03lon\x18\x01 \x03(\x01\x12\x0b\n\x03lat\x18\x02 \x03(\x01\"\x1d\n\x06Status\x12\x13\n\x0btype_status\x18\x01 \x01(\t\"A\n\x11WrapperFromClient\x12!\n\x06\x63onfig\x18\x01 \x01(\x0b\x32\x0f.Config_missionH\x00\x42\t\n\x07payload\"2\n\nWrapperPLD\x12\x19\n\x06status\x18\x01 \x01(\x0b\x32\x07.StatusH\x00\x42\t\n\x07payload\"\x92\x01\n\x0e\x43onfig_mission\x12\'\n\x0eplanner_config\x18\x01 \x01(\x0b\x32\x0f.PlannerMessage\x12\"\n\x0cinfo_planner\x18\x02 \x01(\x0b\x32\x0c.Info_Module\x12 \n\ninfo_drone\x18\x03 \x01(\x0b\x32\x0c.Info_Module\x12\x11\n\tdrone_sim\x18\x04 \x01(\t\"\x83\x01\n\x0bInfo_Module\x12\x13\n\x0b\x64ocker_name\x18\x01 \x01(\t\x12\x13\n\x0b\x64ocker_file\x18\x02 \x01(\t\x12\x11\n\tmodule_ip\x18\x03 \x01(\t\x12\x0e\n\x06ssh_ip\x18\x04 \x01(\t\x12\x0c\n\x04port\x18\x05 \x01(\t\x12\x0c\n\x04user\x18\x06 \x01(\t\x12\x0b\n\x03key\x18\x07 \x01(\tb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -46,8 +46,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_WRAPPERFROMCLIENT']._serialized_end=403
   _globals['_WRAPPERPLD']._serialized_start=405
   _globals['_WRAPPERPLD']._serialized_end=455
-  _globals['_CONFIG_MISSION']._serialized_start=457
-  _globals['_CONFIG_MISSION']._serialized_end=584
-  _globals['_INFO_MODULE']._serialized_start=587
-  _globals['_INFO_MODULE']._serialized_end=718
+  _globals['_CONFIG_MISSION']._serialized_start=458
+  _globals['_CONFIG_MISSION']._serialized_end=604
+  _globals['_INFO_MODULE']._serialized_start=607
+  _globals['_INFO_MODULE']._serialized_end=738
 # @@protoc_insertion_point(module_scope)

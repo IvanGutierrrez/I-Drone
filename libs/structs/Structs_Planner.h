@@ -82,6 +82,8 @@ struct Coordinate {
 
     Coordinate(const CoveragePoint& cp) : lon(cp.lon), lat(cp.lat) {}
 
+    Coordinate() = default;
+
     friend inline std::ostream& operator<<(std::ostream& os, const Coordinate& c)
     {
         os << "{ lon: " << c.lon << ", lat: " << c.lat << " }";

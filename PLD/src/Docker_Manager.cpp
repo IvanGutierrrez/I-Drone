@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "Docker_Manager.h"
 #include <sstream>
+#include "common_libs/Logger.h"
 
 Docker_Manager::Docker_Manager(const std::string &user, 
                                const std::string &host, 

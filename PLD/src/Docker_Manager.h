@@ -9,7 +9,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #pragma once
 #include "SSH_Manager.h"
-#include "Logger.h"
 #include <string>
 #include <memory>
 #include <filesystem>

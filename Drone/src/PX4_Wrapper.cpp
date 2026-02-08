@@ -239,7 +239,7 @@ void PX4_Wrapper::send_command(const std::string &command)
             if (my_msg) {
 
                 Struct_Drone::MessagePX4 mission_cmd;
-                if (!Enc_Dec_Drone::decode_command(*my_msg, mission_cmd))
+                if (!Enc_Dec_Drone::decode_PX4_command(*my_msg, mission_cmd))
                 {
                     Logger::log_message(Logger::Type::WARNING, "Unabled to decode Command message");
                     return;
@@ -265,11 +265,6 @@ void PX4_Wrapper::send_command(const std::string &command)
                 {
                     std::lock_guard<std::mutex> lock(mission_mutex_);
                     commands_.push_back(mission_cmd);
-                    
-                    if (mission_cmd.type == "FINISH") {
-                        command_upload_ = true;
-                        cv_mission_complete_.notify_one();
-                    }
                 }
             }
             break;
@@ -547,6 +542,29 @@ void PX4_Wrapper::execute_mission()
     Logger::log_message(Logger::Type::INFO, "All mission commands received, ready to execute");
 
     auto mission_items = build_mission_items();
+    
+    // Check if mission is trivial (same start/end point with no intermediate waypoints)
+    if (mission_items.size() == 2 && 
+        std::abs(mission_items[0].latitude_deg - mission_items[1].latitude_deg) < 0.0001 &&
+        std::abs(mission_items[0].longitude_deg - mission_items[1].longitude_deg) < 0.0001) {
+        Logger::log_message(Logger::Type::WARNING, "Mission has only 2 identical waypoints, skipping execution and marking as complete");
+        
+        if (recorder_) {
+            Drone_Recorder::Command_Log cmd_log{
+                get_current_timestamp(),
+                drone_config_.drone_id,
+                "MISSION_SKIPPED",
+                "SUCCESS",
+                "Mission only contains duplicate waypoints, no flight needed"
+            };
+            recorder_->log_command(cmd_log);
+            recorder_->flush();
+        }
+        
+        handlers_.mission_complete();
+        return;
+    }
+    
     if (!upload_mission_plan(mission_items)) return;
     if (!wait_system_healthy()) return;
     if (!arm_vehicle()) return;

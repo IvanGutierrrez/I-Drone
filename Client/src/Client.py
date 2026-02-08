@@ -45,8 +45,8 @@ class PLD_Client:
 
         config.planner_config.signal_server_config.sdf_directory = "/home/ivan/tiles"
         config.planner_config.signal_server_config.output_file = "cobertura_dbm"
-        config.planner_config.signal_server_config.latitude = 40.7128
-        config.planner_config.signal_server_config.longitude = -74.0060
+        config.planner_config.signal_server_config.latitude = 40.416775
+        config.planner_config.signal_server_config.longitude = -3.703790
         config.planner_config.signal_server_config.tx_height = 5.0
         config.planner_config.signal_server_config.rx_heights.extend([1.5])
         config.planner_config.signal_server_config.frequency_mhz = 900.0
@@ -58,15 +58,17 @@ class PLD_Client:
 
         config.planner_config.drone_data.num_drones = 3
         targets = [
-            (-74.021240, 40.727729),
-            (-74.027904, 40.713574),
-            (-74.005413, 40.685264),
-            (-73.999582, 40.684431),
-            (-73.979590, 40.700252),
-            (-74.017075, 40.706080),
-            (-74.040398, 40.714407),
-            (-74.013743, 40.741051),
-            (-74.015409, 40.740218)
+            (-3.703790, 40.416775),
+            (-3.703800, 40.416775),
+            (-3.703810, 40.416775),
+            (-3.703820, 40.416775),
+            (-3.703830, 40.416775),
+            (-3.703790, 40.416785),
+            (-3.703800, 40.416785),
+            (-3.703810, 40.416785),
+            (-3.703820, 40.416785),
+            (-3.703795, 40.416780),
+            (-3.703805, 40.416780),
         ]
         for lon, lat in targets:
             config.planner_config.drone_data.lon.append(lon)
@@ -80,13 +82,15 @@ class PLD_Client:
         config.info_planner.user = "ivan"
         config.info_planner.key = "/root/.ssh/id_rsa_idrone"
 
-        config.info_drone.docker_name = "drone_module"
-        config.info_drone.docker_file = "/path/to/drone"
-        config.info_drone.module_ip = ""
-        config.info_drone.ssh_ip = ""
-        config.info_drone.port = ""
-        config.info_drone.user = ""
-        config.info_drone.key = ""
+        config.info_drone.docker_name = "Drone"
+        config.info_drone.docker_file = "/home/ivan/repo/I-Drone/I-Drone/Docker/docker-compose.yml"
+        config.info_drone.module_ip = "127.0.0.1"
+        config.info_drone.ssh_ip = "127.0.0.1"
+        config.info_drone.port = "12347"
+        config.info_drone.user = "ivan"
+        config.info_drone.key = "/root/.ssh/id_rsa_idrone"
+
+        config.drone_sim = "PX4"
 
         wrapper = messages_pld_pb2.WrapperFromClient()
         wrapper.config.CopyFrom(config)

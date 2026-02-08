@@ -229,6 +229,9 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr Config_mission::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        drone_sim_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
         planner_config_{nullptr},
         info_planner_{nullptr},
         info_drone_{nullptr} {}
@@ -314,13 +317,15 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::WrapperPLD, _impl_.payload_),
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::Config_mission, _impl_._has_bits_),
-        6, // hasbit index offset
+        7, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::Config_mission, _impl_.planner_config_),
         PROTOBUF_FIELD_OFFSET(::Config_mission, _impl_.info_planner_),
         PROTOBUF_FIELD_OFFSET(::Config_mission, _impl_.info_drone_),
-        0,
+        PROTOBUF_FIELD_OFFSET(::Config_mission, _impl_.drone_sim_),
         1,
         2,
+        3,
+        0,
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::Info_Module, _impl_._has_bits_),
         10, // hasbit index offset
@@ -350,7 +355,7 @@ static const ::_pbi::MigrationSchema
         {19, sizeof(::WrapperFromClient)},
         {23, sizeof(::WrapperPLD)},
         {27, sizeof(::Config_mission)},
-        {36, sizeof(::Info_Module)},
+        {38, sizeof(::Info_Module)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_WrapperPlanner_default_instance_._instance,
@@ -376,14 +381,14 @@ const char descriptor_table_protodef_messages_5fpld_2eproto[] ABSL_ATTRIBUTE_SEC
     "ype_status\030\001 \001(\t\"A\n\021WrapperFromClient\022!\n"
     "\006config\030\001 \001(\0132\017.Config_missionH\000B\t\n\007payl"
     "oad\"2\n\nWrapperPLD\022\031\n\006status\030\001 \001(\0132\007.Stat"
-    "usH\000B\t\n\007payload\"\177\n\016Config_mission\022\'\n\016pla"
-    "nner_config\030\001 \001(\0132\017.PlannerMessage\022\"\n\014in"
-    "fo_planner\030\002 \001(\0132\014.Info_Module\022 \n\ninfo_d"
-    "rone\030\003 \001(\0132\014.Info_Module\"\203\001\n\013Info_Module"
-    "\022\023\n\013docker_name\030\001 \001(\t\022\023\n\013docker_file\030\002 \001"
-    "(\t\022\021\n\tmodule_ip\030\003 \001(\t\022\016\n\006ssh_ip\030\004 \001(\t\022\014\n"
-    "\004port\030\005 \001(\t\022\014\n\004user\030\006 \001(\t\022\013\n\003key\030\007 \001(\tb\006"
-    "proto3"
+    "usH\000B\t\n\007payload\"\222\001\n\016Config_mission\022\'\n\016pl"
+    "anner_config\030\001 \001(\0132\017.PlannerMessage\022\"\n\014i"
+    "nfo_planner\030\002 \001(\0132\014.Info_Module\022 \n\ninfo_"
+    "drone\030\003 \001(\0132\014.Info_Module\022\021\n\tdrone_sim\030\004"
+    " \001(\t\"\203\001\n\013Info_Module\022\023\n\013docker_name\030\001 \001("
+    "\t\022\023\n\013docker_file\030\002 \001(\t\022\021\n\tmodule_ip\030\003 \001("
+    "\t\022\016\n\006ssh_ip\030\004 \001(\t\022\014\n\004port\030\005 \001(\t\022\014\n\004user\030"
+    "\006 \001(\t\022\013\n\003key\030\007 \001(\tb\006proto3"
 };
 static const ::_pbi::DescriptorTable* PROTOBUF_NONNULL const
     descriptor_table_messages_5fpld_2eproto_deps[1] = {
@@ -393,7 +398,7 @@ static ::absl::once_flag descriptor_table_messages_5fpld_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_messages_5fpld_2eproto = {
     false,
     false,
-    726,
+    746,
     descriptor_table_protodef_messages_5fpld_2eproto,
     "messages_pld.proto",
     &descriptor_table_messages_5fpld_2eproto_once,
@@ -2480,7 +2485,7 @@ class Config_mission::_Internal {
 void Config_mission::clear_planner_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.planner_config_ != nullptr) _impl_.planner_config_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 Config_mission::Config_mission(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -2496,7 +2501,8 @@ PROTOBUF_NDEBUG_INLINE Config_mission::Impl_::Impl_(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
     const ::Config_mission& from_msg)
       : _has_bits_{from._has_bits_},
-        _cached_size_{0} {}
+        _cached_size_{0},
+        drone_sim_(arena, from.drone_sim_) {}
 
 Config_mission::Config_mission(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
@@ -2512,13 +2518,13 @@ Config_mission::Config_mission(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
-  _impl_.planner_config_ = ((cached_has_bits & 0x00000001u) != 0)
+  _impl_.planner_config_ = ((cached_has_bits & 0x00000002u) != 0)
                 ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.planner_config_)
                 : nullptr;
-  _impl_.info_planner_ = ((cached_has_bits & 0x00000002u) != 0)
+  _impl_.info_planner_ = ((cached_has_bits & 0x00000004u) != 0)
                 ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.info_planner_)
                 : nullptr;
-  _impl_.info_drone_ = ((cached_has_bits & 0x00000004u) != 0)
+  _impl_.info_drone_ = ((cached_has_bits & 0x00000008u) != 0)
                 ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.info_drone_)
                 : nullptr;
 
@@ -2527,7 +2533,8 @@ Config_mission::Config_mission(
 PROTOBUF_NDEBUG_INLINE Config_mission::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
-      : _cached_size_{0} {}
+      : _cached_size_{0},
+        drone_sim_(arena) {}
 
 inline void Config_mission::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
@@ -2546,6 +2553,7 @@ inline void Config_mission::SharedDtor(MessageLite& self) {
   Config_mission& this_ = static_cast<Config_mission&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.drone_sim_.Destroy();
   delete this_._impl_.planner_config_;
   delete this_._impl_.info_planner_;
   delete this_._impl_.info_drone_;
@@ -2558,7 +2566,7 @@ inline void* PROTOBUF_NONNULL Config_mission::PlacementNew_(
   return ::new (mem) Config_mission(arena);
 }
 constexpr auto Config_mission::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(Config_mission),
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(Config_mission),
                                             alignof(Config_mission));
 }
 constexpr auto Config_mission::InternalGenerateClassData_() {
@@ -2595,16 +2603,16 @@ Config_mission::GetClassData() const {
   return Config_mission_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 3, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 3, 32, 2>
 Config_mission::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Config_mission, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     3,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     Config_mission_class_data_.base(),
@@ -2614,28 +2622,33 @@ Config_mission::_table_ = {
     ::_pbi::TcParser::GetTable<::Config_mission>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // string drone_sim = 4;
+    {::_pbi::TcParser::FastUS1,
+     {34, 0, 0, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.drone_sim_)}},
     // .PlannerMessage planner_config = 1;
     {::_pbi::TcParser::FastMtS1,
-     {10, 0, 0, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.planner_config_)}},
+     {10, 1, 0, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.planner_config_)}},
     // .Info_Module info_planner = 2;
     {::_pbi::TcParser::FastMtS1,
-     {18, 1, 1, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_planner_)}},
+     {18, 2, 1, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_planner_)}},
     // .Info_Module info_drone = 3;
     {::_pbi::TcParser::FastMtS1,
-     {26, 2, 2, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_drone_)}},
+     {26, 3, 2, PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_drone_)}},
   }}, {{
     65535, 65535
   }}, {{
     // .PlannerMessage planner_config = 1;
-    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.planner_config_), _Internal::kHasBitsOffset + 0, 0,
+    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.planner_config_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
     // .Info_Module info_planner = 2;
-    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_planner_), _Internal::kHasBitsOffset + 1, 1,
+    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_planner_), _Internal::kHasBitsOffset + 2, 1,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
     // .Info_Module info_drone = 3;
-    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_drone_), _Internal::kHasBitsOffset + 2, 2,
+    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_drone_), _Internal::kHasBitsOffset + 3, 2,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // string drone_sim = 4;
+    {PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.drone_sim_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::PlannerMessage>()},
@@ -2643,6 +2656,9 @@ Config_mission::_table_ = {
       {::_pbi::TcParser::GetTable<::Info_Module>()},
   }},
   {{
+    "\16\0\0\0\11\0\0\0"
+    "Config_mission"
+    "drone_sim"
   }},
 };
 PROTOBUF_NOINLINE void Config_mission::Clear() {
@@ -2653,16 +2669,19 @@ PROTOBUF_NOINLINE void Config_mission::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      _impl_.drone_sim_.ClearNonDefaultToEmpty();
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       ABSL_DCHECK(_impl_.planner_config_ != nullptr);
       _impl_.planner_config_->Clear();
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       ABSL_DCHECK(_impl_.info_planner_ != nullptr);
       _impl_.info_planner_->Clear();
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       ABSL_DCHECK(_impl_.info_drone_ != nullptr);
       _impl_.info_drone_->Clear();
     }
@@ -2688,24 +2707,34 @@ PROTOBUF_NOINLINE void Config_mission::Clear() {
 
   cached_has_bits = this_._impl_._has_bits_[0];
   // .PlannerMessage planner_config = 1;
-  if ((cached_has_bits & 0x00000001u) != 0) {
+  if ((cached_has_bits & 0x00000002u) != 0) {
     target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
         1, *this_._impl_.planner_config_, this_._impl_.planner_config_->GetCachedSize(), target,
         stream);
   }
 
   // .Info_Module info_planner = 2;
-  if ((cached_has_bits & 0x00000002u) != 0) {
+  if ((cached_has_bits & 0x00000004u) != 0) {
     target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
         2, *this_._impl_.info_planner_, this_._impl_.info_planner_->GetCachedSize(), target,
         stream);
   }
 
   // .Info_Module info_drone = 3;
-  if ((cached_has_bits & 0x00000004u) != 0) {
+  if ((cached_has_bits & 0x00000008u) != 0) {
     target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
         3, *this_._impl_.info_drone_, this_._impl_.info_drone_->GetCachedSize(), target,
         stream);
+  }
+
+  // string drone_sim = 4;
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    if (!this_._internal_drone_sim().empty()) {
+      const ::std::string& _s = this_._internal_drone_sim();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "Config_mission.drone_sim");
+      target = stream->WriteStringMaybeAliased(4, _s, target);
+    }
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -2733,19 +2762,26 @@ PROTOBUF_NOINLINE void Config_mission::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    // .PlannerMessage planner_config = 1;
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // string drone_sim = 4;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_drone_sim().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_drone_sim());
+      }
+    }
+    // .PlannerMessage planner_config = 1;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.planner_config_);
     }
     // .Info_Module info_planner = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.info_planner_);
     }
     // .Info_Module info_drone = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       total_size += 1 +
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.info_drone_);
     }
@@ -2764,8 +2800,17 @@ void Config_mission::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_drone_sim().empty()) {
+        _this->_internal_set_drone_sim(from._internal_drone_sim());
+      } else {
+        if (_this->_impl_.drone_sim_.IsDefault()) {
+          _this->_internal_set_drone_sim("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       ABSL_DCHECK(from._impl_.planner_config_ != nullptr);
       if (_this->_impl_.planner_config_ == nullptr) {
         _this->_impl_.planner_config_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.planner_config_);
@@ -2773,7 +2818,7 @@ void Config_mission::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::
         _this->_impl_.planner_config_->MergeFrom(*from._impl_.planner_config_);
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       ABSL_DCHECK(from._impl_.info_planner_ != nullptr);
       if (_this->_impl_.info_planner_ == nullptr) {
         _this->_impl_.info_planner_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.info_planner_);
@@ -2781,7 +2826,7 @@ void Config_mission::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::
         _this->_impl_.info_planner_->MergeFrom(*from._impl_.info_planner_);
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       ABSL_DCHECK(from._impl_.info_drone_ != nullptr);
       if (_this->_impl_.info_drone_ == nullptr) {
         _this->_impl_.info_drone_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.info_drone_);
@@ -2804,8 +2849,11 @@ void Config_mission::CopyFrom(const Config_mission& from) {
 
 void Config_mission::InternalSwap(Config_mission* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using ::std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.drone_sim_, &other->_impl_.drone_sim_, arena);
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Config_mission, _impl_.info_drone_)
       + sizeof(Config_mission::_impl_.info_drone_)

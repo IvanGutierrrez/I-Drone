@@ -10,6 +10,7 @@
 #include "Enc_Dec_Drone.h"
 #include "generated_proto/messages_pld.pb.h"
 #include <boost/asio/detail/socket_ops.hpp>
+#include "structs/Structs_Planner.h"
 
 namespace Enc_Dec_Drone {
 
@@ -29,7 +30,7 @@ namespace Enc_Dec_Drone {
         return {Drone::UNKNOWN, nullptr};
     }
 
-    bool encode_command(const Struct_Drone::MessagePX4 &command, std::string &response)
+    bool encode_PX4_command(const Struct_Drone::MessagePX4 &command, std::string &response)
     {
         DroneCommandString command_msg;
         command_msg.set_type_command(command.type);
@@ -88,7 +89,7 @@ namespace Enc_Dec_Drone {
         return true;
     }
 
-    bool decode_command(const DroneCommandString &msg, Struct_Drone::MessagePX4 &command)
+    bool decode_PX4_command(const DroneCommandString &msg, Struct_Drone::MessagePX4 &command)
     {
         try {
             command.type = msg.type_command();
@@ -164,5 +165,32 @@ namespace Enc_Dec_Drone {
         message += serialized_data;
 
         return true;
+    }
+
+    bool encode_px4_message(const Struct_Planner::Coordinate & coord_point, const std::string & type, std::string & msg)
+    {
+        Struct_Drone::MessagePX4 px4_msg;
+        Struct_Drone::MissionItem mission_msg;
+        mission_msg.latitude_deg = coord_point.lat;
+        mission_msg.longitude_deg = coord_point.lon;
+        mission_msg.relative_altitude_m = 10.0;
+        mission_msg.speed_m_s = 2.0;
+        mission_msg.is_fly_through = false;
+        mission_msg.gimbal_pitch_deg = 0.0;
+        mission_msg.gimbal_yaw_deg = 0.0;
+        mission_msg.camera_action = Struct_Drone::CameraAction::TakePhoto;
+        px4_msg.type = type;
+        px4_msg.mission_item = mission_msg;
+        
+        return encode_PX4_command(px4_msg, msg);
+    }
+
+    bool create_message_to_drone(const std::string &drone_sim, const Struct_Planner::Coordinate &coord_point, const std::string &type, std::string &msg)
+    {
+        if (drone_sim == "PX4") {
+            return encode_px4_message(coord_point,type,msg);
+        } else { // Add here the if statement for other sim
+            return false;
+        }
     }
 };
