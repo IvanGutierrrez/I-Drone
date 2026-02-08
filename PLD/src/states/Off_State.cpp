@@ -20,7 +20,7 @@ Off_State::Off_State(std::shared_ptr<State_Machine> state_machine_ptr): State(st
 void Off_State::start()
 {
     Logger::log_message(Logger::Type::INFO, "Entering Off State, waiting for Client");
-    state_machine_ptr_->getCommunicationManager()->set_status(Structs_PLD::Status::PLANNING_MISSION);
+    state_machine_ptr_->getCommunicationManager()->set_status(Structs_PLD::Status::WAITING_INFO);
 }
 
 void Off_State::end()
@@ -54,5 +54,5 @@ void Off_State::handleMessage(const std::string &message)
     }
     
     // Transitionate to the next state
-    this->end();
+    end();
 }

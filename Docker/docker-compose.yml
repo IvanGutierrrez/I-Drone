@@ -37,11 +37,10 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - $HOME/test/Drone/logs:/opt/I-Drone/logs
       - $HOME/test/Drone/data:/opt/I-Drone/data
-    command: tail -f /dev/null # /opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345
-    #command: >
-      #bash -c "/opt/I-Drone/start_gazebo.sh & 
-      #sleep 5 && 
-      #/opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12345"
+    command: >
+      bash -c "/opt/I-Drone/start_gazebo.sh & 
+      sleep 5 && 
+      /opt/I-Drone/Drone --PLD_Address 127.0.0.1 --PLD_port 12347"
     restart: "no"
 
   Client:

@@ -6,8 +6,6 @@ libs_sources = files(
   'common_libs/Enc_Dec_PLD.cpp',
   'common_libs/Enc_Dec_Drone.cpp',
   'common_libs/Signal_Handler.cpp',
-  'common_libs/SSH_Manager.cpp',
-  'common_libs/Docker_Manager.cpp',
   'generated_proto/messages_planner.pb.cc',
   'generated_proto/messages_pld.pb.cc',
   'generated_proto/messages_drone.pb.cc',

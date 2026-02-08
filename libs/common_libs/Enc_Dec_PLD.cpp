@@ -216,6 +216,8 @@ namespace Enc_Dec_PLD {
         info_drone->set_user(config.drone_module_data.user);
         info_drone->set_key(config.drone_module_data.key);
 
+        config_msg->set_drone_sim(config.drone_sim);
+
         std::string serialized_data;
         if (!wrapper.SerializeToString(&serialized_data))
             return false;
@@ -262,6 +264,8 @@ namespace Enc_Dec_PLD {
         config.drone_module_data.port = info_drone.port();
         config.drone_module_data.user = info_drone.user();
         config.drone_module_data.key = info_drone.key();
+
+        config.drone_sim = proto.drone_sim();
 
         return true;
     }

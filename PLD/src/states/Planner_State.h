@@ -10,8 +10,8 @@
 #pragma once
 #include <boost/asio.hpp>
 #include "State.h"
+#include "../Docker_Manager.h"
 #include "structs/Structs_PLD.h"
-#include "common_libs/Docker_Manager.h"
 #include "common_libs/Server.h"
 
 class Planner_State: public State {
@@ -33,7 +33,10 @@ private:
     bool response_message_received_;
     Struct_Planner::Status last_status_;
     int attemps_;
+    Structs_PLD::Config_drone data_next_state_;
+    bool state_closing_;
 
+    void close_state();
     void continue_start_process(const boost::system::error_code& ec);
     void on_connect_planner();
     void on_error_planner(const boost::system::error_code& ec, const Type_Error &type_error);

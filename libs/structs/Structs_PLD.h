@@ -72,11 +72,25 @@ namespace Structs_PLD {
         Struct_Planner::Planner_info planner_info;
         Info_Module planner_module_data;
         Info_Module drone_module_data;
+        std::string drone_sim;
 
         void clear(){
             planner_info.clear();
             planner_module_data.clear();
             drone_module_data.clear();
+            drone_sim = std::string();
+        }
+    };
+
+    struct Config_drone {
+        std::vector<std::vector<Struct_Planner::Coordinate>> coor_points;
+        Info_Module drone_module_data;
+        std::string drone_sim;
+
+        void clear(){
+            coor_points.clear();
+            drone_module_data.clear();
+            drone_sim = std::string();
         }
     };
 }

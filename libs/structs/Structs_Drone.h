@@ -64,6 +64,7 @@ namespace Struct_Drone {
     };
 
     enum class Status {
+        UNKNOWN,
         STARTING_SIM,
         ERROR,
         EXECUTING_MISSION,
@@ -72,6 +73,8 @@ namespace Struct_Drone {
 
     inline std::string to_string(Status status) {
         switch (status) {
+            case Status::UNKNOWN:
+                return "UNKNOWN";
             case Status::STARTING_SIM:
                 return "STARTING_SIM";
             case Status::ERROR:
@@ -81,7 +84,20 @@ namespace Struct_Drone {
             case Status::FINISH:
                 return "FINISH";
             default:
-                return std::string();
+                return "UNKNOWN";
         }
     }
+
+    inline Status to_enum(const std::string& str) {
+    if (str == "STARTING_SIM")
+        return Status::STARTING_SIM;
+    else if (str == "ERROR")
+        return Status::ERROR;
+    else if (str == "EXECUTING_MISSION")
+        return Status::EXECUTING_MISSION;
+    else if (str == "FINISH")
+        return Status::FINISH;
+    else
+        return Status::UNKNOWN;
+}
 };

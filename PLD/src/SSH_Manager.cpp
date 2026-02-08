@@ -13,6 +13,7 @@
 #include <array>
 #include <memory>
 #include <cstdio>
+#include "common_libs/Logger.h"
 
 SSH_Manager::SSH_Manager(const std::string &user, 
                          const std::string &host,

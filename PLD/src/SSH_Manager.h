@@ -10,7 +10,6 @@
 #pragma once
 #include <string>
 #include <optional>
-#include "Logger.h"
 
 class SSH_Manager {
 public:

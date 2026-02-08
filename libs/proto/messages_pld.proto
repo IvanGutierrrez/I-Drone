@@ -44,6 +44,7 @@ message Config_mission {
   PlannerMessage planner_config = 1;
   Info_Module info_planner = 2;
   Info_Module info_drone = 3;
+  string drone_sim = 4;
 }
 
 message Info_Module {

@@ -1814,10 +1814,26 @@ class Config_mission final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
+    kDroneSimFieldNumber = 4,
     kPlannerConfigFieldNumber = 1,
     kInfoPlannerFieldNumber = 2,
     kInfoDroneFieldNumber = 3,
   };
+  // string drone_sim = 4;
+  void clear_drone_sim() ;
+  const ::std::string& drone_sim() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_drone_sim(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_drone_sim();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_drone_sim();
+  void set_allocated_drone_sim(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const ::std::string& _internal_drone_sim() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_drone_sim(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_drone_sim();
+
+  public:
   // .PlannerMessage planner_config = 1;
   bool has_planner_config() const;
   void clear_planner_config() ;
@@ -1867,8 +1883,8 @@ class Config_mission final : public ::google::protobuf::Message
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   3, 0,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
+                                   3, 32,
                                    2>
       _table_;
 
@@ -1889,6 +1905,7 @@ class Config_mission final : public ::google::protobuf::Message
         const Config_mission& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr drone_sim_;
     ::PlannerMessage* PROTOBUF_NULLABLE planner_config_;
     ::Info_Module* PROTOBUF_NULLABLE info_planner_;
     ::Info_Module* PROTOBUF_NULLABLE info_drone_;
@@ -2807,7 +2824,7 @@ inline WrapperPLD::PayloadCase WrapperPLD::payload_case() const {
 
 // .PlannerMessage planner_config = 1;
 inline bool Config_mission::has_planner_config() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.planner_config_ != nullptr);
   return value;
 }
@@ -2828,16 +2845,16 @@ inline void Config_mission::unsafe_arena_set_allocated_planner_config(
   }
   _impl_.planner_config_ = reinterpret_cast<::PlannerMessage*>(value);
   if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
+    _impl_._has_bits_[0] |= 0x00000002u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
+    _impl_._has_bits_[0] &= ~0x00000002u;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Config_mission.planner_config)
 }
 inline ::PlannerMessage* PROTOBUF_NULLABLE Config_mission::release_planner_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
   ::PlannerMessage* released = _impl_.planner_config_;
   _impl_.planner_config_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
@@ -2857,7 +2874,7 @@ inline ::PlannerMessage* PROTOBUF_NULLABLE Config_mission::unsafe_arena_release_
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:Config_mission.planner_config)
 
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
   ::PlannerMessage* temp = _impl_.planner_config_;
   _impl_.planner_config_ = nullptr;
   return temp;
@@ -2872,7 +2889,7 @@ inline ::PlannerMessage* PROTOBUF_NONNULL Config_mission::_internal_mutable_plan
 }
 inline ::PlannerMessage* PROTOBUF_NONNULL Config_mission::mutable_planner_config()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   ::PlannerMessage* _msg = _internal_mutable_planner_config();
   // @@protoc_insertion_point(field_mutable:Config_mission.planner_config)
   return _msg;
@@ -2889,9 +2906,9 @@ inline void Config_mission::set_allocated_planner_config(::PlannerMessage* PROTO
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
-    _impl_._has_bits_[0] |= 0x00000001u;
+    _impl_._has_bits_[0] |= 0x00000002u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
+    _impl_._has_bits_[0] &= ~0x00000002u;
   }
 
   _impl_.planner_config_ = reinterpret_cast<::PlannerMessage*>(value);
@@ -2900,14 +2917,14 @@ inline void Config_mission::set_allocated_planner_config(::PlannerMessage* PROTO
 
 // .Info_Module info_planner = 2;
 inline bool Config_mission::has_info_planner() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.info_planner_ != nullptr);
   return value;
 }
 inline void Config_mission::clear_info_planner() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.info_planner_ != nullptr) _impl_.info_planner_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline const ::Info_Module& Config_mission::_internal_info_planner() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -2926,16 +2943,16 @@ inline void Config_mission::unsafe_arena_set_allocated_info_planner(
   }
   _impl_.info_planner_ = reinterpret_cast<::Info_Module*>(value);
   if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_._has_bits_[0] |= 0x00000004u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
+    _impl_._has_bits_[0] &= ~0x00000004u;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Config_mission.info_planner)
 }
 inline ::Info_Module* PROTOBUF_NULLABLE Config_mission::release_info_planner() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
   ::Info_Module* released = _impl_.info_planner_;
   _impl_.info_planner_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
@@ -2955,7 +2972,7 @@ inline ::Info_Module* PROTOBUF_NULLABLE Config_mission::unsafe_arena_release_inf
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:Config_mission.info_planner)
 
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
   ::Info_Module* temp = _impl_.info_planner_;
   _impl_.info_planner_ = nullptr;
   return temp;
@@ -2970,7 +2987,7 @@ inline ::Info_Module* PROTOBUF_NONNULL Config_mission::_internal_mutable_info_pl
 }
 inline ::Info_Module* PROTOBUF_NONNULL Config_mission::mutable_info_planner()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   ::Info_Module* _msg = _internal_mutable_info_planner();
   // @@protoc_insertion_point(field_mutable:Config_mission.info_planner)
   return _msg;
@@ -2987,9 +3004,9 @@ inline void Config_mission::set_allocated_info_planner(::Info_Module* PROTOBUF_N
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
-    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_._has_bits_[0] |= 0x00000004u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
+    _impl_._has_bits_[0] &= ~0x00000004u;
   }
 
   _impl_.info_planner_ = reinterpret_cast<::Info_Module*>(value);
@@ -2998,14 +3015,14 @@ inline void Config_mission::set_allocated_info_planner(::Info_Module* PROTOBUF_N
 
 // .Info_Module info_drone = 3;
 inline bool Config_mission::has_info_drone() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.info_drone_ != nullptr);
   return value;
 }
 inline void Config_mission::clear_info_drone() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.info_drone_ != nullptr) _impl_.info_drone_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline const ::Info_Module& Config_mission::_internal_info_drone() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -3024,16 +3041,16 @@ inline void Config_mission::unsafe_arena_set_allocated_info_drone(
   }
   _impl_.info_drone_ = reinterpret_cast<::Info_Module*>(value);
   if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000004u;
+    _impl_._has_bits_[0] |= 0x00000008u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000004u;
+    _impl_._has_bits_[0] &= ~0x00000008u;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Config_mission.info_drone)
 }
 inline ::Info_Module* PROTOBUF_NULLABLE Config_mission::release_info_drone() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
   ::Info_Module* released = _impl_.info_drone_;
   _impl_.info_drone_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
@@ -3053,7 +3070,7 @@ inline ::Info_Module* PROTOBUF_NULLABLE Config_mission::unsafe_arena_release_inf
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:Config_mission.info_drone)
 
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
   ::Info_Module* temp = _impl_.info_drone_;
   _impl_.info_drone_ = nullptr;
   return temp;
@@ -3068,7 +3085,7 @@ inline ::Info_Module* PROTOBUF_NONNULL Config_mission::_internal_mutable_info_dr
 }
 inline ::Info_Module* PROTOBUF_NONNULL Config_mission::mutable_info_drone()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   ::Info_Module* _msg = _internal_mutable_info_drone();
   // @@protoc_insertion_point(field_mutable:Config_mission.info_drone)
   return _msg;
@@ -3085,13 +3102,78 @@ inline void Config_mission::set_allocated_info_drone(::Info_Module* PROTOBUF_NUL
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
-    _impl_._has_bits_[0] |= 0x00000004u;
+    _impl_._has_bits_[0] |= 0x00000008u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000004u;
+    _impl_._has_bits_[0] &= ~0x00000008u;
   }
 
   _impl_.info_drone_ = reinterpret_cast<::Info_Module*>(value);
   // @@protoc_insertion_point(field_set_allocated:Config_mission.info_drone)
+}
+
+// string drone_sim = 4;
+inline void Config_mission::clear_drone_sim() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.drone_sim_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const ::std::string& Config_mission::drone_sim() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Config_mission.drone_sim)
+  return _internal_drone_sim();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void Config_mission::set_drone_sim(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.drone_sim_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:Config_mission.drone_sim)
+}
+inline ::std::string* PROTOBUF_NONNULL Config_mission::mutable_drone_sim()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::std::string* _s = _internal_mutable_drone_sim();
+  // @@protoc_insertion_point(field_mutable:Config_mission.drone_sim)
+  return _s;
+}
+inline const ::std::string& Config_mission::_internal_drone_sim() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.drone_sim_.Get();
+}
+inline void Config_mission::_internal_set_drone_sim(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.drone_sim_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL Config_mission::_internal_mutable_drone_sim() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.drone_sim_.Mutable( GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE Config_mission::release_drone_sim() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:Config_mission.drone_sim)
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* released = _impl_.drone_sim_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.drone_sim_.Set("", GetArena());
+  }
+  return released;
+}
+inline void Config_mission::set_allocated_drone_sim(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.drone_sim_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.drone_sim_.IsDefault()) {
+    _impl_.drone_sim_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Config_mission.drone_sim)
 }
 
 // -------------------------------------------------------------------
