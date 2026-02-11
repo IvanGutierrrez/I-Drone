@@ -57,6 +57,10 @@ void Drone_Mission_State::start()
 {
     Logger::log_message(Logger::Type::INFO, "Entering Drone Mission State");
     state_machine_ptr_->getCommunicationManager()->set_status(Structs_PLD::Status::EXECUTING_MISSION);
+    
+    if (state_machine_ptr_->getRecorder()) {
+        state_machine_ptr_->getRecorder()->write_state_transition("Planner_State", "Drone_Mission_State");
+    }
     docker_manager_ = std::make_shared<Docker_Manager>(config_.drone_module_data.user,config_.drone_module_data.ssh_ip,config_.drone_module_data.docker_file,config_.drone_module_data.key);
     if (docker_manager_->test_connection()){
         std::stringstream log;
@@ -94,6 +98,7 @@ void Drone_Mission_State::start()
 void Drone_Mission_State::end()
 {
     Logger::log_message(Logger::Type::INFO, "Drone State functionality complete, transitioning to Off State to wait until next mission");
+    
     close_state();
     std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
     state_machine_ptr_->transitionTo(std::move(off_state));
@@ -105,11 +110,22 @@ void Drone_Mission_State::handleMessage(const std::string &message)
     
     if (type == Enc_Dec_PLD::PLD::CONFIG_MISSION) {
         Logger::log_message(Logger::Type::WARNING, "unexpected CONFIG MISSION message received in Drone Mission State, ignoring");
+        if (state_machine_ptr_->getRecorder()) {
+            state_machine_ptr_->getRecorder()->write_message_received("Client", "CONFIG_MISSION", "Unexpected in Drone Mission State");
+        }
     } else if (type == Enc_Dec_PLD::PLD::COMMAND) {
         Command* command = dynamic_cast<Command*>(proto_msg.get());
         if (!command) {
             Logger::log_message(Logger::Type::WARNING, "Unable to decode command from Client");
+            if (state_machine_ptr_->getRecorder()) {
+                state_machine_ptr_->getRecorder()->write_error("Unable to decode COMMAND from Client");
+                state_machine_ptr_->getRecorder()->write_raw_message("Client", message);
+            }
             return;
+        }
+
+        if (state_machine_ptr_->getRecorder()) {
+            state_machine_ptr_->getRecorder()->write_message_received("Client", "COMMAND", command->command());
         }
 
         if (command->command() == "FINISH") {
@@ -119,10 +135,17 @@ void Drone_Mission_State::handleMessage(const std::string &message)
             state_machine_ptr_->transitionTo(std::move(off_state));
         } else {
             Logger::log_message(Logger::Type::WARNING, "Unexpected command received from Client: " + command->command());
+            if (state_machine_ptr_->getRecorder()) {
+                state_machine_ptr_->getRecorder()->write_error("Unexpected command: " + command->command());
+            }
         }
 
     } else {
         Logger::log_message(Logger::Type::WARNING, "unexpected message received from Client, type: " + Enc_Dec_PLD::to_string(type));
+        if (state_machine_ptr_->getRecorder()) {
+            state_machine_ptr_->getRecorder()->write_error("Unexpected message type: " + Enc_Dec_PLD::to_string(type));
+            state_machine_ptr_->getRecorder()->write_raw_message("Client", message);
+        }
     }
 }
 
@@ -265,10 +288,19 @@ void Drone_Mission_State::send_message(const boost::system::error_code& ec)
 
     if (!state_machine_ptr_->getCommunicationManager()->send_message_to_server(server_number_,message_to_drone)){
         Logger::log_message(Logger::Type::ERROR,"Unable to send configuration message to Drone Module. Transitioning to off state");
+        if (state_machine_ptr_->getRecorder()) {
+            state_machine_ptr_->getRecorder()->write_error("Unable to send message to Drone Module");
+        }
         close_state();
         std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
         state_machine_ptr_->transitionTo(std::move(off_state));
         return;
+    }
+    
+    if (state_machine_ptr_->getRecorder()) {
+        std::stringstream coord_info;
+        coord_info << "Type: " << type << ", Coordinate: (" << coor.lat << ", " << coor.lon << ")";
+        state_machine_ptr_->getRecorder()->write_message_sent("Drone", "COORDINATE", coord_info.str());
     }
 
     if (type == "START_ALL")
@@ -362,8 +394,15 @@ void Drone_Mission_State::on_message_drone(const std::string& msg)
     if (type == Enc_Dec_PLD::PLD::STATUS_DRONE) {
         auto my_msg = dynamic_cast<Status*>(decoded_msg.get());
         if (my_msg && last_status_ != Struct_Drone::to_enum(my_msg->type_status())) {
+            if (state_machine_ptr_->getRecorder()) {
+                state_machine_ptr_->getRecorder()->write_message_received("Drone", "STATUS", my_msg->type_status());
+            }
             if (my_msg->type_status() == "ERROR"){
                 Logger::log_message(Logger::Type::ERROR, "Drone module status has changed to ERROR, transitioning to off state");
+                if (state_machine_ptr_->getRecorder()) {
+                    state_machine_ptr_->getRecorder()->write_error("Drone module status ERROR");
+                    state_machine_ptr_->getRecorder()->write_state_transition("Drone_Mission_State", "Off_State");
+                }
                 close_state();
                 std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
                 state_machine_ptr_->transitionTo(std::move(off_state));
@@ -378,6 +417,10 @@ void Drone_Mission_State::on_message_drone(const std::string& msg)
         }
     } else {
         Logger::log_message(Logger::Type::WARNING, "Unable to decode Drone module message");
+        if (state_machine_ptr_->getRecorder()) {
+            state_machine_ptr_->getRecorder()->write_error("Unable to decode Drone module message");
+            state_machine_ptr_->getRecorder()->write_raw_message("Drone", msg);
+        }
     }
 }
 

@@ -15,6 +15,7 @@
 #include "common_libs/Signal_Handler.h"
 #include "Communication_Manager.h"
 #include "State_Machine.h"
+#include "PLD_Recorder.h"
 #include "./states/Off_State.h"
 #include "structs/Structs_PLD.h"
 
@@ -66,12 +67,16 @@ int main(int argc, char* argv[]) {
     }
 
     std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context, own_endpoint);
+    std::shared_ptr<PLD_Recorder> recorder_ptr = std::make_shared<PLD_Recorder>(cnf.data_path);
 
-    std::shared_ptr<State_Machine> state_machine_ptr = std::make_shared<State_Machine>(comm_mng_ptr);
+    std::shared_ptr<State_Machine> state_machine_ptr = std::make_shared<State_Machine>(comm_mng_ptr, recorder_ptr);
     std::unique_ptr<State> off_state = std::make_unique<Off_State>(state_machine_ptr);
     state_machine_ptr->transitionTo(std::move(off_state));
 
-    Signal_Handler signal_handler(io_context, []() {
+    Signal_Handler signal_handler(io_context, [&recorder_ptr]() {
+        if (recorder_ptr) {
+            recorder_ptr->close();
+        }
         Logger::log_message(Logger::Type::INFO, "Shutdown complete");
     });
 
@@ -80,6 +85,9 @@ int main(int argc, char* argv[]) {
 
     Logger::log_message(Logger::Type::INFO, "No more async functions to do, exiting program...");
     
+    if (recorder_ptr) {
+        recorder_ptr->close();
+    }
     Logger::close();
     return 0;
 }

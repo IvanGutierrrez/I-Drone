@@ -24,8 +24,8 @@ public:
     void close_all();
 
 private:
-    Recorder recorder_msg;
-    Recorder recorder_sgn;
-    Recorder recorder_or;
+    std::unique_ptr<Recorder> recorder_msg;
+    std::unique_ptr<Recorder> recorder_sgn;
+    std::unique_ptr<Recorder> recorder_or;
 
 };

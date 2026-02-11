@@ -4,6 +4,7 @@ pld_sources = files(
     'src/State_Machine.cpp',
     'src/SSH_Manager.cpp',
     'src/Docker_Manager.cpp',
+    'src/PLD_Recorder.cpp',
     'src/states/State.cpp',
     'src/states/Off_State.cpp',
     'src/states/Planner_State.cpp',
