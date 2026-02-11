@@ -1,0 +1,60 @@
+planner_config:
+  signal_server_config:
+    sdf_directory: "/home/ivan/tiles"
+    output_file: "cobertura_dbm"
+    latitude: 40.416775
+    longitude: -3.703790
+    tx_height: 5.0
+    rx_heights: [1.5]
+    frequency_mhz: 900.0
+    erp_watts: 100.0
+    propagation_model: 1
+    radius: 10
+    resolution: 0
+    plot_dbm: true  # OPTIONAL
+  
+  drone_data:
+    num_drones: 3
+    targets:
+      - lon: -3.703790
+        lat: 40.416775
+      - lon: -3.703800
+        lat: 40.416775
+      - lon: -3.703810
+        lat: 40.416775
+      - lon: -3.703820
+        lat: 40.416775
+      - lon: -3.703830
+        lat: 40.416775
+      - lon: -3.703790
+        lat: 40.416785
+      - lon: -3.703800
+        lat: 40.416785
+      - lon: -3.703810
+        lat: 40.416785
+      - lon: -3.703820
+        lat: 40.416785
+      - lon: -3.703795
+        lat: 40.416780
+      - lon: -3.703805
+        lat: 40.416780
+
+info_planner:
+  docker_name: "Planner"
+  docker_file: "/home/ivan/repo/I-Drone/I-Drone/Docker/docker-compose.yml"
+  module_ip: "127.0.0.1"
+  ssh_ip: "127.0.0.1"
+  port: "12346"
+  user: "ivan"
+  key: "/root/.ssh/id_rsa_idrone"
+
+info_drone:
+  docker_name: "Drone"
+  docker_file: "/home/ivan/repo/I-Drone/I-Drone/Docker/docker-compose.yml"
+  module_ip: "127.0.0.1"
+  ssh_ip: "127.0.0.1"
+  port: "12347"
+  user: "ivan"
+  key: "/root/.ssh/id_rsa_idrone"
+
+drone_sim: "PX4"

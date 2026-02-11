@@ -40,7 +40,7 @@ bool Docker_Manager::start_container(const std::string &container_name)
 
 bool Docker_Manager::stop_container(const std::string &container_name)
 {
-    std::string cmd = "docker compose rm -f " + container_name;
+    std::string cmd = "docker rm -f " + container_name;
     std::string output;
     bool success = ssh_manager_->execute_command(cmd,output);
     
