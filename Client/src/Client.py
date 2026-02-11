@@ -6,180 +6,131 @@
 #
 #  © 2025 Iván Gutiérrez.
 # ============================================================
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import socket
-import struct
-import threading
-import time
-import sys
+import logging
 import os
+import argparse
+from Config import Config
+from Communication_Manager import CommunicationManager
+from Encoder_Decoder import MessageEncoderDecoder
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'proto_bindings'))
+class ClientManager:
+    def __init__(self, offline_mode=False):
+        self._setup_logging()
+        self.logger = logging.getLogger(__name__)
+        self.offline_mode = offline_mode
 
-import messages_pld_pb2
-import messages_planner_pb2
+        self.current_status = "UNKNOWN"
+        self.comm_manager = CommunicationManager(
+            Config.PLD_HOST,
+            Config.PLD_PORT,
+            status_callback=self._on_status_received,
+            reconnect_interval=Config.RECONNECT_INTERVAL,
+            on_connect_callback=self._on_connected,
+            messages_received_path=Config.MESSAGES_RECEIVED_PATH,
+            messages_sent_path=Config.MESSAGES_SENT_PATH
+        )
 
-class PLD_Client:
-    def __init__(self, host="localhost", port=12345):
-        self.host = host
-        self.port = port
-        self.sock = None
-        self.running = False
-        self.listener_thread = None
-    
+    def _setup_logging(self):
+        log_dir = os.path.dirname(Config.LOG_PATH)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        msg_received_dir = os.path.dirname(Config.MESSAGES_RECEIVED_PATH)
+        if not os.path.exists(msg_received_dir):
+            os.makedirs(msg_received_dir)
+
+        msg_sent_dir = os.path.dirname(Config.MESSAGES_SENT_PATH)
+        if not os.path.exists(msg_sent_dir):
+            os.makedirs(msg_sent_dir)
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format=Config.LOG_FORMAT,
+            datefmt=Config.LOG_DATE_FORMAT,
+            handlers=[
+                logging.FileHandler(Config.LOG_PATH),
+                logging.StreamHandler()
+            ]
+        )
+
+    def _on_status_received(self, status):
+        if status != self.current_status:
+            self.current_status = status
+            self.logger.info(f"Status changed to: {status}")
+
+    def _on_connected(self):
+        if self.offline_mode:
+            self.logger.info("Offline mode: sending config automatically")
+            self.send_config_from_file()
+
     def connect(self):
-        """Establishes connection to PLD server"""
+        return self.comm_manager.connect()
+
+    def send_config_from_file(self):
         try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.connect((self.host, self.port))
-            print(f"Connected to {self.host}:{self.port}")
-            return True
-        except Exception as e:
-            print(f"Error connecting: {e}")
+            config_mission = MessageEncoderDecoder.create_config_mission_from_yaml(
+                Config.CONFIG_FILE_PATH
+            )
+            return self.comm_manager.send_config(config_mission)
+        except (FileNotFoundError, KeyError, TypeError, ValueError) as e:
+            self.logger.error(f"Error loading/encoding configuration: {e}")
+            self.logger.info(f"Creating example configuration file at: {Config.EXAMPLE_CONFIG_PATH}")
+            MessageEncoderDecoder.create_example_config(Config.EXAMPLE_CONFIG_PATH)
             return False
-    
-    def send_config_mission(self):
-        """Sends a Config_mission message to PLD"""
-        config = messages_pld_pb2.Config_mission()
-
-        config.planner_config.signal_server_config.sdf_directory = "/home/ivan/tiles"
-        config.planner_config.signal_server_config.output_file = "cobertura_dbm"
-        config.planner_config.signal_server_config.latitude = 40.416775
-        config.planner_config.signal_server_config.longitude = -3.703790
-        config.planner_config.signal_server_config.tx_height = 5.0
-        config.planner_config.signal_server_config.rx_heights.extend([1.5])
-        config.planner_config.signal_server_config.frequency_mhz = 900.0
-        config.planner_config.signal_server_config.erp_watts = 100.0
-        config.planner_config.signal_server_config.propagation_model = 1  # ITM
-        config.planner_config.signal_server_config.radius = 10
-        config.planner_config.signal_server_config.plot_dbm = True
-        config.planner_config.signal_server_config.resolution = 0
-
-        config.planner_config.drone_data.num_drones = 3
-        targets = [
-            (-3.703790, 40.416775),
-            (-3.703800, 40.416775),
-            (-3.703810, 40.416775),
-            (-3.703820, 40.416775),
-            (-3.703830, 40.416775),
-            (-3.703790, 40.416785),
-            (-3.703800, 40.416785),
-            (-3.703810, 40.416785),
-            (-3.703820, 40.416785),
-            (-3.703795, 40.416780),
-            (-3.703805, 40.416780),
-        ]
-        for lon, lat in targets:
-            config.planner_config.drone_data.lon.append(lon)
-            config.planner_config.drone_data.lat.append(lat)
-        
-        config.info_planner.docker_name = "Planner"
-        config.info_planner.docker_file = "/home/ivan/repo/I-Drone/I-Drone/Docker/docker-compose.yml"
-        config.info_planner.module_ip = "127.0.0.1"
-        config.info_planner.ssh_ip = "127.0.0.1"
-        config.info_planner.port = "12346"
-        config.info_planner.user = "ivan"
-        config.info_planner.key = "/root/.ssh/id_rsa_idrone"
-
-        config.info_drone.docker_name = "Drone"
-        config.info_drone.docker_file = "/home/ivan/repo/I-Drone/I-Drone/Docker/docker-compose.yml"
-        config.info_drone.module_ip = "127.0.0.1"
-        config.info_drone.ssh_ip = "127.0.0.1"
-        config.info_drone.port = "12347"
-        config.info_drone.user = "ivan"
-        config.info_drone.key = "/root/.ssh/id_rsa_idrone"
-
-        config.drone_sim = "PX4"
-
-        wrapper = messages_pld_pb2.WrapperFromClient()
-        wrapper.config.CopyFrom(config)
-
-        serialized = wrapper.SerializeToString()
-
-        header = struct.pack('>I', len(serialized))
-        
-        try:
-            self.sock.sendall(header + serialized)
-            print("Config_mission sent successfully")
         except Exception as e:
-            print(f"Error sending message: {e}")
-    
-    def listen_for_status(self):
-        """Thread that listens for status messages from PLD"""
-        print("Starting status listener thread...")
-        while self.running:
-            try:
-                header_data = self._recv_exact(4)
-                if not header_data:
-                    break
-                
-                msg_length = struct.unpack('>I', header_data)[0]
+            self.logger.error(f"Unexpected error: {e}")
+            return False
 
-                msg_data = self._recv_exact(msg_length)
-                if not msg_data:
-                    break
+    def send_finish_command(self):
+        return self.comm_manager.send_command(MessageEncoderDecoder.COMMAND_FINISH)
 
-                inner_length = struct.unpack('>I', msg_data[:4])[0]
-                actual_msg_data = msg_data[4:4+inner_length]
-
-                wrapper = messages_pld_pb2.WrapperPLD()
-                wrapper.ParseFromString(actual_msg_data)
-
-                if wrapper.HasField('status'):
-                    print(f"[STATUS RECEIVED] {wrapper.status.type_status}")
-                
-            except socket.timeout:
-                continue
-            except Exception as e:
-                if self.running:
-                    print(f"Error receiving message: {e}")
-                break
-        
-        print("Status listener thread stopped")
-    
-    def _recv_exact(self, num_bytes):
-        """Receives exactly num_bytes from socket"""
-        data = b''
-        while len(data) < num_bytes:
-            chunk = self.sock.recv(num_bytes - len(data))
-            if not chunk:
-                return None
-            data += chunk
-        return data
-    
     def start_listening(self):
-        """Starts the listening thread"""
-        if self.sock:
-            self.sock.settimeout(1.0)
-            self.running = True
-            self.listener_thread = threading.Thread(target=self.listen_for_status, daemon=True)
-            self.listener_thread.start()
-    
+        self.comm_manager.start_listening(Config.SOCKET_TIMEOUT)
+
     def stop(self):
-        """Stops communication and closes socket"""
-        self.running = False
-        if self.listener_thread:
-            self.listener_thread.join(timeout=2.0)
-        if self.sock:
-            self.sock.close()
-        print("Client stopped")
+        self.comm_manager.stop()
+
+    def run(self):
+        if not self.connect():
+            self.logger.warning("Failed initial connection, will retry automatically")
+
+        self.start_listening()
+        self.logger.info("Client started successfully")
+
+        print("\n=== PLD Client Menu ===")
+        print("1 - Send configuration from file")
+        print("2 - Send FINISH command")
+        print("q - Quit")
+        print("=====================\n")
+
+        try:
+            while True:
+                user_input = input().strip()
+                
+                if user_input == '1':
+                    self.send_config_from_file()
+                elif user_input == '2':
+                    self.send_finish_command()
+                elif user_input.lower() == 'q':
+                    self.logger.info("User requested shutdown")
+                    break
+                else:
+                    print("Invalid option. Please enter 1, 2, or q")
+
+        except KeyboardInterrupt:
+            self.logger.info("Interrupted by user (Ctrl+C)")
+
+        finally:
+            print("\nShutting down...")
+            self.stop()
+            self.logger.info("Client stopped")
 
 if __name__ == "__main__":
-    client = PLD_Client(host="localhost", port=12345)
-    
-    if client.connect():
-        client.start_listening()
+    parser = argparse.ArgumentParser(description='PLD Client')
+    parser.add_argument('--offline', action='store_true', 
+                        help='Offline mode: send config automatically on connect/reconnect')
+    args = parser.parse_args()
 
-        print("Waiting 10 seconds before sending config...")
-        time.sleep(10)
-
-        client.send_config_mission()
-
-        try:
-            print("Waiting for status messages (Ctrl+C to exit)...")
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\nShutting down...")
-            client.stop()
+    client = ClientManager(offline_mode=args.offline)
+    client.run()

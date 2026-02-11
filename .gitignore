@@ -62,3 +62,6 @@ dist/
 .mypy_cache/
 .coverage
 htmlcov/
+
+# Client logs
+Client/logs/*.log

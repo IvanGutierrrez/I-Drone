@@ -1,6 +1,6 @@
 services:
   PLD:
-    image: i-drone:latest
+    image: ivangutierrrez/i-drone:1.0.0
     container_name: PLD
     network_mode: "host"
     volumes:
@@ -9,11 +9,11 @@ services:
       - $HOME/test/PLD/data:/opt/I-Drone/data
       - ./entrypoint-pld.sh:/entrypoint.sh:ro
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
-    command: tail -f /dev/null #/opt/I-Drone/PLD --Own_Address 127.0.0.1 --Own_port 12345
+    command: /opt/I-Drone/PLD --Own_Address 127.0.0.1 --Own_port 12345
     restart: unless-stopped
 
   Planner:
-    image: i-drone:latest
+    image: ivangutierrrez/i-drone:1.0.0
     container_name: Planner
     network_mode: "host"
     volumes:
@@ -23,7 +23,7 @@ services:
     restart: "no"
 
   Drone:
-    image: px4_sim_i-drone:latest
+    image: ivangutierrrez/px4-sim-i-drone:1.0.0
     container_name: Drone
     network_mode: "host"
     privileged: true
@@ -45,11 +45,13 @@ services:
     restart: "no"
 
   Client:
-    image: i-drone-client:latest
+    image: ivangutierrrez/i-drone-client:1.0.0
     container_name: Client
     network_mode: "host"
     volumes:
-      - $HOME/repo/I-Drone/I-Drone/Client:/app
+      - $HOME/test/Client/logs:/app/logs
+      - $HOME/repo/I-Drone/I-Drone/Client/config/:/app/config/
+      - $HOME/repo/I-Drone/I-Drone/Client/src/Config.py:/app/src/Config.py
     working_dir: /app/src
-    command: tail -f /dev/null #python3 Client.py
+    command: python3 Client.py --offline
     restart: "no"
