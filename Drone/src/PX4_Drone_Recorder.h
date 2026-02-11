@@ -25,9 +25,9 @@ private:
     std::vector<Mission_Event> events_buffer_;
     std::vector<Command_Log> commands_buffer_;
     
-    Recorder recorder_telemetry_;
-    Recorder recorder_events_;
-    Recorder recorder_commands_;
+    std::unique_ptr<Recorder> recorder_telemetry_;
+    std::unique_ptr<Recorder> recorder_events_;
+    std::unique_ptr<Recorder> recorder_commands_;
     
     std::mutex telemetry_mutex_;
     std::mutex events_mutex_;
@@ -42,7 +42,7 @@ private:
     std::string command_to_json(const Command_Log& log);
 
 public:
-    PX4_Drone_Recorder(int drone_id, const std::string& base_data_path, size_t buffer_size = 100);
+    PX4_Drone_Recorder(int drone_id, const std::string& base_data_path, size_t buffer_size = 100, const std::string& session_timestamp = "");
     ~PX4_Drone_Recorder() override;
     
     void log_telemetry(const Telemetry_Record& record) override;

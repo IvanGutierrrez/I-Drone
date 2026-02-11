@@ -13,35 +13,40 @@
 #include <iomanip>
 #include <sstream>
 
-PX4_Drone_Recorder::PX4_Drone_Recorder(int drone_id, const std::string& base_data_path, size_t buffer_size)
+PX4_Drone_Recorder::PX4_Drone_Recorder(int drone_id, const std::string& base_data_path, size_t buffer_size, const std::string& session_timestamp)
     : drone_id_(drone_id), 
-      buffer_size_(buffer_size),
-      recorder_telemetry_(std::filesystem::path(base_data_path) / ("drone_" + std::to_string(drone_id)) / "telemetry", 
-                          "telemetry_" + get_timestamp(), "json"),
-      recorder_events_(std::filesystem::path(base_data_path) / ("drone_" + std::to_string(drone_id)) / "mission_events", 
-                       "events_" + get_timestamp(), "json"),
-      recorder_commands_(std::filesystem::path(base_data_path) / ("drone_" + std::to_string(drone_id)) / "command_logs", 
-                         "commands_" + get_timestamp(), "json") {
+      buffer_size_(buffer_size) {
     
-    session_timestamp_ = get_timestamp();
+    session_timestamp_ = session_timestamp.empty() ? get_timestamp() : session_timestamp;
+    
+    // Create session folder: base_path/drone_[timestamp]/
+    std::filesystem::path session_folder = std::filesystem::path(base_data_path) / ("drone_" + session_timestamp_);
+    
+    // Initialize recorders with session folder
+    recorder_telemetry_ = std::make_unique<Recorder>(session_folder / "telemetry", "telemetry_" + session_timestamp_, "json");
+    recorder_events_ = std::make_unique<Recorder>(session_folder / "mission_events", "events_" + session_timestamp_, "json");
+    recorder_commands_ = std::make_unique<Recorder>(session_folder / "command_logs", "commands_" + session_timestamp_, "json");
     
     Logger::log_message(Logger::Type::INFO, "PX4_Drone_Recorder initialized for drone " + 
-                       std::to_string(drone_id_) + " at " + 
-                       (std::filesystem::path(base_data_path) / ("drone_" + std::to_string(drone_id))).string());
+                       std::to_string(drone_id_) + " at " + session_folder.string());
 }
 
 PX4_Drone_Recorder::~PX4_Drone_Recorder() {
     flush();
-    recorder_telemetry_.close();
-    recorder_events_.close();
-    recorder_commands_.close();
+    if (recorder_telemetry_) recorder_telemetry_->close();
+    if (recorder_events_) recorder_events_->close();
+    if (recorder_commands_) recorder_commands_->close();
 }
 
 std::string PX4_Drone_Recorder::get_timestamp() {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
+    
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&time_t_now), "%Y-%m-%d_%H-%M-%S");
+    ss << std::put_time(std::localtime(&time_t_now), "%Y%m%d_%H%M%S");
+    ss << '_' << std::setfill('0') << std::setw(6) << us.count();
+    
     return ss.str();
 }
 
@@ -111,7 +116,7 @@ void PX4_Drone_Recorder::log_telemetry(const Telemetry_Record& record) {
         }
         json_array << "]\n";
         
-        recorder_telemetry_.write(json_array.str());
+        if (recorder_telemetry_) recorder_telemetry_->write(json_array.str());
         telemetry_buffer_.clear();
     }
 }
@@ -130,7 +135,7 @@ void PX4_Drone_Recorder::log_mission_event(const Mission_Event& event) {
         }
         json_array << "]\n";
         
-        recorder_events_.write(json_array.str());
+        if (recorder_events_) recorder_events_->write(json_array.str());
         events_buffer_.clear();
     }
 }
@@ -149,7 +154,7 @@ void PX4_Drone_Recorder::log_command(const Command_Log& log) {
         }
         json_array << "]\n";
         
-        recorder_commands_.write(json_array.str());
+        if (recorder_commands_) recorder_commands_->write(json_array.str());
         commands_buffer_.clear();
     }
 }
@@ -168,7 +173,7 @@ void PX4_Drone_Recorder::flush() {
             }
             json_array << "]\n";
             
-            recorder_telemetry_.write(json_array.str());
+            if (recorder_telemetry_) recorder_telemetry_->write(json_array.str());
             telemetry_buffer_.clear();
         }
     }
@@ -186,7 +191,7 @@ void PX4_Drone_Recorder::flush() {
             }
             json_array << "]\n";
             
-            recorder_events_.write(json_array.str());
+            if (recorder_events_) recorder_events_->write(json_array.str());
             events_buffer_.clear();
         }
     }
@@ -204,7 +209,7 @@ void PX4_Drone_Recorder::flush() {
             }
             json_array << "]\n";
             
-            recorder_commands_.write(json_array.str());
+            if (recorder_commands_) recorder_commands_->write(json_array.str());
             commands_buffer_.clear();
         }
     }

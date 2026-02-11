@@ -9,6 +9,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <iostream>
 #include <vector>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
 #include <boost/asio.hpp>
 #include "Config.h"
 #include "Controller.h"
@@ -86,10 +89,19 @@ int main(int argc, char* argv[]) {
         config.drones.push_back(drone_cfg);
     }
 
+    // Generate timestamp for all drones to share the same session folder
+    auto now = std::chrono::system_clock::now();
+    auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
+    std::stringstream session_timestamp;
+    session_timestamp << std::put_time(std::localtime(&time_t_now), "%Y%m%d_%H%M%S");
+    session_timestamp << '_' << std::setfill('0') << std::setw(6) << us.count();
+    std::string timestamp_str = session_timestamp.str();
+    
     std::vector<std::shared_ptr<Engine>> engines;
     engines.reserve(config.num_drones);
     for (const auto &drone_cfg : config.drones) {
-        std::shared_ptr<Drone_Recorder> recorder = std::make_shared<PX4_Drone_Recorder>(drone_cfg.drone_id, config.data_path.string());
+        std::shared_ptr<Drone_Recorder> recorder = std::make_shared<PX4_Drone_Recorder>(drone_cfg.drone_id, config.data_path.string(), 100, timestamp_str);
         engines.push_back(std::make_shared<PX4_Wrapper>(drone_cfg, config, recorder));
     }
 

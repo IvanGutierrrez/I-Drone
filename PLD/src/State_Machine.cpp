@@ -11,8 +11,8 @@
 #include "./states/Off_State.h"
 #include "common_libs/Logger.h"
 
-State_Machine::State_Machine(std::shared_ptr<Communication_Manager> comm_mng)
-    : cmm_manager_(std::move(comm_mng))
+State_Machine::State_Machine(std::shared_ptr<Communication_Manager> comm_mng, std::shared_ptr<PLD_Recorder> recorder)
+    : cmm_manager_(std::move(comm_mng)), recorder_(std::move(recorder))
 {
     cmm_manager_->set_message_handler(std::bind(&State_Machine::handleMessage, this, std::placeholders::_1));
 }
@@ -38,6 +38,11 @@ void State_Machine::handleMessage(const std::string &message)
 std::shared_ptr<Communication_Manager> State_Machine::getCommunicationManager() const
 {
     return cmm_manager_;
+}
+
+std::shared_ptr<PLD_Recorder> State_Machine::getRecorder() const
+{
+    return recorder_;
 }
 
 boost::asio::io_context& State_Machine::get_io_context() const

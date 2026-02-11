@@ -6,6 +6,7 @@ services:
     volumes:
       - $HOME/.ssh:/tmp/.ssh:ro
       - $HOME/test/PLD/logs:/opt/I-Drone/logs
+      - $HOME/test/PLD/data:/opt/I-Drone/data
       - ./entrypoint-pld.sh:/entrypoint.sh:ro
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     command: tail -f /dev/null #/opt/I-Drone/PLD --Own_Address 127.0.0.1 --Own_port 12345
