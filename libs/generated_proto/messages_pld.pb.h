@@ -53,6 +53,10 @@ struct TableStruct_messages_5fpld_2eproto {
 extern "C" {
 extern const ::google::protobuf::internal::DescriptorTable descriptor_table_messages_5fpld_2eproto;
 }  // extern "C"
+class Command;
+struct CommandDefaultTypeInternal;
+extern CommandDefaultTypeInternal _Command_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull Command_class_data_;
 class Config_mission;
 struct Config_missionDefaultTypeInternal;
 extern Config_missionDefaultTypeInternal _Config_mission_default_instance_;
@@ -569,7 +573,7 @@ class Info_Module final : public ::google::protobuf::Message
     return *reinterpret_cast<const Info_Module*>(
         &_Info_Module_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 8;
+  static constexpr int kIndexInFileMessages = 9;
   friend void swap(Info_Module& a, Info_Module& b) { a.Swap(&b); }
   inline void Swap(Info_Module* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -812,6 +816,202 @@ class Info_Module final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull Info_Module_class_data_;
 // -------------------------------------------------------------------
 
+class Command final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:Command) */ {
+ public:
+  inline Command() : Command(nullptr) {}
+  ~Command() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Command* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Command));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Command(::google::protobuf::internal::ConstantInitialized);
+
+  inline Command(const Command& from) : Command(nullptr, from) {}
+  inline Command(Command&& from) noexcept
+      : Command(nullptr, ::std::move(from)) {}
+  inline Command& operator=(const Command& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Command& operator=(Command&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Command& default_instance() {
+    return *reinterpret_cast<const Command*>(
+        &_Command_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 6;
+  friend void swap(Command& a, Command& b) { a.Swap(&b); }
+  inline void Swap(Command* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Command* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Command* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Command>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Command& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Command& from) { Command::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Command* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "Command"; }
+
+ protected:
+  explicit Command(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Command(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Command& from);
+  Command(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Command&& from) noexcept
+      : Command(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kCommandFieldNumber = 1,
+  };
+  // string command = 1;
+  void clear_command() ;
+  const ::std::string& command() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_command(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_command();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_command();
+  void set_allocated_command(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const ::std::string& _internal_command() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_command(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_command();
+
+  public:
+  // @@protoc_insertion_point(class_scope:Command)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   0, 23,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const Command& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr command_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_messages_5fpld_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull Command_class_data_;
+// -------------------------------------------------------------------
+
 class WrapperPLD final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:WrapperPLD) */ {
  public:
@@ -871,7 +1071,7 @@ class WrapperPLD final : public ::google::protobuf::Message
     kStatus = 1,
     PAYLOAD_NOT_SET = 0,
   };
-  static constexpr int kIndexInFileMessages = 6;
+  static constexpr int kIndexInFileMessages = 7;
   friend void swap(WrapperPLD& a, WrapperPLD& b) { a.Swap(&b); }
   inline void Swap(WrapperPLD* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1726,7 +1926,7 @@ class Config_mission final : public ::google::protobuf::Message
     return *reinterpret_cast<const Config_mission*>(
         &_Config_mission_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 7;
+  static constexpr int kIndexInFileMessages = 8;
   friend void swap(Config_mission& a, Config_mission& b) { a.Swap(&b); }
   inline void Swap(Config_mission* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1975,6 +2175,7 @@ class WrapperFromClient final : public ::google::protobuf::Message
   }
   enum PayloadCase {
     kConfig = 1,
+    kMessage = 2,
     PAYLOAD_NOT_SET = 0,
   };
   static constexpr int kIndexInFileMessages = 5;
@@ -2066,6 +2267,7 @@ class WrapperFromClient final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kConfigFieldNumber = 1,
+    kMessageFieldNumber = 2,
   };
   // .Config_mission config = 1;
   bool has_config() const;
@@ -2086,17 +2288,37 @@ class WrapperFromClient final : public ::google::protobuf::Message
   ::Config_mission* PROTOBUF_NONNULL _internal_mutable_config();
 
   public:
+  // .Command message = 2;
+  bool has_message() const;
+  private:
+  bool _internal_has_message() const;
+
+  public:
+  void clear_message() ;
+  const ::Command& message() const;
+  [[nodiscard]] ::Command* PROTOBUF_NULLABLE release_message();
+  ::Command* PROTOBUF_NONNULL mutable_message();
+  void set_allocated_message(::Command* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_message(::Command* PROTOBUF_NULLABLE value);
+  ::Command* PROTOBUF_NULLABLE unsafe_arena_release_message();
+
+  private:
+  const ::Command& _internal_message() const;
+  ::Command* PROTOBUF_NONNULL _internal_mutable_message();
+
+  public:
   void clear_payload();
   PayloadCase payload_case() const;
   // @@protoc_insertion_point(class_scope:WrapperFromClient)
  private:
   class _Internal;
   void set_has_config();
+  void set_has_message();
   inline bool has_payload() const;
   inline void clear_has_payload();
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
-                                   1, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 2,
+                                   2, 0,
                                    2>
       _table_;
 
@@ -2119,6 +2341,7 @@ class WrapperFromClient final : public ::google::protobuf::Message
       constexpr PayloadUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::Config_mission* PROTOBUF_NULLABLE config_;
+      ::Command* PROTOBUF_NULLABLE message_;
     } payload_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -2715,6 +2938,87 @@ inline ::Config_mission* PROTOBUF_NONNULL WrapperFromClient::mutable_config()
   return _msg;
 }
 
+// .Command message = 2;
+inline bool WrapperFromClient::has_message() const {
+  return payload_case() == kMessage;
+}
+inline bool WrapperFromClient::_internal_has_message() const {
+  return payload_case() == kMessage;
+}
+inline void WrapperFromClient::set_has_message() {
+  _impl_._oneof_case_[0] = kMessage;
+}
+inline void WrapperFromClient::clear_message() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (payload_case() == kMessage) {
+    if (GetArena() == nullptr) {
+      delete _impl_.payload_.message_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.payload_.message_);
+    }
+    clear_has_payload();
+  }
+}
+inline ::Command* PROTOBUF_NULLABLE WrapperFromClient::release_message() {
+  // @@protoc_insertion_point(field_release:WrapperFromClient.message)
+  if (payload_case() == kMessage) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.message_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.payload_.message_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Command& WrapperFromClient::_internal_message() const {
+  return payload_case() == kMessage ? *_impl_.payload_.message_ : reinterpret_cast<::Command&>(::_Command_default_instance_);
+}
+inline const ::Command& WrapperFromClient::message() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:WrapperFromClient.message)
+  return _internal_message();
+}
+inline ::Command* PROTOBUF_NULLABLE WrapperFromClient::unsafe_arena_release_message() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:WrapperFromClient.message)
+  if (payload_case() == kMessage) {
+    clear_has_payload();
+    auto* temp = _impl_.payload_.message_;
+    _impl_.payload_.message_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void WrapperFromClient::unsafe_arena_set_allocated_message(
+    ::Command* PROTOBUF_NULLABLE value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_payload();
+  if (value) {
+    set_has_message();
+    _impl_.payload_.message_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:WrapperFromClient.message)
+}
+inline ::Command* PROTOBUF_NONNULL WrapperFromClient::_internal_mutable_message() {
+  if (payload_case() != kMessage) {
+    clear_payload();
+    set_has_message();
+    _impl_.payload_.message_ = 
+        ::google::protobuf::Message::DefaultConstruct<::Command>(GetArena());
+  }
+  return _impl_.payload_.message_;
+}
+inline ::Command* PROTOBUF_NONNULL WrapperFromClient::mutable_message()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::Command* _msg = _internal_mutable_message();
+  // @@protoc_insertion_point(field_mutable:WrapperFromClient.message)
+  return _msg;
+}
+
 inline bool WrapperFromClient::has_payload() const {
   return payload_case() != PAYLOAD_NOT_SET;
 }
@@ -2724,6 +3028,75 @@ inline void WrapperFromClient::clear_has_payload() {
 inline WrapperFromClient::PayloadCase WrapperFromClient::payload_case() const {
   return WrapperFromClient::PayloadCase(_impl_._oneof_case_[0]);
 }
+// -------------------------------------------------------------------
+
+// Command
+
+// string command = 1;
+inline void Command::clear_command() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.command_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const ::std::string& Command::command() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:Command.command)
+  return _internal_command();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void Command::set_command(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.command_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:Command.command)
+}
+inline ::std::string* PROTOBUF_NONNULL Command::mutable_command()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::std::string* _s = _internal_mutable_command();
+  // @@protoc_insertion_point(field_mutable:Command.command)
+  return _s;
+}
+inline const ::std::string& Command::_internal_command() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.command_.Get();
+}
+inline void Command::_internal_set_command(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.command_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL Command::_internal_mutable_command() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.command_.Mutable( GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE Command::release_command() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:Command.command)
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* released = _impl_.command_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.command_.Set("", GetArena());
+  }
+  return released;
+}
+inline void Command::set_allocated_command(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.command_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.command_.IsDefault()) {
+    _impl_.command_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Command.command)
+}
+
 // -------------------------------------------------------------------
 
 // WrapperPLD

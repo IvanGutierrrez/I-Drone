@@ -101,7 +101,29 @@ void Drone_Mission_State::end()
 
 void Drone_Mission_State::handleMessage(const std::string &message)
 {
-    //TODO Process message finish
+    auto [type, proto_msg] = Enc_Dec_PLD::decode_from_client(message);
+    
+    if (type == Enc_Dec_PLD::PLD::CONFIG_MISSION) {
+        Logger::log_message(Logger::Type::WARNING, "unexpected CONFIG MISSION message received in Drone Mission State, ignoring");
+    } else if (type == Enc_Dec_PLD::PLD::COMMAND) {
+        Command* command = dynamic_cast<Command*>(proto_msg.get());
+        if (!command) {
+            Logger::log_message(Logger::Type::WARNING, "Unable to decode command from Client");
+            return;
+        }
+
+        if (command->command() == "FINISH") {
+            Logger::log_message(Logger::Type::WARNING, "FINISH command received in Drone Mission State, transitioning to Off State");
+            close_state();
+            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
+            state_machine_ptr_->transitionTo(std::move(off_state));
+        } else {
+            Logger::log_message(Logger::Type::WARNING, "Unexpected command received from Client: " + command->command());
+        }
+
+    } else {
+        Logger::log_message(Logger::Type::WARNING, "unexpected message received from Client, type: " + Enc_Dec_PLD::to_string(type));
+    }
 }
 
 void Drone_Mission_State::continue_start_process(const boost::system::error_code& ec)

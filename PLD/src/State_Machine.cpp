@@ -30,6 +30,8 @@ void State_Machine::handleMessage(const std::string &message)
 {
     if (actual_state_) {
         actual_state_->handleMessage(message);
+    } else {
+        Logger::log_message(Logger::Type::ERROR, "Message received from Client while is no set the actual state");
     }
 }
 

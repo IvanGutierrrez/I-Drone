@@ -20,7 +20,8 @@ namespace Enc_Dec_PLD {
         Planner_RESPONSE,
         STATUS_Planner,
         STATUS_DRONE,
-        CONFIG_MISSION
+        CONFIG_MISSION,
+        COMMAND
     };
 
     std::pair<PLD, std::unique_ptr<google::protobuf::Message>> decode_from_planner(const std::string& data);
@@ -35,4 +36,6 @@ namespace Enc_Dec_PLD {
 
     bool encode_config_mission(const Structs_PLD::Config_mission &config, std::string &message);
     bool decode_config_mission(const Config_mission &proto, Structs_PLD::Config_mission &config);
+
+    std::string to_string(PLD state);
 };
