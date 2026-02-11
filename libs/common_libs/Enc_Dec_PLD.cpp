@@ -61,6 +61,11 @@ namespace Enc_Dec_PLD {
             return {PLD::CONFIG_MISSION, std::move(msg)};
         }
 
+        if (wrapper.has_message()) {
+            auto msg = std::make_unique<Command>(wrapper.message());
+            return {PLD::COMMAND, std::move(msg)};
+        }
+
         return {PLD::UNKNOWN, nullptr};
     }
 
@@ -268,6 +273,25 @@ namespace Enc_Dec_PLD {
         config.drone_sim = proto.drone_sim();
 
         return true;
+    }
+
+    std::string to_string(PLD state)
+    {
+        if (state == PLD::Planner_RESPONSE) {
+            return "Planner_RESPONSE";
+        } else if (state == PLD::STATUS_Planner) {
+            return "STATUS_Planner";
+        } else if (state == PLD::STATUS_DRONE) {
+            return "STATUS_DRONE";
+        } else if (state == PLD::CONFIG_MISSION) {
+            return "CONFIG_MISSION";
+        } else if (state == PLD::COMMAND) {
+            return "MESSAGE";
+        } else if (state == PLD::ERROR) {
+            return "ERROR";
+        } else {
+            return "UNKNOWN";
+        }
     }
 
 };

@@ -31,7 +31,12 @@ message Status {
 message WrapperFromClient {
   oneof payload {
     Config_mission config = 1;
+    Command message = 2;
   }
+}
+
+message Command {
+  string command = 1;
 }
 
 message WrapperPLD {

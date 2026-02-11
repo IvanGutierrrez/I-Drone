@@ -34,25 +34,40 @@ void Off_State::end()
 
 void Off_State::handleMessage(const std::string &message)
 {
-    //TODO Process message finish
     auto [type, proto_msg] = Enc_Dec_PLD::decode_from_client(message);
     
-    if (type != Enc_Dec_PLD::PLD::CONFIG_MISSION) {
-        Logger::log_message(Logger::Type::WARNING, "Unexpected message received from Client");
-        return;
-    }
+    if (type == Enc_Dec_PLD::PLD::CONFIG_MISSION) {
+        Config_mission* config_proto = dynamic_cast<Config_mission*>(proto_msg.get());
+        if (!config_proto) {
+            Logger::log_message(Logger::Type::ERROR, "Unable to decode message config mission from Client");
+            return;
+        }
 
-    Config_mission* config_proto = dynamic_cast<Config_mission*>(proto_msg.get());
-    if (!config_proto) {
-        Logger::log_message(Logger::Type::ERROR, "Unable to decode message from Client");
-        return;
-    }
-
-    if (!Enc_Dec_PLD::decode_config_mission(*config_proto, config_)) {
-        Logger::log_message(Logger::Type::ERROR, "Unable to decode message from Client");
-        return;
-    }
+        if (!Enc_Dec_PLD::decode_config_mission(*config_proto, config_)) {
+            Logger::log_message(Logger::Type::ERROR, "Unable to decode message config mission from Client");
+            return;
+        }
     
-    // Transitionate to the next state
-    end();
+        // Transitionate to the next state
+        end();
+
+
+    } else if (type == Enc_Dec_PLD::PLD::COMMAND) {
+        Command* command = dynamic_cast<Command*>(proto_msg.get());
+        if (!command) {
+            Logger::log_message(Logger::Type::WARNING, "Unable to decode command from Client");
+            return;
+        }
+
+        if (command->command() == "FINISH") {
+            Logger::log_message(Logger::Type::WARNING, "FINISH command received in Off State, shuting down...");
+            state_machine_ptr_->get_io_context().stop();
+        } else {
+            Logger::log_message(Logger::Type::WARNING, "Unexpected command received from Client: " + command->command());
+        }
+
+    } else {
+        Logger::log_message(Logger::Type::WARNING, "Unexpected message received from Client, type: " + Enc_Dec_PLD::to_string(type));
+        return;
+    }
 }
