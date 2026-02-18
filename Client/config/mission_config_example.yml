@@ -1,0 +1,60 @@
+# ============================================================
+#  Project  : I-Drone
+#  Example Configuration File
+#  Required fields are marked as such
+#  Optional fields are marked with # OPTIONAL
+# ============================================================
+
+planner_config:
+  signal_server_config:
+    sdf_directory: ""  # REQUIRED
+    output_file: ""  # REQUIRED
+    user_terrain_file: ""  # OPTIONAL
+    terrain_background: ""  # OPTIONAL
+    latitude: 0.0  # REQUIRED
+    longitude: 0.0  # REQUIRED
+    tx_height: 0.0  # REQUIRED
+    rx_heights: []  # REQUIRED (list of doubles)
+    frequency_mhz: 0.0  # REQUIRED
+    erp_watts: 0.0  # REQUIRED
+    rx_threshold: 0.0  # OPTIONAL
+    horizontal_pol: false  # OPTIONAL
+    ground_clutter: 0.0  # OPTIONAL
+    terrain_code: 0  # OPTIONAL
+    terrain_dielectric: 0.0  # OPTIONAL
+    terrain_conductivity: 0.0  # OPTIONAL
+    climate_code: 0  # OPTIONAL
+    propagation_model: 0  # REQUIRED
+    knife_edge_diff: false  # OPTIONAL
+    win32_tile_names: false  # OPTIONAL
+    debug_mode: false  # OPTIONAL
+    metric_units: false  # OPTIONAL
+    plot_dbm: false  # OPTIONAL
+    radius: 0.0  # REQUIRED
+    resolution: 0  # REQUIRED
+
+  drone_data:
+    num_drones: 0  # REQUIRED
+    targets:  # REQUIRED
+      - lon: 0.0
+        lat: 0.0
+
+info_planner:  # REQUIRED
+  docker_name: ""
+  docker_file: ""
+  module_ip: ""
+  ssh_ip: ""
+  port: ""
+  user: ""
+  key: ""
+
+info_drone:  # REQUIRED
+  docker_name: ""
+  docker_file: ""
+  module_ip: ""
+  ssh_ip: ""
+  port: ""
+  user: ""
+  key: ""
+
+drone_sim: ""  # REQUIRED
