@@ -77,6 +77,13 @@ jobs:
           cmake --build /tmp/or-tools-9.14/build -j"$(nproc)"
           cmake --install /tmp/or-tools-9.14/build
 
+      - name: Regenerate protobuf files
+        run: |
+          cd libs/proto
+          protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_planner.proto
+          protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_drone.proto
+          protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_pld.proto
+
       - name: Configure build (PLD + Planner)
         run: meson setup build --buildtype=debug -Dwerror=false -Dwarning_level=1
 
