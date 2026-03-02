@@ -1,0 +1,43 @@
+name: SonarCloud
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build g++ unzip curl libprotobuf-dev protobuf-compiler pkg-config
+
+      - name: Configure build (PLD + Planner)
+        run: meson setup build --buildtype=debug
+
+      - name: Download Build Wrapper
+        run: |
+          curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip -o build-wrapper.zip
+
+      - name: Build with Build Wrapper
+        run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output meson compile -C build
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONARORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONARPROJECTKEY }}
+            -Dsonar.projectName=I-Drone
+            -Dsonar.sources=PLD,Planner,libs
