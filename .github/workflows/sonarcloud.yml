@@ -17,7 +17,49 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build g++ cmake unzip curl libprotobuf-dev protobuf-compiler pkg-config libboost-all-dev libortools-dev
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            git \
+            wget \
+            unzip \
+            curl \
+            software-properties-common \
+            zlib1g-dev \
+            libbz2-dev \
+            libprotobuf-dev \
+            protobuf-compiler \
+            pkg-config \
+            python3-pip \
+            ninja-build \
+            libboost-all-dev \
+            cmake
+          pip3 install --upgrade meson
+
+      - name: Install SCIP + OR-Tools
+        run: |
+          git clone --depth 1 --branch v924 https://github.com/scipopt/scip.git /tmp/scip
+          cmake -S /tmp/scip -B /tmp/scip/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=ON \
+            -DSCIP_ENABLE_PAPILO=OFF \
+            -DSCIP_BUILD_TESTS=OFF \
+            -DAUTOBUILD=ON \
+            -DCMAKE_INSTALL_PREFIX=/usr/local \
+            -DSCIP_INSTALL=ON
+          cmake --build /tmp/scip/build -j"$(nproc)"
+          sudo cmake --install /tmp/scip/build
+
+          wget -qO /tmp/ortools.tar.gz https://github.com/google/or-tools/archive/refs/tags/v9.14.tar.gz
+          tar -xzf /tmp/ortools.tar.gz -C /tmp
+          cmake -S /tmp/or-tools-9.14 -B /tmp/or-tools-9.14/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_DEPS=ON \
+            -DBUILD_PYTHON=OFF \
+            -DSCIP_ROOT=/usr/local \
+            -DCMAKE_CXX_STANDARD=17
+          cmake --build /tmp/or-tools-9.14/build -j"$(nproc)"
+          sudo cmake --install /tmp/or-tools-9.14/build
+          sudo ldconfig
 
       - name: Configure build (PLD + Planner)
         run: meson setup build --buildtype=debug
