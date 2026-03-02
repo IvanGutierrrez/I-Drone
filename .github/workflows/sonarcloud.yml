@@ -76,6 +76,12 @@ jobs:
           cmake --build /tmp/or-tools-9.14/build -j"$(nproc)"
           cmake --install /tmp/or-tools-9.14/build
 
+          # Avoid protobuf header/version collisions with system protoc/libprotobuf
+          rm -rf "${DEPS_PREFIX}/include/google/protobuf"
+
+      - name: Remove bundled protobuf headers from cache
+        run: rm -rf "${DEPS_PREFIX}/include/google/protobuf"
+
       - name: Regenerate protobuf files
         run: |
           PROTOC_BIN="/usr/bin/protoc"
