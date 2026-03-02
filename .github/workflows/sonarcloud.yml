@@ -79,10 +79,15 @@ jobs:
 
       - name: Regenerate protobuf files
         run: |
+          PROTOC_BIN="${DEPS_PREFIX}/bin/protoc"
+          if [ ! -x "${PROTOC_BIN}" ]; then
+            PROTOC_BIN="$(command -v protoc)"
+          fi
+
           cd libs/proto
-          protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_planner.proto
-          protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_drone.proto
-          protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_pld.proto
+          "${PROTOC_BIN}" --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_planner.proto
+          "${PROTOC_BIN}" --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_drone.proto
+          "${PROTOC_BIN}" --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_pld.proto
 
       - name: Configure build (PLD + Planner)
         run: meson setup build --buildtype=debug -Dwerror=false -Dwarning_level=1
