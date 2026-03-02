@@ -85,7 +85,7 @@ RUN git clone https://github.com/mavlink/MAVSDK.git /root/MAVSDK && \
     git submodule update --init --recursive
 
 # Compile and install MAVSDK (C++ library + CLI)
-RUN cmake -B /root/MAVSDK/build -S /root/MAVSDK \
+RUN cmake -B /root/MAVSDK/build -S /root/MAVSDK/cpp \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
     -DBUILD_SHARED_LIBS=ON && \

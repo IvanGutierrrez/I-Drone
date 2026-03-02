@@ -12,6 +12,7 @@ jobs:
       CMAKE_PREFIX_PATH: ${{ github.workspace }}/.sonar-deps
       PKG_CONFIG_PATH: ${{ github.workspace }}/.sonar-deps/lib/pkgconfig:${{ github.workspace }}/.sonar-deps/lib64/pkgconfig
       LD_LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
+      CXXFLAGS: -Wno-pedantic -Wno-c++11-extensions -Wno-variadic-macros -Wno-overflow
 
     steps:
       - name: Checkout
@@ -77,7 +78,7 @@ jobs:
           cmake --install /tmp/or-tools-9.14/build
 
       - name: Configure build (PLD + Planner)
-        run: meson setup build --buildtype=debug
+        run: meson setup build --buildtype=debug -Dwerror=false -Dwarning_level=1
 
       - name: Download Build Wrapper
         run: |
