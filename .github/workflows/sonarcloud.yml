@@ -10,7 +10,6 @@ jobs:
     env:
       DEPS_PREFIX: ${{ github.workspace }}/.sonar-deps
       CMAKE_PREFIX_PATH: ${{ github.workspace }}/.sonar-deps
-      PKG_CONFIG_PATH: ${{ github.workspace }}/.sonar-deps/lib/pkgconfig:${{ github.workspace }}/.sonar-deps/lib64/pkgconfig
       LD_LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
       CXXFLAGS: -Wno-pedantic -Wno-c++11-extensions -Wno-variadic-macros -Wno-overflow
 
