@@ -7,6 +7,12 @@ on:
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest
+    env:
+      DEPS_PREFIX: ${{ github.workspace }}/.sonar-deps
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.sonar-deps
+      PKG_CONFIG_PATH: ${{ github.workspace }}/.sonar-deps/lib/pkgconfig:${{ github.workspace }}/.sonar-deps/lib64/pkgconfig
+      LD_LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
+      PATH: ${{ github.workspace }}/.sonar-deps/bin:${{ env.PATH }}
 
     steps:
       - name: Checkout
@@ -35,8 +41,18 @@ jobs:
             cmake
           pip3 install --upgrade meson
 
+      - name: Cache SCIP + OR-Tools
+        id: cache-native-deps
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DEPS_PREFIX }}
+          key: ${{ runner.os }}-scip-v924-ortools-v9.14
+
       - name: Install SCIP + OR-Tools
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
         run: |
+          mkdir -p "${DEPS_PREFIX}"
+
           git clone --depth 1 --branch v924 https://github.com/scipopt/scip.git /tmp/scip
           cmake -S /tmp/scip -B /tmp/scip/build \
             -DCMAKE_BUILD_TYPE=Release \
@@ -44,10 +60,10 @@ jobs:
             -DSCIP_ENABLE_PAPILO=OFF \
             -DSCIP_BUILD_TESTS=OFF \
             -DAUTOBUILD=ON \
-            -DCMAKE_INSTALL_PREFIX=/usr/local \
+            -DCMAKE_INSTALL_PREFIX="${DEPS_PREFIX}" \
             -DSCIP_INSTALL=ON
           cmake --build /tmp/scip/build -j"$(nproc)"
-          sudo cmake --install /tmp/scip/build
+          cmake --install /tmp/scip/build
 
           wget -qO /tmp/ortools.tar.gz https://github.com/google/or-tools/archive/refs/tags/v9.14.tar.gz
           tar -xzf /tmp/ortools.tar.gz -C /tmp
@@ -55,11 +71,11 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_DEPS=ON \
             -DBUILD_PYTHON=OFF \
-            -DSCIP_ROOT=/usr/local \
+            -DSCIP_ROOT="${DEPS_PREFIX}" \
+            -DCMAKE_INSTALL_PREFIX="${DEPS_PREFIX}" \
             -DCMAKE_CXX_STANDARD=17
           cmake --build /tmp/or-tools-9.14/build -j"$(nproc)"
-          sudo cmake --install /tmp/or-tools-9.14/build
-          sudo ldconfig
+          cmake --install /tmp/or-tools-9.14/build
 
       - name: Configure build (PLD + Planner)
         run: meson setup build --buildtype=debug
