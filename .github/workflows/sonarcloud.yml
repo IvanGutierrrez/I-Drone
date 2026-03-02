@@ -36,23 +36,32 @@ jobs:
             pkg-config \
             python3-pip \
             ninja-build \
-            libboost-all-dev \
-            cmake
+            libboost-all-dev
           pip3 install --upgrade meson
+
+      - name: Install CMake 3.27.7
+        run: |
+          wget -qO /tmp/cmake.sh https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.sh
+          sudo sh /tmp/cmake.sh --skip-license --prefix=/usr/local
+          rm -f /tmp/cmake.sh
+          cmake --version
 
       - name: Cache SCIP + OR-Tools
         id: cache-native-deps
         uses: actions/cache@v4
         with:
           path: ${{ env.DEPS_PREFIX }}
-          key: ${{ runner.os }}-scip-v924-ortools-v9.14
+          key: ${{ runner.os }}-scip-v924-ortools-v9.14-protobuf-headers-v2
 
       - name: Install SCIP + OR-Tools
         if: steps.cache-native-deps.outputs.cache-hit != 'true'
         run: |
           mkdir -p "${DEPS_PREFIX}"
 
-          git clone --depth 1 --branch v924 https://github.com/scipopt/scip.git /tmp/scip
+          git clone https://github.com/scipopt/scip.git /tmp/scip
+          cd /tmp/scip
+          git checkout v924
+          git submodule update --init --recursive
           cmake -S /tmp/scip -B /tmp/scip/build \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=ON \
@@ -75,12 +84,6 @@ jobs:
             -DCMAKE_CXX_STANDARD=17
           cmake --build /tmp/or-tools-9.14/build -j"$(nproc)"
           cmake --install /tmp/or-tools-9.14/build
-
-          # Avoid protobuf header/version collisions with system protoc/libprotobuf
-          rm -rf "${DEPS_PREFIX}/include/google/protobuf"
-
-      - name: Remove bundled protobuf headers from cache
-        run: rm -rf "${DEPS_PREFIX}/include/google/protobuf"
 
       - name: Regenerate protobuf files
         run: |
