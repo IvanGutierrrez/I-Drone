@@ -17,7 +17,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build g++ unzip curl libprotobuf-dev protobuf-compiler pkg-config
+          sudo apt-get install -y meson ninja-build g++ unzip curl libprotobuf-dev protobuf-compiler pkg-config libboost-all-dev
 
       - name: Configure build (PLD + Planner)
         run: meson setup build --buildtype=debug
