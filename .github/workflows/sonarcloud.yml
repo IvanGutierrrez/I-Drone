@@ -113,7 +113,7 @@ jobs:
         run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output meson compile -C build
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
