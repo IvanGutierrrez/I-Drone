@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.DEPS_PREFIX }}
-          key: ${{ runner.os }}-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-headers-v2
+          key: ${{ runner.os }}-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-headers-v3
 
       - name: Install SCIP + OR-Tools
         if: steps.cache-native-deps.outputs.cache-hit != 'true'
@@ -92,7 +92,7 @@ jobs:
 
       - name: Regenerate protobuf files
         run: |
-          PROTOC_BIN="/usr/bin/protoc"
+          PROTOC_BIN="${DEPS_PREFIX}/bin/protoc"
           "${PROTOC_BIN}" --version
           "${PROTOC_BIN}" --experimental_allow_proto3_optional -Ilibs/proto --cpp_out=libs/generated_proto libs/proto/*.proto
 
