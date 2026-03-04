@@ -11,6 +11,9 @@ jobs:
       DEPS_PREFIX: ${{ github.workspace }}/.sonar-deps
       CMAKE_PREFIX_PATH: ${{ github.workspace }}/.sonar-deps
       LD_LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
+      PKG_CONFIG_PATH: ${{ github.workspace }}/.sonar-deps/lib/pkgconfig:${{ github.workspace }}/.sonar-deps/lib64/pkgconfig
+      CPLUS_INCLUDE_PATH: ${{ github.workspace }}/.sonar-deps/include
+      LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
       CMAKE_VERSION: 3.27.7
       SCIP_VERSION: v924
       ORTOOLS_VERSION: v9.14
@@ -120,3 +123,4 @@ jobs:
             -Dsonar.projectKey=${{ vars.SONARPROJECTKEY }}
             -Dsonar.projectName=I-Drone
             -Dsonar.sources=PLD,Planner,libs
+            -Dsonar.exclusions=libs/generated_proto/**,Client/proto_bindings/**
