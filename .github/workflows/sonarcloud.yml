@@ -57,12 +57,6 @@ jobs:
         with:
           path: ${{ env.DEPS_PREFIX }}
           key: ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-v4
-          restore-keys: |
-            ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-
-            ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-
-            ${{ runner.os }}-native-deps-
-            ${{ runner.os }}-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-
-            ${{ runner.os }}-scip-
 
       - name: Cache diagnostics
         run: |
@@ -72,6 +66,7 @@ jobs:
       - name: Install SCIP + OR-Tools
         if: steps.cache-native-deps.outputs.cache-hit != 'true'
         run: |
+          rm -rf "${DEPS_PREFIX}"
           mkdir -p "${DEPS_PREFIX}"
 
           git clone https://github.com/scipopt/scip.git /tmp/scip
