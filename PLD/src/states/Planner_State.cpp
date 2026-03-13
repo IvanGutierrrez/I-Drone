@@ -124,54 +124,22 @@ void Planner_State::end()
     state_machine()->transitionTo(std::move(mission_drone_state));
 }
 
-void Planner_State::handleMessage(const std::string &message)
-{
-    auto [type, proto_msg] = Enc_Dec_PLD::decode_from_client(message);
-    
-    if (type == Enc_Dec_PLD::PLD::CONFIG_MISSION) {
-        Logger::log_message(Logger::Type::WARNING, "unexpected CONFIG MISSION message received in Planner State, ignoring");
-        if (state_machine()->getRecorder()) {
-            state_machine()->getRecorder()->write_message_received("Client", "CONFIG_MISSION", "Unexpected in Planner State");
-        }
-    } else if (type == Enc_Dec_PLD::PLD::COMMAND) {
-        Command* command = dynamic_cast<Command*>(proto_msg.get());
-        if (!command) {
-            Logger::log_message(Logger::Type::WARNING, "Unable to decode command from Client");
-            if (state_machine()->getRecorder()) {
-                state_machine()->getRecorder()->write_error("Unable to decode COMMAND from Client");
-                state_machine()->getRecorder()->write_raw_message("Client", message);
-            }
-            return;
-        }
-
-        if (state_machine()->getRecorder()) {
-            state_machine()->getRecorder()->write_message_received("Client", "COMMAND", command->command());
-        }
-
-        if (command->command() == "FINISH") {
-            Logger::log_message(Logger::Type::WARNING, "FINISH command received in Planner State, transitioning to Off State");
-            close_state();
-            auto off_state = std::make_unique<Off_State>(state_machine());
-            state_machine()->transitionTo(std::move(off_state));
-        } else {
-            Logger::log_message(Logger::Type::WARNING, "Unexpected command received from Client: " + command->command());
-            if (state_machine()->getRecorder()) {
-                state_machine()->getRecorder()->write_error("Unexpected command: " + command->command());
-            }
-        }
-
-    } else {
-        Logger::log_message(Logger::Type::WARNING, "unexpected message received from Client, type: " + Enc_Dec_PLD::to_string(type));
-        if (state_machine()->getRecorder()) {
-            state_machine()->getRecorder()->write_error("Unexpected message type: " + Enc_Dec_PLD::to_string(type));
-            state_machine()->getRecorder()->write_raw_message("Client", message);
-        }
-    }
-}
-
 void Planner_State::set_data(Structs_PLD::Config_mission config)
 {
     config_ = config;
+}
+
+const char* Planner_State::state_name() const
+{
+    return "Planner State";
+}
+
+void Planner_State::handle_finish_command()
+{
+    Logger::log_message(Logger::Type::WARNING, "FINISH command received in Planner State, transitioning to Off State");
+    close_state();
+    auto off_state = std::make_unique<Off_State>(state_machine());
+    state_machine()->transitionTo(std::move(off_state));
 }
 
 void Planner_State::continue_start_process(const boost::system::error_code& ec)

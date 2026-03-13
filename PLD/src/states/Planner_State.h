@@ -21,7 +21,6 @@ public:
 
     void start() override;
     void end() override;
-    void handleMessage(const std::string &message) override;
     void set_data(Structs_PLD::Config_mission config);
 
 private:
@@ -37,6 +36,8 @@ private:
     bool state_closing_;
 
     void transition_to_off_state();
+    const char* state_name() const override;
+    void handle_finish_command() override;
     void record_planner_error_and_transition(const std::string& error_message);
     void close_state();
     void continue_start_process(const boost::system::error_code& ec);

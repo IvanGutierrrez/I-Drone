@@ -22,7 +22,6 @@ public:
 
     void start() override;
     void end() override;
-    void handleMessage(const std::string &message) override;
     void set_data(Structs_PLD::Config_drone config);
 
 private:
@@ -38,6 +37,8 @@ private:
     size_t  coor_j_;
     bool state_closing_;
 
+    const char* state_name() const override;
+    void handle_finish_command() override;
     void close_state();
     void continue_start_process(const boost::system::error_code& ec);
     void on_connect_drone();
