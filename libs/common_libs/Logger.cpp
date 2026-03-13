@@ -14,8 +14,41 @@
 
 namespace Logger{
 
-static std::unique_ptr<Recorder> rec_;
-static bool initialized_ = false;
+namespace {
+class Logger_State {
+public:
+    std::unique_ptr<Recorder> rec;
+    bool initialized = false;
+};
+
+class Logger_State_Holder {
+public:
+    static inline Logger_State instance{};
+};
+
+std::string pad2(int value)
+{
+    std::string s = std::to_string(value);
+    if (s.size() < 2) {
+        s.insert(s.begin(), '0');
+    }
+    return s;
+}
+
+std::string pad3(int value)
+{
+    std::string s = std::to_string(value);
+    while (s.size() < 3) {
+        s.insert(s.begin(), '0');
+    }
+    return s;
+}
+
+Logger_State& state()
+{
+    return Logger_State_Holder::instance;
+}
+} // namespace
 
 std::string to_string(const Type &t)
 {
@@ -34,6 +67,7 @@ std::string to_string(const Type &t)
 bool initialize(const std::filesystem::path &path,
                        const std::string &name)
 {
+    auto &state_ref = state();
     try {
         if (!std::filesystem::exists(path)) {
             std::filesystem::create_directories(path);
@@ -50,8 +84,8 @@ bool initialize(const std::filesystem::path &path,
         
         std::stringstream filename;
         filename << name << getTimeFormatted();
-        rec_ = std::make_unique<Recorder>(path,filename.str(),"log");
-        initialized_ = true;
+        state_ref.rec = std::make_unique<Recorder>(path,filename.str(),"log");
+        state_ref.initialized = true;
         return true;
     } catch (...) {
         return false;
@@ -61,38 +95,35 @@ bool initialize(const std::filesystem::path &path,
 std::string getTimeFormatted() { // return time in doyyy_hhmm
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    std::tm tm_info {};
+    localtime_r(&now_time, &tm_info);
 
-    std::tm* tm_info = std::localtime(&now_time);
-
-    char buffer[20];
-    std::strftime(buffer, sizeof(buffer), "%j", tm_info);
-    std::string doy(buffer);
-
-    int year = tm_info->tm_year % 100;
-    std::ostringstream oss;
-    oss << doy << std::setw(2) << std::setfill('0') << year
-        << "_" 
-        << std::setw(2) << std::setfill('0') << tm_info->tm_hour
-        << std::setw(2) << std::setfill('0') << tm_info->tm_min;
-
-    return oss.str();
+    const int doy = tm_info.tm_yday + 1;
+    const int year = tm_info.tm_year % 100;
+    return pad3(doy) + pad2(year) + "_" + pad2(tm_info.tm_hour) + pad2(tm_info.tm_min);
 }
 
 std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     
-    std::tm* tm_info = std::localtime(&now_time);
+    std::tm tm_info {};
+    localtime_r(&now_time, &tm_info);
 
-    char buffer[20];
-    std::strftime(buffer, sizeof(buffer), "%d/%m/%YT%H:%M:%S", tm_info);
-
-    return std::string(buffer);
+    std::ostringstream timestamp;
+    timestamp << pad2(tm_info.tm_mday) << '/'
+              << pad2(tm_info.tm_mon + 1) << '/'
+              << (tm_info.tm_year + 1900) << 'T'
+              << pad2(tm_info.tm_hour) << ':'
+              << pad2(tm_info.tm_min) << ':'
+              << pad2(tm_info.tm_sec);
+    return timestamp.str();
 }
 
 void log_message(const Type &t, const std::string &log)
 {
-    if (!initialized_ || !rec_)
+    auto &state_ref = state();
+    if (!state_ref.initialized || !state_ref.rec)
     {
         std::cout << "The logger is not initialized" << std::endl;
         return;
@@ -105,7 +136,7 @@ void log_message(const Type &t, const std::string &log)
             << std::setw(2) << "" << log << std::endl;
 
     try {
-        if (!rec_->write(message.str()))
+        if (!state_ref.rec->write(message.str()))
         {
             std::cout << "Error while dumping the log" << std::endl;
             return;
@@ -119,8 +150,9 @@ void log_message(const Type &t, const std::string &log)
 
 void close()
 {
-    if (initialized_ && rec_) {
-        rec_->close();
+    auto &state_ref = state();
+    if (state_ref.initialized && state_ref.rec) {
+        state_ref.rec->close();
     }
 }
 

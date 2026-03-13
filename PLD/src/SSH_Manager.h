@@ -16,7 +16,7 @@ public:
     SSH_Manager(const std::string &user, const std::string &host, 
                 const std::string &password = "");
 
-    ~SSH_Manager();
+    ~SSH_Manager() = default;
 
     bool execute_command(const std::string &command, std::string &output);
     bool test_connection();

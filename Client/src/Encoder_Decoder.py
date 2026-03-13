@@ -21,6 +21,68 @@ class MessageEncoderDecoder:
     COMMAND_FINISH = "FINISH"
 
     @staticmethod
+    def _assign_fields(target, source, field_names):
+        for field_name in field_names:
+            setattr(target, field_name, source[field_name])
+
+    @staticmethod
+    def _assign_optional_truthy_fields(target, source, field_names):
+        for field_name in field_names:
+            if field_name in source and source[field_name]:
+                setattr(target, field_name, source[field_name])
+
+    @staticmethod
+    def _assign_optional_not_none_fields(target, source, field_names):
+        for field_name in field_names:
+            if field_name in source and source[field_name] is not None:
+                setattr(target, field_name, source[field_name])
+
+    @staticmethod
+    def _set_signal_server_config(config, ss_config):
+        signal_server_config = config.planner_config.signal_server_config
+        MessageEncoderDecoder._assign_fields(
+            signal_server_config,
+            ss_config,
+            (
+                'sdf_directory', 'output_file', 'latitude', 'longitude',
+                'tx_height', 'frequency_mhz', 'erp_watts',
+                'propagation_model', 'radius', 'resolution'
+            )
+        )
+        signal_server_config.rx_heights.extend(ss_config['rx_heights'])
+
+        MessageEncoderDecoder._assign_optional_truthy_fields(
+            signal_server_config,
+            ss_config,
+            ('user_terrain_file', 'terrain_background')
+        )
+        MessageEncoderDecoder._assign_optional_not_none_fields(
+            signal_server_config,
+            ss_config,
+            (
+                'rx_threshold', 'horizontal_pol', 'ground_clutter',
+                'terrain_code', 'terrain_dielectric', 'terrain_conductivity',
+                'climate_code', 'knife_edge_diff', 'win32_tile_names',
+                'debug_mode', 'metric_units', 'plot_dbm'
+            )
+        )
+
+    @staticmethod
+    def _set_drone_data(config, drone_data):
+        config.planner_config.drone_data.num_drones = drone_data['num_drones']
+        for target in drone_data['targets']:
+            config.planner_config.drone_data.lon.append(target['lon'])
+            config.planner_config.drone_data.lat.append(target['lat'])
+
+    @staticmethod
+    def _set_module_info(target_info, source_info):
+        MessageEncoderDecoder._assign_fields(
+            target_info,
+            source_info,
+            ('docker_name', 'docker_file', 'module_ip', 'ssh_ip', 'port', 'user', 'key')
+        )
+
+    @staticmethod
     def encode_message(message):
         serialized = message.SerializeToString()
         header = struct.pack('>I', len(serialized))
@@ -42,7 +104,7 @@ class MessageEncoderDecoder:
                 return wrapper.status.type_status
             return None
         except Exception as e:
-            raise Exception(f"Error decoding status: {e}")
+            raise ValueError(f"Error decoding status: {e}")
 
     @staticmethod
     def create_config_mission_from_yaml(yaml_path):
@@ -52,70 +114,16 @@ class MessageEncoderDecoder:
         config = messages_pld_pb2.Config_mission()
 
         ss_config = config_data['planner_config']['signal_server_config']
-        config.planner_config.signal_server_config.sdf_directory = ss_config['sdf_directory']
-        config.planner_config.signal_server_config.output_file = ss_config['output_file']
-        config.planner_config.signal_server_config.latitude = ss_config['latitude']
-        config.planner_config.signal_server_config.longitude = ss_config['longitude']
-        config.planner_config.signal_server_config.tx_height = ss_config['tx_height']
-        config.planner_config.signal_server_config.rx_heights.extend(ss_config['rx_heights'])
-        config.planner_config.signal_server_config.frequency_mhz = ss_config['frequency_mhz']
-        config.planner_config.signal_server_config.erp_watts = ss_config['erp_watts']
-        config.planner_config.signal_server_config.propagation_model = ss_config['propagation_model']
-        config.planner_config.signal_server_config.radius = ss_config['radius']
-        config.planner_config.signal_server_config.resolution = ss_config['resolution']
-
-        if 'user_terrain_file' in ss_config and ss_config['user_terrain_file']:
-            config.planner_config.signal_server_config.user_terrain_file = ss_config['user_terrain_file']
-        if 'terrain_background' in ss_config and ss_config['terrain_background']:
-            config.planner_config.signal_server_config.terrain_background = ss_config['terrain_background']
-        if 'rx_threshold' in ss_config and ss_config['rx_threshold'] is not None:
-            config.planner_config.signal_server_config.rx_threshold = ss_config['rx_threshold']
-        if 'horizontal_pol' in ss_config and ss_config['horizontal_pol'] is not None:
-            config.planner_config.signal_server_config.horizontal_pol = ss_config['horizontal_pol']
-        if 'ground_clutter' in ss_config and ss_config['ground_clutter'] is not None:
-            config.planner_config.signal_server_config.ground_clutter = ss_config['ground_clutter']
-        if 'terrain_code' in ss_config and ss_config['terrain_code'] is not None:
-            config.planner_config.signal_server_config.terrain_code = ss_config['terrain_code']
-        if 'terrain_dielectric' in ss_config and ss_config['terrain_dielectric'] is not None:
-            config.planner_config.signal_server_config.terrain_dielectric = ss_config['terrain_dielectric']
-        if 'terrain_conductivity' in ss_config and ss_config['terrain_conductivity'] is not None:
-            config.planner_config.signal_server_config.terrain_conductivity = ss_config['terrain_conductivity']
-        if 'climate_code' in ss_config and ss_config['climate_code'] is not None:
-            config.planner_config.signal_server_config.climate_code = ss_config['climate_code']
-        if 'knife_edge_diff' in ss_config and ss_config['knife_edge_diff'] is not None:
-            config.planner_config.signal_server_config.knife_edge_diff = ss_config['knife_edge_diff']
-        if 'win32_tile_names' in ss_config and ss_config['win32_tile_names'] is not None:
-            config.planner_config.signal_server_config.win32_tile_names = ss_config['win32_tile_names']
-        if 'debug_mode' in ss_config and ss_config['debug_mode'] is not None:
-            config.planner_config.signal_server_config.debug_mode = ss_config['debug_mode']
-        if 'metric_units' in ss_config and ss_config['metric_units'] is not None:
-            config.planner_config.signal_server_config.metric_units = ss_config['metric_units']
-        if 'plot_dbm' in ss_config and ss_config['plot_dbm'] is not None:
-            config.planner_config.signal_server_config.plot_dbm = ss_config['plot_dbm']
+        MessageEncoderDecoder._set_signal_server_config(config, ss_config)
 
         drone_data = config_data['planner_config']['drone_data']
-        config.planner_config.drone_data.num_drones = drone_data['num_drones']
-        for target in drone_data['targets']:
-            config.planner_config.drone_data.lon.append(target['lon'])
-            config.planner_config.drone_data.lat.append(target['lat'])
+        MessageEncoderDecoder._set_drone_data(config, drone_data)
 
         info_planner = config_data['info_planner']
-        config.info_planner.docker_name = info_planner['docker_name']
-        config.info_planner.docker_file = info_planner['docker_file']
-        config.info_planner.module_ip = info_planner['module_ip']
-        config.info_planner.ssh_ip = info_planner['ssh_ip']
-        config.info_planner.port = info_planner['port']
-        config.info_planner.user = info_planner['user']
-        config.info_planner.key = info_planner['key']
+        MessageEncoderDecoder._set_module_info(config.info_planner, info_planner)
 
         info_drone = config_data['info_drone']
-        config.info_drone.docker_name = info_drone['docker_name']
-        config.info_drone.docker_file = info_drone['docker_file']
-        config.info_drone.module_ip = info_drone['module_ip']
-        config.info_drone.ssh_ip = info_drone['ssh_ip']
-        config.info_drone.port = info_drone['port']
-        config.info_drone.user = info_drone['user']
-        config.info_drone.key = info_drone['key']
+        MessageEncoderDecoder._set_module_info(config.info_drone, info_drone)
 
         config.drone_sim = config_data['drone_sim']
 

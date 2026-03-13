@@ -21,8 +21,8 @@ constexpr int NUMBER_ATTEMPS_MAX = 3;
 
 Drone_Mission_State::Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr): State(state_machine_ptr),
                                                                                             server_number_(-1),
-                                                                                            wait_timer_(state_machine_ptr_->get_io_context()),
-                                                                                            send_timer_(state_machine_ptr_->get_io_context()),
+                                                                                            wait_timer_(state_machine()->get_io_context()),
+                                                                                            send_timer_(state_machine()->get_io_context()),
                                                                                             drone_module_running_(false),
                                                                                             last_status_(Struct_Drone::Status::UNKNOWN),
                                                                                             attemps_(0),
@@ -33,9 +33,15 @@ Drone_Mission_State::Drone_Mission_State(std::shared_ptr<State_Machine> state_ma
 {
 }
 
-Drone_Mission_State::~Drone_Mission_State()
+Drone_Mission_State::~Drone_Mission_State() noexcept
 {
-    close_state();
+    try {
+        close_state();
+    } catch (const std::exception &e) {
+        Logger::log_message(Logger::Type::ERROR, std::string("Exception in ~Drone_Mission_State: ") + e.what());
+    } catch (...) {
+        Logger::log_message(Logger::Type::ERROR, "Unknown exception in ~Drone_Mission_State");
+    }
 }
 
 void Drone_Mission_State::close_state()
@@ -44,7 +50,7 @@ void Drone_Mission_State::close_state()
     wait_timer_.cancel();
     send_timer_.cancel();
     if (server_number_ != -1) {
-        state_machine_ptr_->getCommunicationManager()->close_connection_to_server(server_number_);
+        state_machine()->getCommunicationManager()->close_connection_to_server(server_number_);
         server_number_ = -1;
     }
 
@@ -56,10 +62,10 @@ void Drone_Mission_State::close_state()
 void Drone_Mission_State::start()
 {
     Logger::log_message(Logger::Type::INFO, "Entering Drone Mission State");
-    state_machine_ptr_->getCommunicationManager()->set_status(Structs_PLD::Status::EXECUTING_MISSION);
+    state_machine()->getCommunicationManager()->set_status(Structs_PLD::Status::EXECUTING_MISSION);
     
-    if (state_machine_ptr_->getRecorder()) {
-        state_machine_ptr_->getRecorder()->write_state_transition("Planner_State", "Drone_Mission_State");
+    if (state_machine()->getRecorder()) {
+        state_machine()->getRecorder()->write_state_transition("Planner_State", "Drone_Mission_State");
     }
     docker_manager_ = std::make_shared<Docker_Manager>(config_.drone_module_data.user,config_.drone_module_data.ssh_ip,config_.drone_module_data.docker_file,config_.drone_module_data.key);
     if (docker_manager_->test_connection()){
@@ -70,8 +76,8 @@ void Drone_Mission_State::start()
         std::stringstream log;
         log << "Unable to connect to " << config_.drone_module_data.user << ":" << config_.drone_module_data.ssh_ip << ". Transitioning to Off State";
         Logger::log_message(Logger::Type::ERROR, log.str());
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
@@ -80,12 +86,12 @@ void Drone_Mission_State::start()
     handler_obj.call_connect = std::bind(&Drone_Mission_State::on_connect_drone, this);
     handler_obj.call_message = std::bind(&Drone_Mission_State::on_message_drone, this, std::placeholders::_1);
 
-    server_number_ = state_machine_ptr_->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
+    server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
 
     if (server_number_ == -1) {
         Logger::log_message(Logger::Type::ERROR, "Unable to complete transition to Drone State, returning to Off State");
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
@@ -100,53 +106,8 @@ void Drone_Mission_State::end()
     Logger::log_message(Logger::Type::INFO, "Drone State functionality complete, transitioning to Off State to wait until next mission");
     
     close_state();
-    std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-    state_machine_ptr_->transitionTo(std::move(off_state));
-}
-
-void Drone_Mission_State::handleMessage(const std::string &message)
-{
-    auto [type, proto_msg] = Enc_Dec_PLD::decode_from_client(message);
-    
-    if (type == Enc_Dec_PLD::PLD::CONFIG_MISSION) {
-        Logger::log_message(Logger::Type::WARNING, "unexpected CONFIG MISSION message received in Drone Mission State, ignoring");
-        if (state_machine_ptr_->getRecorder()) {
-            state_machine_ptr_->getRecorder()->write_message_received("Client", "CONFIG_MISSION", "Unexpected in Drone Mission State");
-        }
-    } else if (type == Enc_Dec_PLD::PLD::COMMAND) {
-        Command* command = dynamic_cast<Command*>(proto_msg.get());
-        if (!command) {
-            Logger::log_message(Logger::Type::WARNING, "Unable to decode command from Client");
-            if (state_machine_ptr_->getRecorder()) {
-                state_machine_ptr_->getRecorder()->write_error("Unable to decode COMMAND from Client");
-                state_machine_ptr_->getRecorder()->write_raw_message("Client", message);
-            }
-            return;
-        }
-
-        if (state_machine_ptr_->getRecorder()) {
-            state_machine_ptr_->getRecorder()->write_message_received("Client", "COMMAND", command->command());
-        }
-
-        if (command->command() == "FINISH") {
-            Logger::log_message(Logger::Type::WARNING, "FINISH command received in Drone Mission State, transitioning to Off State");
-            close_state();
-            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-            state_machine_ptr_->transitionTo(std::move(off_state));
-        } else {
-            Logger::log_message(Logger::Type::WARNING, "Unexpected command received from Client: " + command->command());
-            if (state_machine_ptr_->getRecorder()) {
-                state_machine_ptr_->getRecorder()->write_error("Unexpected command: " + command->command());
-            }
-        }
-
-    } else {
-        Logger::log_message(Logger::Type::WARNING, "unexpected message received from Client, type: " + Enc_Dec_PLD::to_string(type));
-        if (state_machine_ptr_->getRecorder()) {
-            state_machine_ptr_->getRecorder()->write_error("Unexpected message type: " + Enc_Dec_PLD::to_string(type));
-            state_machine_ptr_->getRecorder()->write_raw_message("Client", message);
-        }
-    }
+    auto off_state = std::make_unique<Off_State>(state_machine());
+    state_machine()->transitionTo(std::move(off_state));
 }
 
 void Drone_Mission_State::continue_start_process(const boost::system::error_code& ec)
@@ -155,8 +116,8 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
     if (ec) {
         Logger::log_message(Logger::Type::ERROR, "Error in timer to continue start process in Drone State, transitioning to Off State");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
@@ -167,7 +128,7 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
         attemps_++;
         if (attemps_ <= NUMBER_ATTEMPS_MAX) {
             if (server_number_ != -1){
-                state_machine_ptr_->getCommunicationManager()->close_connection_to_server(server_number_);
+                state_machine()->getCommunicationManager()->close_connection_to_server(server_number_);
                 server_number_ = -1;
             }
 
@@ -176,7 +137,7 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
             handler_obj.call_connect = std::bind(&Drone_Mission_State::on_connect_drone, this);
             handler_obj.call_message = std::bind(&Drone_Mission_State::on_message_drone, this, std::placeholders::_1);
 
-            server_number_ = state_machine_ptr_->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
+            server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
             Logger::log_message(Logger::Type::INFO, "Retrying to start Drone module");
             wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
             wait_timer_.async_wait(std::bind(&Drone_Mission_State::continue_start_process, this, std::placeholders::_1));
@@ -184,8 +145,8 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
             close_state();
-            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-            state_machine_ptr_->transitionTo(std::move(off_state));
+            auto off_state = std::make_unique<Off_State>(state_machine());
+            state_machine()->transitionTo(std::move(off_state));
             return;
         }
     }
@@ -199,8 +160,8 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
             close_state();
-            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-            state_machine_ptr_->transitionTo(std::move(off_state));
+            auto off_state = std::make_unique<Off_State>(state_machine());
+            state_machine()->transitionTo(std::move(off_state));
             return;
         }
     }
@@ -208,8 +169,8 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
     if (config_.coor_points.empty()) {
         Logger::log_message(Logger::Type::ERROR,"There is no coordinate to send to Drone Module. Transitioning to off state");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
@@ -222,57 +183,65 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
     send_timer_.async_wait(std::bind(&Drone_Mission_State::send_message, this, std::placeholders::_1));
 }
 
+void Drone_Mission_State::prepare_next_drone_message(Struct_Planner::Coordinate& coor, std::string& type)
+{
+    if (drone_i_ >= config_.coor_points.size()) {
+        return;
+    }
+
+    if (coor_j_ >= config_.coor_points[drone_i_].size()) {
+        drone_i_++;
+        if (drone_i_ >= config_.coor_points.size()) {
+            Logger::log_message(Logger::Type::INFO,"Starting all drones");
+            coor = Struct_Planner::Coordinate(0,0);
+            type = "START_ALL";
+            return;
+        }
+
+        coor = config_.coor_points[drone_i_][0];
+        if (1 == config_.coor_points[drone_i_].size()) {// If only have 1 coordinate add another one slightly offset for FINISH
+            config_.coor_points[drone_i_].push_back(coor);
+        }
+        std::stringstream log;
+        log << "Sending coordinate "<< coor <<" number " << coor_j_ << " to drone " << drone_i_;
+        Logger::log_message(Logger::Type::INFO,log.str());
+        type = "START";
+        coor_j_ = 1;
+        return;
+    }
+
+    coor = config_.coor_points[drone_i_][coor_j_];
+    std::stringstream log;
+    log << "Sending coordinate "<< coor <<" number " << coor_j_ << " to drone " << drone_i_;
+    Logger::log_message(Logger::Type::INFO,log.str());
+    if (coor_j_ == 0) {
+        type = "START";
+        if (coor_j_ == config_.coor_points[drone_i_].size() - 1) {// If only have 1 coordinate add another one slightly offset for FINISH
+            config_.coor_points[drone_i_].push_back(coor);
+        }
+    } else if (coor_j_ == config_.coor_points[drone_i_].size() - 1) {
+        type = "FINISH";
+    } else {
+        type = std::string();
+    }
+
+    coor_j_++;
+}
+
 void Drone_Mission_State::send_message(const boost::system::error_code& ec)
 {
     if (ec == boost::asio::error::operation_aborted) return;
     if (ec) {
         Logger::log_message(Logger::Type::ERROR, "Error in timer to continue start process in Drone State, transitioning to Off State");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
     Struct_Planner::Coordinate coor;
     std::string type;
-
-    if (drone_i_ < config_.coor_points.size()) {
-        if (coor_j_ < config_.coor_points[drone_i_].size()) {
-            coor = config_.coor_points[drone_i_][coor_j_];
-            std::stringstream log;
-            log << "Sending coordinate "<< coor <<" number " << coor_j_ << " to drone " << drone_i_;
-            Logger::log_message(Logger::Type::INFO,log.str());
-            if (coor_j_ == 0) {
-                type = "START";
-                if (coor_j_ == config_.coor_points[drone_i_].size() - 1) {// If only have 1 coordinate add another one slightly offset for FINISH
-                    config_.coor_points[drone_i_].push_back(coor);
-                }
-            } else if (coor_j_ == config_.coor_points[drone_i_].size() - 1) {
-                type = "FINISH";
-            } else {
-                type = std::string();
-            }
-            
-            coor_j_++;
-        } else {
-            drone_i_++;
-            if (drone_i_ < config_.coor_points.size()) {
-                coor = config_.coor_points[drone_i_][0];
-                if (1 == config_.coor_points[drone_i_].size()) {// If only have 1 coordinate add another one slightly offset for FINISH
-                    config_.coor_points[drone_i_].push_back(coor);
-                }
-                std::stringstream log;
-                log << "Sending coordinate "<< coor <<" number " << coor_j_ << " to drone " << drone_i_;
-                Logger::log_message(Logger::Type::INFO,log.str());
-                type = "START";
-                coor_j_ = 1;
-            } else {
-                Logger::log_message(Logger::Type::INFO,"Starting all drones");
-                coor = Struct_Planner::Coordinate(0,0);
-                type = "START_ALL";
-            }
-        }
-    }
+    prepare_next_drone_message(coor, type);
 
     std::string message_to_drone;
 
@@ -281,26 +250,26 @@ void Drone_Mission_State::send_message(const boost::system::error_code& ec)
         log << "Unable to encode configuration message to Drone Module (" << config_.drone_sim << "). Transitioning to off state";
         Logger::log_message(Logger::Type::ERROR,log.str());
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
-    if (!state_machine_ptr_->getCommunicationManager()->send_message_to_server(server_number_,message_to_drone)){
+    if (!state_machine()->getCommunicationManager()->send_message_to_server(server_number_,message_to_drone)){
         Logger::log_message(Logger::Type::ERROR,"Unable to send configuration message to Drone Module. Transitioning to off state");
-        if (state_machine_ptr_->getRecorder()) {
-            state_machine_ptr_->getRecorder()->write_error("Unable to send message to Drone Module");
+        if (state_machine()->getRecorder()) {
+            state_machine()->getRecorder()->write_error("Unable to send message to Drone Module");
         }
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
     
-    if (state_machine_ptr_->getRecorder()) {
+    if (state_machine()->getRecorder()) {
         std::stringstream coord_info;
         coord_info << "Type: " << type << ", Coordinate: (" << coor.lat << ", " << coor.lon << ")";
-        state_machine_ptr_->getRecorder()->write_message_sent("Drone", "COORDINATE", coord_info.str());
+        state_machine()->getRecorder()->write_message_sent("Drone", "COORDINATE", coord_info.str());
     }
 
     if (type == "START_ALL")
@@ -328,7 +297,7 @@ void Drone_Mission_State::on_error_drone(const boost::system::error_code& ec, co
     if (last_status_ == Struct_Drone::Status::FINISH) {
         Logger::log_message(Logger::Type::INFO,"Drone module task complete, closing connection");
         if (server_number_ != -1){
-            state_machine_ptr_->getCommunicationManager()->close_connection_to_server(server_number_);
+            state_machine()->getCommunicationManager()->close_connection_to_server(server_number_);
             server_number_ = -1;
         }
         return;
@@ -339,8 +308,8 @@ void Drone_Mission_State::on_error_drone(const boost::system::error_code& ec, co
     if (!docker_manager_->is_container_running(config_.drone_module_data.docker_name,false)) {
         Logger::log_message(Logger::Type::ERROR, "Drone docker is not running, transitioning to off state");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
         return;
     }
 
@@ -369,15 +338,15 @@ void Drone_Mission_State::on_error_drone(const boost::system::error_code& ec, co
         handler_obj.call_message = std::bind(&Drone_Mission_State::on_message_drone, this, std::placeholders::_1);
         drone_module_running_ = false;
 
-        server_number_ = state_machine_ptr_->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
+        server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
 
         wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
         wait_timer_.async_wait(std::bind(&Drone_Mission_State::continue_start_process, this, std::placeholders::_1));
     } else {
         Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-        state_machine_ptr_->transitionTo(std::move(off_state));
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
     }
 }
 
@@ -391,40 +360,58 @@ void Drone_Mission_State::on_message_drone(const std::string& msg)
     std::string data = msg.substr(4);
 
     auto [type, decoded_msg] = Enc_Dec_PLD::decode_from_drone(data);
-    if (type == Enc_Dec_PLD::PLD::STATUS_DRONE) {
-        auto my_msg = dynamic_cast<Status*>(decoded_msg.get());
-        if (my_msg && last_status_ != Struct_Drone::to_enum(my_msg->type_status())) {
-            if (state_machine_ptr_->getRecorder()) {
-                state_machine_ptr_->getRecorder()->write_message_received("Drone", "STATUS", my_msg->type_status());
-            }
-            if (my_msg->type_status() == "ERROR"){
-                Logger::log_message(Logger::Type::ERROR, "Drone module status has changed to ERROR, transitioning to off state");
-                if (state_machine_ptr_->getRecorder()) {
-                    state_machine_ptr_->getRecorder()->write_error("Drone module status ERROR");
-                    state_machine_ptr_->getRecorder()->write_state_transition("Drone_Mission_State", "Off_State");
-                }
-                close_state();
-                std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine_ptr_);
-                state_machine_ptr_->transitionTo(std::move(off_state));
-                return;
-            }
-            last_status_ = Struct_Drone::to_enum(my_msg->type_status());
-            Logger::log_message(Logger::Type::INFO, "Drone module status has changed to " + to_string(last_status_));
-            if (last_status_ == Struct_Drone::Status::FINISH){
-                end();
-                return;
-            }
-        }
-    } else {
+    if (type != Enc_Dec_PLD::PLD::STATUS_DRONE) {
         Logger::log_message(Logger::Type::WARNING, "Unable to decode Drone module message");
-        if (state_machine_ptr_->getRecorder()) {
-            state_machine_ptr_->getRecorder()->write_error("Unable to decode Drone module message");
-            state_machine_ptr_->getRecorder()->write_raw_message("Drone", msg);
+        if (state_machine()->getRecorder()) {
+            state_machine()->getRecorder()->write_error("Unable to decode Drone module message");
+            state_machine()->getRecorder()->write_raw_message("Drone", msg);
         }
+        return;
+    }
+
+    auto my_msg = dynamic_cast<Status*>(decoded_msg.get());
+    if (!my_msg || last_status_ == Struct_Drone::to_enum(my_msg->type_status())) {
+        return;
+    }
+
+    if (state_machine()->getRecorder()) {
+        state_machine()->getRecorder()->write_message_received("Drone", "STATUS", my_msg->type_status());
+    }
+
+    if (my_msg->type_status() == "ERROR"){
+        Logger::log_message(Logger::Type::ERROR, "Drone module status has changed to ERROR, transitioning to off state");
+        if (state_machine()->getRecorder()) {
+            state_machine()->getRecorder()->write_error("Drone module status ERROR");
+            state_machine()->getRecorder()->write_state_transition("Drone_Mission_State", "Off_State");
+        }
+        close_state();
+        auto off_state = std::make_unique<Off_State>(state_machine());
+        state_machine()->transitionTo(std::move(off_state));
+        return;
+    }
+
+    last_status_ = Struct_Drone::to_enum(my_msg->type_status());
+    Logger::log_message(Logger::Type::INFO, "Drone module status has changed to " + to_string(last_status_));
+    if (last_status_ == Struct_Drone::Status::FINISH){
+        end();
+        return;
     }
 }
 
 void Drone_Mission_State::set_data(Structs_PLD::Config_drone config)
 {
     config_ = config;
+}
+
+const char* Drone_Mission_State::state_name() const
+{
+    return "Drone Mission State";
+}
+
+void Drone_Mission_State::handle_finish_command()
+{
+    Logger::log_message(Logger::Type::WARNING, "FINISH command received in Drone Mission State, transitioning to Off State");
+    close_state();
+    auto off_state = std::make_unique<Off_State>(state_machine());
+    state_machine()->transitionTo(std::move(off_state));
 }

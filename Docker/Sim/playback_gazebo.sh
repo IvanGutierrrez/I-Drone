@@ -2,7 +2,7 @@
 
 # Script to playback Gazebo log files with proper model paths
 
-if [ -z "$1" ]; then
+if [[ -z "$1" ]]; then
     echo "Usage: $0 <path_to_state.log>"
     echo "Example: $0 /opt/I-Drone/data/recordings/state.log"
     exit 1
@@ -10,7 +10,7 @@ fi
 
 LOG_FILE="$1"
 
-if [ ! -f "$LOG_FILE" ]; then
+if [[ ! -f "$LOG_FILE" ]]; then
     echo "Error: Log file not found: $LOG_FILE"
     exit 1
 fi
@@ -30,7 +30,7 @@ SERVER_PID=$!
 echo "Waiting for Gazebo server..."
 timeout 30 bash -c "until nc -z localhost 11345 2>/dev/null; do sleep 0.5; done"
 
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
     echo "Server ready, starting GUI..."
     gzclient
     echo "GUI closed. Server still running (PID: $SERVER_PID)"

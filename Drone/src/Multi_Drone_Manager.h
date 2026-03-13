@@ -33,6 +33,9 @@ public:
     void flush_all_recorders();
 
 private:
+    void notify_manager_error(int drone_id);
+    void handle_start_all_command();
+    void handle_mission_block_command(const std::string &message, const std::string &cmd_type);
     void on_drone_complete();
     void on_drone_error(int drone_id);
     void ensure_start_signal();

@@ -1,0 +1,133 @@
+name: SonarCloud
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-22.04
+    env:
+      DEPS_PREFIX: ${{ github.workspace }}/.sonar-deps
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.sonar-deps
+      LD_LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
+      PKG_CONFIG_PATH: ${{ github.workspace }}/.sonar-deps/lib/pkgconfig:${{ github.workspace }}/.sonar-deps/lib64/pkgconfig
+      CPLUS_INCLUDE_PATH: ${{ github.workspace }}/.sonar-deps/include
+      LIBRARY_PATH: ${{ github.workspace }}/.sonar-deps/lib:${{ github.workspace }}/.sonar-deps/lib64
+      CMAKE_VERSION: 3.27.7
+      SCIP_VERSION: v924
+      ORTOOLS_VERSION: v9.14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            git \
+            wget \
+            unzip \
+            curl \
+            software-properties-common \
+            zlib1g-dev \
+            libbz2-dev \
+            libprotobuf-dev \
+            protobuf-compiler \
+            pkg-config \
+            python3-pip \
+            ninja-build \
+            libboost-all-dev
+          pip3 install --upgrade meson
+
+      - name: Install CMake 3.27.7
+        run: |
+          wget -qO /tmp/cmake.sh https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh
+          sudo sh /tmp/cmake.sh --skip-license --prefix=/usr/local
+          rm -f /tmp/cmake.sh
+          cmake --version
+
+      - name: Restore SCIP + OR-Tools cache
+        id: cache-native-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.DEPS_PREFIX }}
+          key: ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-v4
+
+      - name: Cache diagnostics
+        run: |
+          echo "cache-hit=${{ steps.cache-native-deps.outputs.cache-hit }}"
+          echo "cache-primary-key=${{ steps.cache-native-deps.outputs.cache-primary-key }}"
+
+      - name: Install SCIP + OR-Tools
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
+        run: |
+          rm -rf "${DEPS_PREFIX}"
+          mkdir -p "${DEPS_PREFIX}"
+
+          git clone https://github.com/scipopt/scip.git /tmp/scip
+          cd /tmp/scip
+          git checkout ${SCIP_VERSION}
+          git submodule update --init --recursive
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DBUILD_SHARED_LIBS=ON \
+                   -DSCIP_ENABLE_PAPILO=OFF \
+                   -DSCIP_BUILD_TESTS=OFF \
+                   -DAUTOBUILD=ON \
+                   -DCMAKE_INSTALL_PREFIX="${DEPS_PREFIX}" \
+                   -DSCIP_INSTALL=ON
+          make -j"$(nproc)"
+          make install
+          rm -rf /tmp/scip
+
+          wget -qO /tmp/ortools.tar.gz https://github.com/google/or-tools/archive/refs/tags/${ORTOOLS_VERSION}.tar.gz
+          tar -xzf /tmp/ortools.tar.gz -C /tmp
+          cd /tmp/or-tools-${ORTOOLS_VERSION#v}
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DBUILD_DEPS=ON \
+                   -DBUILD_PYTHON=OFF \
+                   -DSCIP_ROOT="${DEPS_PREFIX}" \
+                   -DCMAKE_INSTALL_PREFIX="${DEPS_PREFIX}" \
+                   -DCMAKE_CXX_STANDARD=17
+          make -j"$(nproc)"
+          make install
+          rm -rf /tmp/or-tools-${ORTOOLS_VERSION#v} /tmp/ortools.tar.gz
+
+      - name: Save SCIP + OR-Tools cache
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.DEPS_PREFIX }}
+          key: ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-v4
+
+      - name: Regenerate protobuf files
+        run: |
+          PROTOC_BIN="${DEPS_PREFIX}/bin/protoc"
+          "${PROTOC_BIN}" --version
+          "${PROTOC_BIN}" --experimental_allow_proto3_optional -Ilibs/proto --cpp_out=libs/generated_proto libs/proto/*.proto
+
+      - name: Configure build
+        run: |
+          meson setup build .
+          meson configure build -Dcpp_std=c++17
+
+      - name: Build project
+        run: meson compile -C build
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONARORGANIZATION }}
+            -Dsonar.projectKey=${{ vars.SONARPROJECTKEY }}
+            -Dsonar.projectName=I-Drone
+            -Dsonar.sources=PLD,Planner,libs

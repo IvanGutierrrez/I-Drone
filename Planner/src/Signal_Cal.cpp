@@ -12,10 +12,6 @@
 #include <map>
 #include "common_libs/Logger.h"
 
-Signal_Cal::Signal_Cal()
-{
-}
-
 std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) {
     std::ifstream file(dcf_filename);
     std::map<RGB, double> colorToDbm;
@@ -68,7 +64,7 @@ CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, c
         return {};
     }
 
-    char ch = file.peek();
+    std::ifstream::int_type ch = file.peek();
     while (ch == '#') {
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         ch = file.peek();
@@ -140,8 +136,8 @@ std::vector<Struct_Planner::Coordinate> matrixToVector(
     double lonMax,
     double threshold
 ) {
-    int rows = matrix.size();
-    int cols = matrix[0].size();
+    auto rows = static_cast<int>(matrix.size());
+    auto cols = static_cast<int>(matrix[0].size());
 
     double latStep = (latMax - latMin) / rows;
     double lonStep = (lonMax - lonMin) / cols;

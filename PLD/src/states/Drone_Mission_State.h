@@ -17,12 +17,11 @@
 
 class Drone_Mission_State: public State {
 public:
-    Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr);
-    ~Drone_Mission_State();
+    explicit Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr);
+    ~Drone_Mission_State() noexcept override;
 
     void start() override;
     void end() override;
-    void handleMessage(const std::string &message) override;
     void set_data(Structs_PLD::Config_drone config);
 
 private:
@@ -38,10 +37,13 @@ private:
     size_t  coor_j_;
     bool state_closing_;
 
+    const char* state_name() const override;
+    void handle_finish_command() override;
     void close_state();
     void continue_start_process(const boost::system::error_code& ec);
     void on_connect_drone();
     void on_error_drone(const boost::system::error_code& ec, const Type_Error &type_error);
     void on_message_drone(const std::string& msg);
+    void prepare_next_drone_message(Struct_Planner::Coordinate& coor, std::string& type);
     void send_message(const boost::system::error_code& ec);
 };

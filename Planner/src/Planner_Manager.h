@@ -32,6 +32,6 @@ public:
                       std::shared_ptr<Path_Cal> path_cal,
                       std::shared_ptr<Signal_Cal> signal_cal,
                       const Struct_Planner::Config_struct cnf);
-    ~Planner_Manager() override;
+    ~Planner_Manager() override = default;
     void calculate(const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data) override;
 };

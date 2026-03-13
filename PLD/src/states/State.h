@@ -16,13 +16,20 @@ class State_Machine;
 
 class State {
 public:
-    State(std::shared_ptr<State_Machine> state_machine_ptr);
+    explicit State(std::shared_ptr<State_Machine> state_machine_ptr);
+    virtual ~State() = default;
     virtual void start();
     virtual void end();
     virtual void handleMessage(const std::string &message);
 
 protected:
+    virtual const char* state_name() const;
+    virtual void handle_finish_command();
 
+    std::shared_ptr<State_Machine>& state_machine() { return state_machine_ptr_; }
+    const std::shared_ptr<State_Machine>& state_machine() const { return state_machine_ptr_; }
+
+private:
     std::shared_ptr<State_Machine> state_machine_ptr_;
 
 };

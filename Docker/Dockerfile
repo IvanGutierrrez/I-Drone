@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV SCIP_VERSION=v924
 ENV ORTOOLS_VERSION=v9.14
 
-# --- Install basic dependencies, Boost, Python3, Meson, Ninja ---
+# --- Install basic dependencies, Boost, Python3, Meson, Ninja, CMake, SCIP and OR-Tools ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -24,15 +24,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ninja-build \
     libboost-all-dev \
     && pip3 install --upgrade meson \
-    && rm -rf /var/lib/apt/lists/*
-
-# --- Install modern CMake (3.27) ---
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.sh -O /tmp/cmake.sh && \
+    && rm -rf /var/lib/apt/lists/* \
+    && wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.sh -O /tmp/cmake.sh && \
     sh /tmp/cmake.sh --skip-license --prefix=/usr/local && \
-    rm /tmp/cmake.sh
-
-# --- Install SCIP 9.2.4 ---
-RUN git clone https://github.com/scipopt/scip.git /tmp/scip && \
+    rm /tmp/cmake.sh && \
+    git clone https://github.com/scipopt/scip.git /tmp/scip && \
     cd /tmp/scip && \
     git checkout ${SCIP_VERSION} && \
     git submodule update --init --recursive && \
@@ -45,10 +41,8 @@ RUN git clone https://github.com/scipopt/scip.git /tmp/scip && \
              -DCMAKE_INSTALL_PREFIX=/usr/local \
              -DSCIP_INSTALL=ON && \
     make -j$(nproc) && make install && \
-    rm -rf /tmp/scip
-
-# --- Install OR-Tools 9.14 (C++17) ---
-RUN wget https://github.com/google/or-tools/archive/refs/tags/${ORTOOLS_VERSION}.tar.gz -O /tmp/ortools.tar.gz && \
+    rm -rf /tmp/scip && \
+    wget https://github.com/google/or-tools/archive/refs/tags/${ORTOOLS_VERSION}.tar.gz -O /tmp/ortools.tar.gz && \
     tar -xzf /tmp/ortools.tar.gz -C /tmp && \
     cd /tmp/or-tools-9.14 && \
     mkdir build && cd build && \
@@ -68,7 +62,10 @@ RUN git clone https://github.com/valderez/Signal-Server && cd Signal-Server && \
 
 # --- Copy I-Drone source code and build ---
 WORKDIR /app
-COPY . /app
+COPY meson.build /app/
+COPY Planner /app/Planner
+COPY PLD /app/PLD
+COPY libs /app/libs
 
 RUN meson setup build . && \
     meson configure build -Dcpp_std=c++17 && \

@@ -20,7 +20,7 @@ public:
     Controller(std::shared_ptr<Communication_Manager> comm_mng, 
                std::shared_ptr<Multi_Drone_Manager> drone_manager,
                const Struct_Drone::Config_struct &cnf);
-    ~Controller();
+    ~Controller() = default;
     void handler_message(const std::string &message);
     void mission_complete();
     void error_callback(int drone_id);
