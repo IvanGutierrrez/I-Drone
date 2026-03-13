@@ -17,6 +17,7 @@ class State_Machine;
 class State {
 public:
     explicit State(std::shared_ptr<State_Machine> state_machine_ptr);
+    virtual ~State() = default;
     virtual void start();
     virtual void end();
     virtual void handleMessage(const std::string &message);

@@ -15,14 +15,15 @@
 class Off_State: public State {
 public:
     explicit Off_State(std::shared_ptr<State_Machine> state_machine_ptr);
+    ~Off_State() override = default;
 
     void start() override;
     void end() override;
     void handleMessage(const std::string &message) override;
 
 private:
-    void handle_config_mission_message(std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message);
-    void handle_command_message(std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message);
+    void handle_config_mission_message(const std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message);
+    void handle_command_message(const std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message);
     void handle_unexpected_message(Enc_Dec_PLD::PLD type, const std::string &raw_message);
     Structs_PLD::Config_mission config_;
 

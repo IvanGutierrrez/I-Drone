@@ -26,7 +26,7 @@ Path_Cal::Path_Cal(const Struct_Planner::Config_struct &cnf): global_cnf_(cnf)
 {
 }
 
-double Path_Cal::haversine_m(const Struct_Planner::Coordinate& a, const Struct_Planner::Coordinate& b) {
+double Path_Cal::haversine_m(const Struct_Planner::Coordinate& a, const Struct_Planner::Coordinate& b) const {
     static constexpr double R = 6371000.0;
     double dLat = (b.lat - a.lat) * M_PI / 180.0;
     double dLon = (b.lon - a.lon) * M_PI / 180.0;
@@ -44,7 +44,7 @@ void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& po
                                double max_neighbor_dist_m,
                                std::vector<std::vector<std::pair<int,double>>>& adj)
 {
-    int n = points.size();
+    int n = static_cast<int>(points.size());
     adj.assign(n, {});
 
     for (int i = 0; i < n; i++) {
@@ -78,7 +78,7 @@ void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& po
             int j = e.first;
             double w = e.second;
 
-            bool found = std::any_of(adj[j].begin(), adj[j].end(),
+            bool found = std::any_of(adj[j].cbegin(), adj[j].cend(),
                                      [i](const std::pair<int, double>& back) {
                                          return back.first == i;
                                      });
@@ -88,9 +88,9 @@ void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& po
     }
 }
 
-std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<std::pair<int,double>>>& adj)
+std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<std::pair<int,double>>>& adj) const
 {
-    int n = adj.size();
+    int n = static_cast<int>(adj.size());
     const double INF = std::numeric_limits<double>::infinity();
     std::vector<double> dist(n, INF);
 
@@ -119,9 +119,9 @@ std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<st
     return dist;
 }
 
-std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std::vector<std::pair<int,double>>>& adj)
+std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std::vector<std::pair<int,double>>>& adj) const
 {
-    int n = adj.size();
+    int n = static_cast<int>(adj.size());
     const double INF = std::numeric_limits<double>::infinity();
     std::vector<double> dist(n, INF);
     std::vector<int> prev(n, -1);
@@ -161,7 +161,7 @@ void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Planner::
                                               const std::vector<Struct_Planner::Coordinate>& pos_targets,
                                               std::vector<std::vector<int64_t>>& dist_matrix)
 {
-    int T = pos_targets.size();
+    int T = static_cast<int>(pos_targets.size());
     dist_matrix.assign(T, std::vector<int64_t>(T, 0));
 
     std::vector<int> closest_point(T);
@@ -174,7 +174,7 @@ void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Planner::
             double d = haversine_m(pos_targets[t], all_points[i]);
             if (d < best) {
                 best = d;
-                best_i = i;
+                best_i = static_cast<int>(i);
             }
         }
         closest_point[t] = best_i;
@@ -200,7 +200,7 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
 {
     std::vector<std::vector<Struct_Planner::Coordinate>> result;
 
-    int T = pos_targets.size();
+    int T = static_cast<int>(pos_targets.size());
     if (T == 0 || num_drones <= 0) return result;
 
     std::vector<RoutingIndexManager::NodeIndex> starts;
@@ -215,7 +215,7 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
     RoutingModel routing(manager);
 
     const int transitIndex = routing.RegisterTransitCallback(
-        [&](int64_t from, int64_t to) -> int64_t {
+        [&manager, &dist_matrix](int64_t from, int64_t to) -> int64_t {
             int a = manager.IndexToNode(from).value();
             int b = manager.IndexToNode(to).value();
             return dist_matrix[a][b];
@@ -232,8 +232,7 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
         "load"
     );
 
-    RoutingDimension* load_dimension = routing.GetMutableDimension("load");
-    if (load_dimension) {
+    if (RoutingDimension* load_dimension = routing.GetMutableDimension("load"); load_dimension) {
         load_dimension->SetGlobalSpanCostCoefficient(100);
     }
 
@@ -272,7 +271,7 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
         int best_i = -1;
         for (size_t i = 0; i < points_cp.size(); i++) {
             double d = haversine_m(pos_targets[t], points_cp[i]);
-            if (d < best) { best = d; best_i = i; }
+            if (d < best) { best = d; best_i = static_cast<int>(i); }
         }
         closest_point[t] = best_i;
     }

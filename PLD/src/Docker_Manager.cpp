@@ -19,7 +19,7 @@ Docker_Manager::Docker_Manager(const std::string &user,
 {
 }
 
-bool Docker_Manager::start_container(const std::string &container_name)
+bool Docker_Manager::start_container(const std::string &container_name) const
 {
     std::string cmd = "docker compose -f " + compose_file_ + " up -d " + container_name;
     std::string output;
@@ -34,7 +34,7 @@ bool Docker_Manager::start_container(const std::string &container_name)
     return success;
 }
 
-bool Docker_Manager::stop_container(const std::string &container_name)
+bool Docker_Manager::stop_container(const std::string &container_name) const
 {
     std::string cmd = "docker rm -f " + container_name;
     std::string output;
@@ -49,7 +49,7 @@ bool Docker_Manager::stop_container(const std::string &container_name)
     return success;
 }
 
-bool Docker_Manager::is_container_running(const std::string &container_name, const bool &silent)
+bool Docker_Manager::is_container_running(const std::string &container_name, const bool &silent) const
 {
     std::string cmd = "docker compose -f " + compose_file_ + " ps --services --filter \"status=running\"";
     std::string output;
@@ -73,7 +73,7 @@ bool Docker_Manager::is_container_running(const std::string &container_name, con
     return is_running;
 }
 
-bool Docker_Manager::test_connection()
+bool Docker_Manager::test_connection() const
 {
     return ssh_manager_->test_connection();
 }

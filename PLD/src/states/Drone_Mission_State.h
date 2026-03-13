@@ -18,7 +18,7 @@
 class Drone_Mission_State: public State {
 public:
     explicit Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr);
-    ~Drone_Mission_State() noexcept;
+    ~Drone_Mission_State() noexcept override;
 
     void start() override;
     void end() override;

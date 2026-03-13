@@ -64,7 +64,7 @@ CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, c
         return {};
     }
 
-    char ch = file.peek();
+    std::ifstream::int_type ch = file.peek();
     while (ch == '#') {
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         ch = file.peek();
@@ -136,8 +136,8 @@ std::vector<Struct_Planner::Coordinate> matrixToVector(
     double lonMax,
     double threshold
 ) {
-    int rows = matrix.size();
-    int cols = matrix[0].size();
+    int rows = static_cast<int>(matrix.size());
+    int cols = static_cast<int>(matrix[0].size());
 
     double latStep = (latMax - latMin) / rows;
     double lonStep = (lonMax - lonMin) / cols;

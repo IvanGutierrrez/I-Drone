@@ -34,7 +34,11 @@ Planner_State::~Planner_State() noexcept
 {
     try {
         close_state();
-    } catch (...) {}
+    } catch (const std::exception &e) {
+        Logger::log_message(Logger::Type::ERROR, std::string("Exception in ~Planner_State: ") + e.what());
+    } catch (...) {
+        Logger::log_message(Logger::Type::ERROR, "Unknown exception in ~Planner_State");
+    }
 }
 
 void Planner_State::close_state()
@@ -54,7 +58,7 @@ void Planner_State::close_state()
 void Planner_State::transition_to_off_state()
 {
     close_state();
-    std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+    auto off_state = std::make_unique<Off_State>(state_machine());
     state_machine()->transitionTo(std::move(off_state));
 }
 
@@ -84,7 +88,7 @@ void Planner_State::start()
         std::stringstream log;
         log << "Unable to connect to " << config_.planner_module_data.user << ":" << config_.planner_module_data.ssh_ip << ". Transitioning to Off State";
         Logger::log_message(Logger::Type::ERROR, log.str());
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
         return;
     }
@@ -98,7 +102,7 @@ void Planner_State::start()
 
     if (server_number_ == -1) {
         Logger::log_message(Logger::Type::ERROR, "Unable to complete transition to Planner State, returning to Off State");
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
         return;
     }
@@ -112,7 +116,7 @@ void Planner_State::start()
 
 void Planner_State::end()
 {
-    std::unique_ptr<Drone_Mission_State> mission_drone_state = std::make_unique<Drone_Mission_State>(state_machine());
+    auto mission_drone_state = std::make_unique<Drone_Mission_State>(state_machine());
     mission_drone_state->set_data(data_next_state_);
     close_state();
     Logger::log_message(Logger::Type::INFO, "Planner State functionality complete, transitioning to the next state");
@@ -147,7 +151,7 @@ void Planner_State::handleMessage(const std::string &message)
         if (command->command() == "FINISH") {
             Logger::log_message(Logger::Type::WARNING, "FINISH command received in Planner State, transitioning to Off State");
             close_state();
-            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+            auto off_state = std::make_unique<Off_State>(state_machine());
             state_machine()->transitionTo(std::move(off_state));
         } else {
             Logger::log_message(Logger::Type::WARNING, "Unexpected command received from Client: " + command->command());
@@ -176,7 +180,7 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
     if (ec) {
         Logger::log_message(Logger::Type::ERROR, "Error in timer to continue start process in Planner State, transitioning to Off State");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
         return;
     }
@@ -205,7 +209,7 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
             close_state();
-            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+            auto off_state = std::make_unique<Off_State>(state_machine());
             state_machine()->transitionTo(std::move(off_state));
             return;
         }
@@ -220,7 +224,7 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
             close_state();
-            std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+            auto off_state = std::make_unique<Off_State>(state_machine());
             state_machine()->transitionTo(std::move(off_state));
             return;
         }
@@ -233,7 +237,7 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
     if (!Enc_Dec_Planner::encode_config_message(config_.planner_info.signal_server_config,config_.planner_info.dron_data,message_to_planner)) {
         Logger::log_message(Logger::Type::ERROR,"Unable to encode configuration message to Planner. Transitioning to off state");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
         return;
     }
@@ -244,7 +248,7 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
             state_machine()->getRecorder()->write_error("Unable to send configuration message to Planner");
         }
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
         return;
     }
@@ -282,7 +286,7 @@ void Planner_State::on_error_planner(const boost::system::error_code& ec, const 
     if (!docker_manager_->is_container_running(config_.planner_module_data.docker_name,false)) {
         Logger::log_message(Logger::Type::ERROR, "Planner docker is not running, transitioning to off state");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
         return;
     }
@@ -319,7 +323,7 @@ void Planner_State::on_error_planner(const boost::system::error_code& ec, const 
     } else {
         Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
         close_state();
-        std::unique_ptr<Off_State> off_state = std::make_unique<Off_State>(state_machine());
+        auto off_state = std::make_unique<Off_State>(state_machine());
         state_machine()->transitionTo(std::move(off_state));
     }
 }

@@ -52,7 +52,7 @@ void Server::set_handlers(const handlers &handlers)
     handlers_ = handlers;
 }
 
-void Server::notify_connecting_error(const boost::system::error_code &error)
+void Server::notify_connecting_error(const boost::system::error_code &error) const
 {
     if (handlers_.call_error) {
         handlers_.call_error(error, Type_Error::CONNECTING);
@@ -189,7 +189,7 @@ void Server::connect(const tcp::endpoint& endpoint)
         });
 }
 
-void Server::deliver(const std::string &message)
+void Server::deliver(const std::string &message) const
 {
     auto client = current_client_;
     if (!client || !client->is_open())

@@ -17,7 +17,7 @@
 class Planner_State: public State {
 public:
     explicit Planner_State(std::shared_ptr<State_Machine> state_machine_ptr);
-    ~Planner_State() noexcept;
+    ~Planner_State() noexcept override;
 
     void start() override;
     void end() override;

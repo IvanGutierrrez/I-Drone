@@ -39,7 +39,7 @@ public:
     void start_listening(const tcp::endpoint& endpoint);
     void accept_new_connection();
     void connect(const tcp::endpoint& endpoint);
-    void deliver(const std::string &message);
+    void deliver(const std::string &message) const;
     void server_close();
 private:
 
@@ -49,7 +49,7 @@ private:
     std::shared_ptr<tcp::socket> current_client_;
     bool is_listening_;
 
-    void notify_connecting_error(const boost::system::error_code &error);
+    void notify_connecting_error(const boost::system::error_code &error) const;
     bool prepare_listening(const tcp::endpoint& endpoint);
     void on_accept(const boost::system::error_code& error, const std::shared_ptr<tcp::socket> &new_socket);
     void start_async_accept(const std::shared_ptr<tcp::socket> &new_socket);

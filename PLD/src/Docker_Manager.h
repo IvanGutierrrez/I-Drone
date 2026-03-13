@@ -20,10 +20,10 @@ public:
 
     ~Docker_Manager() = default;
 
-    bool start_container(const std::string &container_name);
-    bool stop_container(const std::string &container_name);
-    bool is_container_running(const std::string &container_name, const bool &silent = false);
-    bool test_connection();
+    bool start_container(const std::string &container_name) const;
+    bool stop_container(const std::string &container_name) const;
+    bool is_container_running(const std::string &container_name, const bool &silent = false) const;
+    bool test_connection() const;
 
 private:
     std::shared_ptr<SSH_Manager> ssh_manager_;
