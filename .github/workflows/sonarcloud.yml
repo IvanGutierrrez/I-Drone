@@ -61,6 +61,13 @@ jobs:
             ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-
             ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-
             ${{ runner.os }}-native-deps-
+            ${{ runner.os }}-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-
+            ${{ runner.os }}-scip-
+
+      - name: Cache diagnostics
+        run: |
+          echo "cache-hit=${{ steps.cache-native-deps.outputs.cache-hit }}"
+          echo "cache-primary-key=${{ steps.cache-native-deps.outputs.cache-primary-key }}"
 
       - name: Install SCIP + OR-Tools
         if: steps.cache-native-deps.outputs.cache-hit != 'true'
