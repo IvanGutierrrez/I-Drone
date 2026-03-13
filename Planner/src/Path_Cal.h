@@ -27,7 +27,7 @@ private:
     Struct_Planner::Config_struct global_cnf_;
 
     std::vector<size_t> findNearestPoints(const std::vector<Struct_Planner::Coordinate> &points_cp, const Struct_Planner::DroneData &drone_data) const;
-    bool check_targets_signal(Struct_Planner::DroneData &drone_data, const std::vector<Struct_Planner::Coordinate> &points_cp);
+    bool check_targets_signal(Struct_Planner::DroneData &drone_data, const std::vector<Struct_Planner::Coordinate> &points_cp) const;
     double haversine_m(const Struct_Planner::Coordinate& a, const Struct_Planner::Coordinate& b) const;
     void build_knn_graph(const std::vector<Struct_Planner::Coordinate>& points,
                                int k_neighbors,

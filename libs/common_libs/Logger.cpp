@@ -11,7 +11,6 @@
 #include <iostream>
 #include <chrono>
 #include <fstream>
-#include <cstdio>
 
 namespace Logger{
 
@@ -22,10 +21,29 @@ public:
     bool initialized = false;
 };
 
+inline Logger_State logger_state;
+
+std::string pad2(int value)
+{
+    std::string s = std::to_string(value);
+    if (s.size() < 2) {
+        s.insert(s.begin(), '0');
+    }
+    return s;
+}
+
+std::string pad3(int value)
+{
+    std::string s = std::to_string(value);
+    while (s.size() < 3) {
+        s.insert(s.begin(), '0');
+    }
+    return s;
+}
+
 Logger_State& state()
 {
-    static Logger_State instance;
-    return instance;
+    return logger_state;
 }
 } // namespace
 
@@ -79,9 +97,7 @@ std::string getTimeFormatted() { // return time in doyyy_hhmm
 
     const int doy = tm_info.tm_yday + 1;
     const int year = tm_info.tm_year % 100;
-    char buffer[16];
-    std::snprintf(buffer, sizeof(buffer), "%03d%02d_%02d%02d", doy, year, tm_info.tm_hour, tm_info.tm_min);
-    return std::string(buffer);
+    return pad3(doy) + pad2(year) + "_" + pad2(tm_info.tm_hour) + pad2(tm_info.tm_min);
 }
 
 std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
@@ -91,17 +107,12 @@ std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
     std::tm tm_info {};
     localtime_r(&now_time, &tm_info);
 
-    char buffer[24];
-    std::snprintf(buffer,
-                  sizeof(buffer),
-                  "%02d/%02d/%04dT%02d:%02d:%02d",
-                  tm_info.tm_mday,
-                  tm_info.tm_mon + 1,
-                  tm_info.tm_year + 1900,
-                  tm_info.tm_hour,
-                  tm_info.tm_min,
-                  tm_info.tm_sec);
-    return std::string(buffer);
+    return pad2(tm_info.tm_mday) + "/" +
+           pad2(tm_info.tm_mon + 1) + "/" +
+           std::to_string(tm_info.tm_year + 1900) + "T" +
+           pad2(tm_info.tm_hour) + ":" +
+           pad2(tm_info.tm_min) + ":" +
+           pad2(tm_info.tm_sec);
 }
 
 void log_message(const Type &t, const std::string &log)

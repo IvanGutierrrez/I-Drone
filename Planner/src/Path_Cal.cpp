@@ -340,7 +340,7 @@ std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Planner
     return nearest_indices;
 }
 
-bool Path_Cal::check_targets_signal(Struct_Planner::DroneData &drone_data, const std::vector<Struct_Planner::Coordinate> &points_cp)
+bool Path_Cal::check_targets_signal(Struct_Planner::DroneData &drone_data, const std::vector<Struct_Planner::Coordinate> &points_cp) const
 {
     std::vector<size_t> nearest_points = findNearestPoints(points_cp,drone_data);
     std::vector<Struct_Planner::Coordinate> new_targets;

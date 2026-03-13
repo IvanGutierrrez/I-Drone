@@ -117,13 +117,8 @@ jobs:
           meson setup build .
           meson configure build -Dcpp_std=c++17
 
-      - name: Download Build Wrapper
-        run: |
-          curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-          unzip -o build-wrapper.zip
-
-      - name: Build with Build Wrapper
-        run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output meson compile -C build
+      - name: Build project
+        run: meson compile -C build
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
