@@ -18,7 +18,7 @@ public:
     Docker_Manager(const std::string &user, const std::string &host,
                    const std::string &compose_path, const std::string &key = "");
 
-    ~Docker_Manager();
+    ~Docker_Manager() = default;
 
     bool start_container(const std::string &container_name);
     bool stop_container(const std::string &container_name);

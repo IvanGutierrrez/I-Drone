@@ -24,10 +24,6 @@ SSH_Manager::SSH_Manager(const std::string &user,
 {
 }
 
-SSH_Manager::~SSH_Manager()
-{
-}
-
 bool SSH_Manager::execute_command(const std::string &command, std::string &output)
 {
     std::string ssh_cmd = build_ssh_command(command);
@@ -35,7 +31,7 @@ bool SSH_Manager::execute_command(const std::string &command, std::string &outpu
     
     std::array<char, 128> buffer;
     FILE* pipe_raw = popen(ssh_cmd.c_str(), "r");
-    std::unique_ptr<FILE, int(*)(FILE*)> pipe(pipe_raw, pclose);
+    std::unique_ptr<FILE, int(*)(FILE*)> pipe(pipe_raw, &pclose);
     
     if (!pipe) {
         Logger::log_message(Logger::Type::ERROR, "Failed to execute command");

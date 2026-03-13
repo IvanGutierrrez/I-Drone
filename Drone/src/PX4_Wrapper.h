@@ -64,6 +64,7 @@ private:
     bool start_mission_execution();
     void wait_mission_completion();
     bool return_to_launch();
+    bool wait_for_px4_shutdown();
     
     void execute_mission();
     void cleanup_px4_process();

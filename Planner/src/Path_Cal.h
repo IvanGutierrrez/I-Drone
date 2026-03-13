@@ -17,7 +17,7 @@
 class Path_Cal {
 
 public:
-    Path_Cal(const Struct_Planner::Config_struct &cnf);
+    explicit Path_Cal(const Struct_Planner::Config_struct &cnf);
     bool calculate_path(Struct_Planner::DroneData &drone_data, 
                         std::vector<Struct_Planner::Coordinate> &points, 
                         std::vector<std::vector<Struct_Planner::Coordinate>> &result,

@@ -19,10 +19,6 @@ Docker_Manager::Docker_Manager(const std::string &user,
 {
 }
 
-Docker_Manager::~Docker_Manager() 
-{
-}
-
 bool Docker_Manager::start_container(const std::string &container_name)
 {
     std::string cmd = "docker compose -f " + compose_file_ + " up -d " + container_name;

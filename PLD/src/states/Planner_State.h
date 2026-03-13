@@ -16,8 +16,8 @@
 
 class Planner_State: public State {
 public:
-    Planner_State(std::shared_ptr<State_Machine> state_machine_ptr);
-    ~Planner_State();
+    explicit Planner_State(std::shared_ptr<State_Machine> state_machine_ptr);
+    ~Planner_State() noexcept;
 
     void start() override;
     void end() override;
@@ -36,6 +36,8 @@ private:
     Structs_PLD::Config_drone data_next_state_;
     bool state_closing_;
 
+    void transition_to_off_state();
+    void record_planner_error_and_transition(const std::string& error_message);
     void close_state();
     void continue_start_process(const boost::system::error_code& ec);
     void on_connect_planner();

@@ -54,59 +54,78 @@ void Multi_Drone_Manager::start_all()
     }
 }
 
+void Multi_Drone_Manager::notify_manager_error(int drone_id)
+{
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
+    if (handlers_.error) {
+        handlers_.error(drone_id);
+    }
+}
+
+void Multi_Drone_Manager::handle_start_all_command()
+{
+    for (auto &drone : drones_) {
+        drone->mark_commands_ready();
+    }
+
+    // Release start signal to allow drones to takeoff
+    ensure_start_signal();
+
+    // Notify that missions are ready to execute
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
+    if (handlers_.missions_ready) {
+        handlers_.missions_ready();
+    }
+}
+
+void Multi_Drone_Manager::handle_mission_block_command(const std::string &message, const std::string &cmd_type)
+{
+    // Group commands by START-FINISH blocks
+    // START begins a mission for current drone, FINISH completes it
+    if (cmd_type == "START") {
+        current_drone_index_ = (current_drone_index_ + 1) % drones_.size();
+        Logger::log_message(Logger::Type::INFO,
+            "Starting mission block for Drone " + std::to_string(current_drone_index_));
+    }
+
+    // Send command to current drone
+    drones_[current_drone_index_]->send_command(message);
+
+    if (cmd_type == "FINISH") {
+        Logger::log_message(Logger::Type::INFO,
+            "Finished mission block for Drone " + std::to_string(current_drone_index_));
+    }
+}
+
 void Multi_Drone_Manager::dispatch_command(const std::string &message)
 {
     auto decoded = Enc_Dec_Drone::decode_to_drone(message);
-    if (decoded.first == Enc_Dec_Drone::Drone::COMMAND) {
-        if (auto command = dynamic_cast<DroneCommandString*>(decoded.second.get())) {
-            if (command->type_command() == "START_ALL") {
-                for (auto &drone : drones_) {
-                    drone->mark_commands_ready();
-                }
-                
-                // Release start signal to allow drones to takeoff
-                ensure_start_signal();
-                
-                // Notify that missions are ready to execute
-                {
-                    std::lock_guard<std::mutex> lock(handlers_mutex_);
-                    if (handlers_.missions_ready) {
-                        handlers_.missions_ready();
-                    }
-                }
-            } else {
-                // Group commands by START-FINISH blocks
-                // START begins a mission for current drone, FINISH completes it
-                std::string cmd_type = command->type_command();
-                
-                if (cmd_type == "START") {
-                    current_drone_index_ = (current_drone_index_ + 1) % drones_.size();
-                    Logger::log_message(Logger::Type::INFO, 
-                        "Starting mission block for Drone " + std::to_string(current_drone_index_));
-                }
-                
-                // Send command to current drone
-                drones_[current_drone_index_]->send_command(message);
-                
-                if (cmd_type == "FINISH") {
-                    Logger::log_message(Logger::Type::INFO, 
-                        "Finished mission block for Drone " + std::to_string(current_drone_index_));
-                }
-            }
-        }
-    } else if (decoded.first == Enc_Dec_Drone::Drone::ERROR) {
+    if (decoded.first == Enc_Dec_Drone::Drone::ERROR) {
         Logger::log_message(Logger::Type::ERROR, "Error decoding message in Multi_Drone_Manager");
-        std::lock_guard<std::mutex> lock(handlers_mutex_);
-        if (handlers_.error) {
-            handlers_.error(-1); // -1 indicates error not from specific drone
-        }
+        notify_manager_error(-1); // -1 indicates error not from specific drone
         return;
-    } else if (decoded.first == Enc_Dec_Drone::Drone::UNKNOWN) {
+    }
+
+    if (decoded.first == Enc_Dec_Drone::Drone::UNKNOWN) {
         Logger::log_message(Logger::Type::WARNING, "Unknown message type in Multi_Drone_Manager");
-        std::lock_guard<std::mutex> lock(handlers_mutex_);
-        if (handlers_.error) {
-            handlers_.error(-1);
-        }
+        notify_manager_error(-1);
+        return;
+    }
+
+    if (decoded.first != Enc_Dec_Drone::Drone::COMMAND) {
+        return;
+    }
+
+    auto command = dynamic_cast<DroneCommandString*>(decoded.second.get());
+    if (!command) {
+        return;
+    }
+
+    std::string cmd_type = command->type_command();
+    if (cmd_type == "START_ALL") {
+        handle_start_all_command();
+    } else {
+        handle_mission_block_command(message, cmd_type);
     }
 }
 

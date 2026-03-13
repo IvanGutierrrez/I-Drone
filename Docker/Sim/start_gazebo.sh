@@ -4,7 +4,7 @@ export GAZEBO_PLUGIN_PATH=/root/tfg/PX4-Autopilot/build/px4_sitl_default/build_g
 export LD_LIBRARY_PATH=/root/tfg/PX4-Autopilot/build/px4_sitl_default/build_gazebo-classic:${LD_LIBRARY_PATH}
 
 # GPS home coordinates from DRONE_0
-if [ ! -z "$DRONE_0_HOME_LAT" ]; then
+if [[ ! -z "$DRONE_0_HOME_LAT" ]]; then
   export PX4_HOME_LAT=$DRONE_0_HOME_LAT
   export PX4_HOME_LON=$DRONE_0_HOME_LON
   export PX4_HOME_ALT=$DRONE_0_HOME_ALT
@@ -32,14 +32,14 @@ echo "gzserver:$GZSERVER_PID" >> /tmp/simulation_processes.pid
 # Wait for Gazebo to be ready
 echo "Waiting for Gazebo server to be ready..."
 timeout 30 bash -c "until nc -z localhost 11345 2>/dev/null; do sleep 0.5; done"
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
   echo "Gazebo server ready and recording"
 else
   echo "Warning: Gazebo port check timed out"
 fi
 
 # Start GUI if DISPLAY is set
-if [ ! -z "$DISPLAY" ]; then
+if [[ ! -z "$DISPLAY" ]]; then
   echo "Starting Gazebo GUI..."
   gzclient &
   GZCLIENT_PID=$!

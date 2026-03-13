@@ -29,7 +29,7 @@ using CoverageMatrix = std::vector<std::vector<double>>;
 class Signal_Cal {
 
 public:
-    Signal_Cal();
+    Signal_Cal() = default;
     std::vector<Struct_Planner::Coordinate> calculate_signal(const Struct_Planner::Config_struct &global_config,const Struct_Planner::SignalServerConfig &signal_server_conf);
 
 private:

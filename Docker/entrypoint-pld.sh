@@ -2,7 +2,7 @@
 set -e
 
 # Copy SSH keys and fix permissions
-if [ -d "/tmp/.ssh" ]; then
+if [[ -d "/tmp/.ssh" ]]; then
     mkdir -p /root/.ssh
     cp -r /tmp/.ssh/* /root/.ssh/
     chmod 700 /root/.ssh

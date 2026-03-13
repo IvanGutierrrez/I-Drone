@@ -18,7 +18,7 @@
 class PLD_Recorder {
 
 public:
-    PLD_Recorder(const std::filesystem::path &path);
+    explicit PLD_Recorder(const std::filesystem::path &path);
 
     bool write_message_received(const std::string &source, const std::string &message_type, const std::string &decoded_content);
     bool write_message_sent(const std::string &destination, const std::string &message_type, const std::string &content);

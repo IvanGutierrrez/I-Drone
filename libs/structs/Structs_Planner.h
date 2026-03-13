@@ -80,7 +80,7 @@ struct Coordinate {
 
     Coordinate(const double &lon, const double &lat): lon(lon), lat(lat) {}
 
-    Coordinate(const CoveragePoint& cp) : lon(cp.lon), lat(cp.lat) {}
+    explicit Coordinate(const CoveragePoint& cp) : lon(cp.lon), lat(cp.lat) {}
 
     Coordinate() = default;
 

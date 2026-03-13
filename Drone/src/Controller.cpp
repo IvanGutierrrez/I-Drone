@@ -26,10 +26,6 @@ Controller::Controller(std::shared_ptr<Communication_Manager> comm_mng,
     drone_manager_->start_all();
 }
 
-Controller::~Controller()
-{
-}
-
 void Controller::handler_message(const std::string &message)
 {
     Logger::log_message(Logger::Type::INFO, "Adding new commands to the list");

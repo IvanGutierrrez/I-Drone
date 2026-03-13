@@ -51,12 +51,16 @@ jobs:
           rm -f /tmp/cmake.sh
           cmake --version
 
-      - name: Cache SCIP + OR-Tools
+      - name: Restore SCIP + OR-Tools cache
         id: cache-native-deps
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.DEPS_PREFIX }}
-          key: ${{ runner.os }}-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-headers-v3
+          key: ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-v4
+          restore-keys: |
+            ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-
+            ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-
+            ${{ runner.os }}-native-deps-
 
       - name: Install SCIP + OR-Tools
         if: steps.cache-native-deps.outputs.cache-hit != 'true'
@@ -93,6 +97,13 @@ jobs:
           make install
           rm -rf /tmp/or-tools-${ORTOOLS_VERSION#v} /tmp/ortools.tar.gz
 
+      - name: Save SCIP + OR-Tools cache
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.DEPS_PREFIX }}
+          key: ${{ runner.os }}-native-deps-scip-${{ env.SCIP_VERSION }}-ortools-${{ env.ORTOOLS_VERSION }}-protobuf-v4
+
       - name: Regenerate protobuf files
         run: |
           PROTOC_BIN="${DEPS_PREFIX}/bin/protoc"
@@ -123,4 +134,3 @@ jobs:
             -Dsonar.projectKey=${{ vars.SONARPROJECTKEY }}
             -Dsonar.projectName=I-Drone
             -Dsonar.sources=PLD,Planner,libs
-            -Dsonar.exclusions=libs/generated_proto/**,Client/proto_bindings/**

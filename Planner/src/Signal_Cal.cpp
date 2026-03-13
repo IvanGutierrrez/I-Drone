@@ -12,10 +12,6 @@
 #include <map>
 #include "common_libs/Logger.h"
 
-Signal_Cal::Signal_Cal()
-{
-}
-
 std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) {
     std::ifstream file(dcf_filename);
     std::map<RGB, double> colorToDbm;

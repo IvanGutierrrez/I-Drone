@@ -26,13 +26,13 @@ class Server {
 public:
 
     struct handlers {
-        handler_connect call_connect = 0;
-        handler_error call_error = 0;
-        handler_message call_message = 0;
+        handler_connect call_connect = nullptr;
+        handler_error call_error = nullptr;
+        handler_message call_message = nullptr;
     };
 
 
-    Server(boost::asio::io_context& io_context);
+    explicit Server(boost::asio::io_context& io_context);
     Server(boost::asio::io_context& io_context, const handlers &handlers);
     ~Server();
     void set_handlers(const handlers &handlers);
@@ -49,5 +49,9 @@ private:
     std::shared_ptr<tcp::socket> current_client_;
     bool is_listening_;
 
+    void notify_connecting_error(const boost::system::error_code &error);
+    bool prepare_listening(const tcp::endpoint& endpoint);
+    void on_accept(const boost::system::error_code& error, const std::shared_ptr<tcp::socket> &new_socket);
+    void start_async_accept(const std::shared_ptr<tcp::socket> &new_socket);
     void start_read(std::shared_ptr<tcp::socket> socket);
 };

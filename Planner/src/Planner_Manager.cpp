@@ -33,10 +33,6 @@ Planner_Manager::Planner_Manager(std::shared_ptr<Communication_Manager> comm_mng
     comm_mng_ptr_->set_calculate_handler(std::bind(&Planner_Manager::calculate, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-Planner_Manager::~Planner_Manager()
-{
-}
-
 void Planner_Manager::calculate(const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data)
 {
     comm_mng_ptr_->set_status(Struct_Planner::Status::CALCULATING);

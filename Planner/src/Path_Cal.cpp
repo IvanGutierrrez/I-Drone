@@ -78,10 +78,10 @@ void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& po
             int j = e.first;
             double w = e.second;
 
-            bool found = false;
-            for (auto& back : adj[j]) {
-                if (back.first == i) { found = true; break; }
-            }
+            bool found = std::any_of(adj[j].begin(), adj[j].end(),
+                                     [i](const std::pair<int, double>& back) {
+                                         return back.first == i;
+                                     });
             if (!found)
                 adj[j].push_back({i, w});
         }

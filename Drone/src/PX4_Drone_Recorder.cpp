@@ -32,7 +32,7 @@ PX4_Drone_Recorder::PX4_Drone_Recorder(int drone_id, const std::string& base_dat
 }
 
 PX4_Drone_Recorder::~PX4_Drone_Recorder() {
-    flush();
+    PX4_Drone_Recorder::flush();
     if (recorder_telemetry_) recorder_telemetry_->close();
     if (recorder_events_) recorder_events_->close();
     if (recorder_commands_) recorder_commands_->close();
@@ -42,9 +42,11 @@ std::string PX4_Drone_Recorder::get_timestamp() {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
+    std::tm tm_now {};
+    localtime_r(&time_t_now, &tm_now);
     
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&time_t_now), "%Y%m%d_%H%M%S");
+    ss << std::put_time(&tm_now, "%Y%m%d_%H%M%S");
     ss << '_' << std::setfill('0') << std::setw(6) << us.count();
     
     return ss.str();

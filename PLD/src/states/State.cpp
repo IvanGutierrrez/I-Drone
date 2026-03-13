@@ -15,12 +15,15 @@ State::State(std::shared_ptr<State_Machine> state_machine_ptr): state_machine_pt
 
 void State::start()
 {
+	// Intentionally empty: concrete state classes define startup behavior.
 }
 
 void State::end()
 {
+	// Intentionally empty: concrete state classes define teardown behavior.
 }
 
 void State::handleMessage(const std::string &message)
 {
+	// Intentionally empty: concrete state classes handle incoming messages.
 }

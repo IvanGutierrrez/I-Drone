@@ -16,7 +16,7 @@
 class Planner_Recorder {
 
 public:
-    Planner_Recorder(const std::filesystem::path &path);
+    explicit Planner_Recorder(const std::filesystem::path &path);
 
     bool write_signal_output(const std::vector<Struct_Planner::Coordinate> &points);
     bool write_message_received(const Struct_Planner::SignalServerConfig &sng_data, const Struct_Planner::DroneData &drone_data);

@@ -17,8 +17,8 @@
 
 class Drone_Mission_State: public State {
 public:
-    Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr);
-    ~Drone_Mission_State();
+    explicit Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr);
+    ~Drone_Mission_State() noexcept;
 
     void start() override;
     void end() override;
@@ -43,5 +43,6 @@ private:
     void on_connect_drone();
     void on_error_drone(const boost::system::error_code& ec, const Type_Error &type_error);
     void on_message_drone(const std::string& msg);
+    void prepare_next_drone_message(Struct_Planner::Coordinate& coor, std::string& type);
     void send_message(const boost::system::error_code& ec);
 };

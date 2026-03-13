@@ -52,51 +52,77 @@ void Server::set_handlers(const handlers &handlers)
     handlers_ = handlers;
 }
 
-void Server::start_listening(const tcp::endpoint& endpoint)
+void Server::notify_connecting_error(const boost::system::error_code &error)
+{
+    if (handlers_.call_error) {
+        handlers_.call_error(error, Type_Error::CONNECTING);
+    }
+}
+
+bool Server::prepare_listening(const tcp::endpoint& endpoint)
 {
     boost::system::error_code ec;
 
+    if (!acceptor_.is_open()) {
+        acceptor_.open(endpoint.protocol(), ec);
+        if (ec) {
+            notify_connecting_error(ec);
+            return false;
+        }
+    }
+
+    acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
+
+    acceptor_.bind(endpoint, ec);
+    if (ec) {
+        notify_connecting_error(ec);
+        return false;
+    }
+
+    acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
+    if (ec) {
+        notify_connecting_error(ec);
+        return false;
+    }
+
+    return true;
+}
+
+void Server::on_accept(const boost::system::error_code& error, const std::shared_ptr<tcp::socket> &new_socket)
+{
+    if (error) {
+        notify_connecting_error(error);
+        return;
+    }
+
+    if (handlers_.call_connect) {
+        handlers_.call_connect();
+    }
+
+    current_client_ = new_socket;
+    start_read(current_client_);
+}
+
+void Server::start_async_accept(const std::shared_ptr<tcp::socket> &new_socket)
+{
+    acceptor_.async_accept(*new_socket,
+        [this, new_socket](const boost::system::error_code& error) {
+            on_accept(error, new_socket);
+        });
+}
+
+void Server::start_listening(const tcp::endpoint& endpoint)
+{
+    if (!is_listening_ && !prepare_listening(endpoint)) {
+        return;
+    }
+
     if (!is_listening_) {
-        if (!acceptor_.is_open()) {
-            acceptor_.open(endpoint.protocol(), ec);
-            if (ec) {
-                if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
-                return;
-            }
-        }
-
-        acceptor_.set_option(boost::asio::socket_base::reuse_address(true), ec);
-
-        acceptor_.bind(endpoint, ec);
-        if (ec) {
-            if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
-            return;
-        }
-
-        acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
-        if (ec) {
-            if (handlers_.call_error) handlers_.call_error(ec, Type_Error::CONNECTING);
-            return;
-        }
-        
         is_listening_ = true;
     }
 
     auto new_socket = std::make_shared<tcp::socket>(io_context_);
-
-    acceptor_.async_accept(*new_socket,
-        [this, new_socket](const boost::system::error_code& error) {
-            if (error) {
-                if (handlers_.call_error)
-                    handlers_.call_error(error, Type_Error::CONNECTING);
-            } else {
-                if (handlers_.call_connect)
-                    handlers_.call_connect();
-
-                current_client_ = new_socket;
-                start_read(current_client_);
-            }
-        });
+    start_async_accept(new_socket);
 }
 
 void Server::accept_new_connection()
@@ -106,20 +132,7 @@ void Server::accept_new_connection()
     }
 
     auto new_socket = std::make_shared<tcp::socket>(io_context_);
-
-    acceptor_.async_accept(*new_socket,
-        [this, new_socket](const boost::system::error_code& error) {
-            if (error) {
-                if (handlers_.call_error)
-                    handlers_.call_error(error, Type_Error::CONNECTING);
-            } else {
-                if (handlers_.call_connect)
-                    handlers_.call_connect();
-
-                current_client_ = new_socket;
-                start_read(current_client_);
-            }
-        });
+    start_async_accept(new_socket);
 }
 
 

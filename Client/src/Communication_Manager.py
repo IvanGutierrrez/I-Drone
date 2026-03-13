@@ -16,6 +16,8 @@ import json
 from datetime import datetime
 from Encoder_Decoder import MessageEncoderDecoder
 
+CONNECTION_LOST_WARNING = "Connection lost. Attempting to reconnect..."
+
 class CommunicationManager:
     def __init__(self, host, port, status_callback=None, reconnect_interval=5.0, on_connect_callback=None, messages_received_path=None, messages_sent_path=None):
         self.host = host
@@ -40,7 +42,7 @@ class CommunicationManager:
             if self.sock:
                 try:
                     self.sock.close()
-                except:
+                except OSError:
                     pass
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((self.host, self.port))
@@ -78,7 +80,7 @@ class CommunicationManager:
                         for msg in self.pending_messages:
                             try:
                                 self.sock.sendall(msg)
-                            except:
+                            except OSError:
                                 pass
                         self.pending_messages.clear()
             time.sleep(self.reconnect_interval)
@@ -95,7 +97,7 @@ class CommunicationManager:
             was_connected = self.connected
             self.connected = False
             if was_connected and self.first_disconnect:
-                self.logger.warning("Connection lost. Attempting to reconnect...")
+                self.logger.warning(CONNECTION_LOST_WARNING)
                 self.first_disconnect = False
             with self.message_lock:
                 self.pending_messages.append(encoded_message)
@@ -123,6 +125,22 @@ class CommunicationManager:
             self._write_message_log(self.messages_sent_path, "command", log_data)
         return success
 
+    def _mark_disconnected(self):
+        if self.connected and self.first_disconnect:
+            self.logger.warning(CONNECTION_LOST_WARNING)
+            self.first_disconnect = False
+        self.connected = False
+
+    def _process_status_message(self, msg_data):
+        status = MessageEncoderDecoder.decode_status(msg_data)
+        if not status:
+            return
+
+        log_data = MessageEncoderDecoder.format_status_for_log(status)
+        self._write_message_log(self.messages_received_path, "status", log_data)
+        if self.status_callback:
+            self.status_callback(status)
+
     def listen_for_status(self):
         self.logger.info("Starting status listener thread")
         while self.running:
@@ -132,36 +150,20 @@ class CommunicationManager:
             try:
                 header_data = self._recv_exact(4)
                 if not header_data:
-                    if self.connected and self.first_disconnect:
-                        self.logger.warning("Connection lost. Attempting to reconnect...")
-                        self.first_disconnect = False
-                    self.connected = False
+                    self._mark_disconnected()
                     continue
 
                 msg_length = struct.unpack('>I', header_data)[0]
                 msg_data = self._recv_exact(msg_length)
                 if not msg_data:
-                    if self.connected and self.first_disconnect:
-                        self.logger.warning("Connection lost. Attempting to reconnect...")
-                        self.first_disconnect = False
-                    self.connected = False
+                    self._mark_disconnected()
                     continue
-
-                status = MessageEncoderDecoder.decode_status(msg_data)
-
-                if status:
-                    log_data = MessageEncoderDecoder.format_status_for_log(status)
-                    self._write_message_log(self.messages_received_path, "status", log_data)
-                    if self.status_callback:
-                        self.status_callback(status)
+                self._process_status_message(msg_data)
 
             except socket.timeout:
                 continue
             except Exception:
-                if self.connected and self.first_disconnect:
-                    self.logger.warning("Connection lost. Attempting to reconnect...")
-                    self.first_disconnect = False
-                self.connected = False
+                self._mark_disconnected()
 
         self.logger.info("Status listener thread stopped")
 
@@ -173,7 +175,7 @@ class CommunicationManager:
                 if not chunk:
                     return None
                 data += chunk
-            except:
+            except OSError:
                 return None
         return data
 
@@ -203,6 +205,6 @@ class CommunicationManager:
         if self.sock:
             try:
                 self.sock.close()
-            except:
+            except OSError:
                 pass
         self.logger.info("Communication stopped")
