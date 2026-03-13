@@ -104,7 +104,7 @@ class MessageEncoderDecoder:
                 return wrapper.status.type_status
             return None
         except Exception as e:
-            raise Exception(f"Error decoding status: {e}")
+            raise ValueError(f"Error decoding status: {e}")
 
     @staticmethod
     def create_config_mission_from_yaml(yaml_path):

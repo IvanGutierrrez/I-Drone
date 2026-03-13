@@ -21,6 +21,11 @@ public:
     bool initialized = false;
 };
 
+class Logger_State_Holder {
+public:
+    static inline Logger_State instance{};
+};
+
 std::string pad2(int value)
 {
     std::string s = std::to_string(value);
@@ -41,8 +46,7 @@ std::string pad3(int value)
 
 Logger_State& state()
 {
-    static Logger_State instance;
-    return instance;
+    return Logger_State_Holder::instance;
 }
 } // namespace
 

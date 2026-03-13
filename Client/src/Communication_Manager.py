@@ -73,16 +73,15 @@ class CommunicationManager:
 
     def reconnect_loop(self):
         while self.running:
-            if not self.connected:
-                if self.connect():
-                    self.sock.settimeout(1.0)
-                    with self.message_lock:
-                        for msg in self.pending_messages:
-                            try:
-                                self.sock.sendall(msg)
-                            except OSError:
-                                pass
-                        self.pending_messages.clear()
+            if not self.connected and self.connect():
+                self.sock.settimeout(1.0)
+                with self.message_lock:
+                    for msg in self.pending_messages:
+                        try:
+                            self.sock.sendall(msg)
+                        except OSError:
+                            pass
+                    self.pending_messages.clear()
             time.sleep(self.reconnect_interval)
 
     def send_message(self, encoded_message):
