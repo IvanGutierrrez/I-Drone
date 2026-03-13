@@ -7,6 +7,7 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=:0
 ENV QT_X11_NO_MITSHM=1
+ENV PX4_VERSION=v1.16.0
 
 # --- Install basic dependencies, Boost, Python3, Meson, Ninja ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -26,15 +27,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libboost-all-dev \
     netcat \
     && pip3 install --upgrade meson \
-    && rm -rf /var/lib/apt/lists/*
-
-# --- Install modern CMake (3.27) ---
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.sh -O /tmp/cmake.sh && \
+    && rm -rf /var/lib/apt/lists/* && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.sh -O /tmp/cmake.sh && \
     sh /tmp/cmake.sh --skip-license --prefix=/usr/local && \
-    rm /tmp/cmake.sh
-
-# --- Install Gazebo Classic and PX4/MAVSDK dependencies ---
-RUN apt-get update && apt-get install -y --no-install-recommends \
+    rm /tmp/cmake.sh && \
+    apt-get update && apt-get install -y --no-install-recommends \
     lsb-release \
     gnupg \
     && wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
@@ -55,10 +52,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libasio-dev \
     libtinyxml2-dev \
     libcurl4-openssl-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# --- Install Python packages for PX4 ---
-RUN pip3 install --no-cache-dir \
+    && pip3 install --no-cache-dir \
     kconfiglib \
     jinja2 \
     jsonschema \
@@ -68,33 +62,27 @@ RUN pip3 install --no-cache-dir \
     packaging \
     numpy \
     empy==3.3.4 \
-    pyyaml
+    pyyaml \
+    && rm -rf /var/lib/apt/lists/*
 
 # --- Clone PX4 Autopilot ---
 WORKDIR /root/tfg
 RUN git clone https://github.com/PX4/PX4-Autopilot.git /root/tfg/PX4-Autopilot && \
     cd /root/tfg/PX4-Autopilot && \
+    git checkout ${PX4_VERSION} && \
     git submodule update --init --recursive && \
     git config --global --add safe.directory /root/tfg/PX4-Autopilot && \
-    DONT_RUN=1 make px4_sitl_default gazebo-classic
-
-# --- MAVSDK ---
-# Clone MAVSDK
-RUN git clone https://github.com/mavlink/MAVSDK.git /root/MAVSDK && \
+    DONT_RUN=1 make px4_sitl_default gazebo-classic && \
+    git clone https://github.com/mavlink/MAVSDK.git /root/MAVSDK && \
     cd /root/MAVSDK && \
-    git submodule update --init --recursive
-
-# Compile and install MAVSDK (C++ library + CLI)
-RUN cmake -B /root/MAVSDK/build -S /root/MAVSDK/cpp \
+    git submodule update --init --recursive && \
+    cmake -B /root/MAVSDK/build -S /root/MAVSDK/cpp \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
     -DBUILD_SHARED_LIBS=ON && \
     cmake --build /root/MAVSDK/build -j$(nproc) && \
     cmake --install /root/MAVSDK/build && \
-    ldconfig
-
-# --- Configure library paths ---
-RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf && \
+    echo "/usr/local/lib" >> /etc/ld.so.conf.d/local.conf && \
     ldconfig
 
 # --- Copy I-Drone source code and build only Drone and libs ---
@@ -107,10 +95,9 @@ COPY meson_drone.build /app/meson.build
 RUN cd /app/libs/proto && \
     protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_planner.proto && \
     protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_drone.proto && \
-    protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_pld.proto
-
-# Build Drone module
-RUN meson setup build . && \
+    protoc --experimental_allow_proto3_optional --cpp_out=../generated_proto messages_pld.proto && \
+    cd /app && \
+    meson setup build . && \
     meson compile -C build && \
     mkdir -p /opt/I-Drone && \
     cp build/Drone/Drone /opt/I-Drone/ && \

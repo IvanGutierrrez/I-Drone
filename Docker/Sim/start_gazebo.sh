@@ -12,9 +12,12 @@ fi
 
 # Use multi_drone world with camera tracking
 WORLD_FILE="/opt/I-Drone/multi_drone.world"
+PID_FILE="/opt/I-Drone/data/simulation_processes.pid"
 
 # Initialize simulation processes tracking file
-echo "# Simulation processes for cleanup" > /tmp/simulation_processes.pid
+mkdir -p /opt/I-Drone/data
+umask 077
+echo "# Simulation processes for cleanup" > "${PID_FILE}"
 
 # Configure recording path for Gazebo
 RECORDING_DIR="/opt/I-Drone/data/recordings"
@@ -27,7 +30,7 @@ echo "Gazebo server started with recording enabled. PID: $GZSERVER_PID"
 echo "Recordings will be saved to: ${RECORDING_DIR}/<timestamp>/gzserver/state.log"
 
 # Register process for cleanup
-echo "gzserver:$GZSERVER_PID" >> /tmp/simulation_processes.pid
+echo "gzserver:$GZSERVER_PID" >> "${PID_FILE}"
 
 # Wait for Gazebo to be ready
 echo "Waiting for Gazebo server to be ready..."
@@ -43,7 +46,7 @@ if [[ ! -z "$DISPLAY" ]]; then
   echo "Starting Gazebo GUI..."
   gzclient &
   GZCLIENT_PID=$!
-  echo "gzclient:$GZCLIENT_PID" >> /tmp/simulation_processes.pid
+  echo "gzclient:$GZCLIENT_PID" >> "${PID_FILE}"
   echo "Gazebo GUI started"
 fi
 

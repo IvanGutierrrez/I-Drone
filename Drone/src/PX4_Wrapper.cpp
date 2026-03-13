@@ -112,7 +112,7 @@ void PX4_Wrapper::start_engine()
             Logger::log_message(Logger::Type::INFO, "PX4 process started with PID: " + std::to_string(px4_pid_));
             
             // Register in simulation processes file for cleanup
-            std::ofstream pid_file("/tmp/simulation_processes.pid", std::ios::app);
+            std::ofstream pid_file("/opt/I-Drone/data/simulation_processes.pid", std::ios::app);
             if (pid_file.is_open()) {
                 pid_file << "px4_drone_" << drone_config().drone_id << ":" << px4_pid_ << "\n";
                 pid_file.close();

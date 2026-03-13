@@ -9,20 +9,75 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "Gazebo_Cleaner.h"
 #include "common_libs/Logger.h"
-#include <fstream>
 #include <vector>
 #include <string>
 #include <signal.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <cstdlib>
+#include <cstdio>
+#include <cerrno>
+
+namespace {
+
+constexpr const char* kSimulationPidFile = "/opt/I-Drone/data/simulation_processes.pid";
+
+int open_pid_file_secure()
+{
+    const int fd = open(kSimulationPidFile, O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) {
+        if (errno != ENOENT) {
+            Logger::log_message(Logger::Type::WARNING, "Unable to open simulation process file securely");
+        }
+        return -1;
+    }
+
+    struct stat file_stat {};
+    if (fstat(fd, &file_stat) != 0) {
+        Logger::log_message(Logger::Type::WARNING, "Unable to inspect simulation process file");
+        close(fd);
+        return -1;
+    }
+
+    if (!S_ISREG(file_stat.st_mode)) {
+        Logger::log_message(Logger::Type::WARNING, "Simulation process file is not a regular file");
+        close(fd);
+        return -1;
+    }
+
+    const uid_t current_uid = getuid();
+    if (file_stat.st_uid != current_uid && file_stat.st_uid != 0) {
+        Logger::log_message(Logger::Type::WARNING, "Simulation process file owner is not trusted");
+        close(fd);
+        return -1;
+    }
+
+    if ((file_stat.st_mode & (S_IWGRP | S_IWOTH)) != 0) {
+        Logger::log_message(Logger::Type::WARNING, "Simulation process file has unsafe write permissions");
+        close(fd);
+        return -1;
+    }
+
+    return fd;
+}
+
+} // namespace
 
 void Gazebo_Cleaner::cleanup() {
     Logger::log_message(Logger::Type::INFO, "Cleaning up simulation processes...");
-    
-    std::ifstream pid_file("/tmp/simulation_processes.pid");
-    if (!pid_file.is_open()) {
+
+    const int pid_fd = open_pid_file_secure();
+    if (pid_fd < 0) {
         Logger::log_message(Logger::Type::WARNING, "No simulation processes file found");
+        return;
+    }
+
+    FILE* pid_file = fdopen(pid_fd, "r");
+    if (!pid_file) {
+        Logger::log_message(Logger::Type::WARNING, "Unable to read simulation processes file");
+        close(pid_fd);
         return;
     }
     
@@ -30,17 +85,27 @@ void Gazebo_Cleaner::cleanup() {
     std::vector<std::pair<std::string, pid_t>> processes;
     
     // Read all processes
-    while (std::getline(pid_file, line)) {
+    char line_buffer[256] = {0};
+    while (std::fgets(line_buffer, sizeof(line_buffer), pid_file) != nullptr) {
+        line.assign(line_buffer);
+        if (!line.empty() && line.back() == '\n') {
+            line.pop_back();
+        }
+
         if (line.empty() || line[0] == '#') continue;
         
         size_t colon_pos = line.find(':');
         if (colon_pos != std::string::npos) {
             std::string name = line.substr(0, colon_pos);
-            pid_t pid = std::stoi(line.substr(colon_pos + 1));
-            processes.push_back({name, pid});
+            try {
+                pid_t pid = static_cast<pid_t>(std::stol(line.substr(colon_pos + 1)));
+                processes.push_back({name, pid});
+            } catch (...) {
+                Logger::log_message(Logger::Type::WARNING, "Invalid PID entry in simulation process file, skipping");
+            }
         }
     }
-    pid_file.close();
+    std::fclose(pid_file);
     
     // Kill all registered processes
     for (const auto& proc : processes) {
@@ -80,7 +145,7 @@ void Gazebo_Cleaner::cleanup() {
     }
     
     // Remove the tracking file
-    std::remove("/tmp/simulation_processes.pid");
+    std::remove(kSimulationPidFile);
     
     Logger::log_message(Logger::Type::INFO, "Simulation cleanup complete");
 }
