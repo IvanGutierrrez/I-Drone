@@ -17,7 +17,6 @@ jobs:
       CMAKE_VERSION: 3.27.7
       SCIP_VERSION: v924
       ORTOOLS_VERSION: v9.14
-      NATIVE_DEPS_CACHE_VERSION: v1
 
     steps:
       - name: Checkout
@@ -70,29 +69,9 @@ jobs:
           echo "cache-hit=${{ steps.cache-native-deps.outputs.cache-hit }}"
           echo "cache-primary-key=${{ steps.cache-native-deps.outputs.cache-primary-key }}"
 
-      - name: Verify restored native deps
-        id: deps-check
-        run: |
-          expected_meta="SCIP=${SCIP_VERSION};ORTOOLS=${ORTOOLS_VERSION};CACHE=${NATIVE_DEPS_CACHE_VERSION}"
-          restored_meta=""
-          if [ -f "${DEPS_PREFIX}/.native-deps-meta" ]; then
-            restored_meta="$(cat "${DEPS_PREFIX}/.native-deps-meta")"
-          fi
-
-          if [ -x "${DEPS_PREFIX}/bin/protoc" ] && [ -d "${DEPS_PREFIX}/include/ortools" ] && [ "$restored_meta" = "$expected_meta" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-            echo "Native deps are available from cache"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Native deps are missing, installation required"
-            echo "expected-meta=$expected_meta"
-            echo "restored-meta=$restored_meta"
-          fi
-
       - name: Install SCIP + OR-Tools
-        if: steps.deps-check.outputs.ready != 'true'
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
         run: |
-          rm -rf "${DEPS_PREFIX}"
           mkdir -p "${DEPS_PREFIX}"
 
           git clone https://github.com/scipopt/scip.git /tmp/scip
@@ -125,10 +104,8 @@ jobs:
           make install
           rm -rf /tmp/or-tools-${ORTOOLS_VERSION#v} /tmp/ortools.tar.gz
 
-          echo "SCIP=${SCIP_VERSION};ORTOOLS=${ORTOOLS_VERSION};CACHE=${NATIVE_DEPS_CACHE_VERSION}" > "${DEPS_PREFIX}/.native-deps-meta"
-
       - name: Save SCIP + OR-Tools cache
-        if: steps.deps-check.outputs.ready != 'true'
+        if: steps.cache-native-deps.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: ${{ env.DEPS_PREFIX }}
