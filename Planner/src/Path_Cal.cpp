@@ -42,9 +42,9 @@ double Path_Cal::haversine_m(const Struct_Planner::Coordinate& a, const Struct_P
 void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& points,
                                int k_neighbors,
                                double max_neighbor_dist_m,
-                               std::vector<std::vector<std::pair<int,double>>>& adj)
+                               std::vector<std::vector<std::pair<int,double>>>& adj) const
 {
-    int n = static_cast<int>(points.size());
+    auto n = static_cast<int>(points.size());
     adj.assign(n, {});
 
     for (int i = 0; i < n; i++) {
@@ -90,7 +90,7 @@ void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& po
 
 std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<std::pair<int,double>>>& adj) const
 {
-    int n = static_cast<int>(adj.size());
+    auto n = static_cast<int>(adj.size());
     const double INF = std::numeric_limits<double>::infinity();
     std::vector<double> dist(n, INF);
 
@@ -121,7 +121,7 @@ std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<st
 
 std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std::vector<std::pair<int,double>>>& adj) const
 {
-    int n = static_cast<int>(adj.size());
+    auto n = static_cast<int>(adj.size());
     const double INF = std::numeric_limits<double>::infinity();
     std::vector<double> dist(n, INF);
     std::vector<int> prev(n, -1);
@@ -159,9 +159,9 @@ std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std
 void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Planner::Coordinate>& all_points,
                                               const std::vector<std::vector<std::pair<int,double>>>& adj,
                                               const std::vector<Struct_Planner::Coordinate>& pos_targets,
-                                              std::vector<std::vector<int64_t>>& dist_matrix)
+                                              std::vector<std::vector<int64_t>>& dist_matrix) const
 {
-    int T = static_cast<int>(pos_targets.size());
+    auto T = static_cast<int>(pos_targets.size());
     dist_matrix.assign(T, std::vector<int64_t>(T, 0));
 
     std::vector<int> closest_point(T);
@@ -196,11 +196,11 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
                                                                       int num_drones,
                                                                       const std::vector<Struct_Planner::Coordinate> &points_cp,
                                                                       const std::vector<std::vector<std::pair<int,double>>>& adj,
-                                                                      const std::shared_ptr<Planner_Recorder> &rec_mng)
+                                                                      const std::shared_ptr<Planner_Recorder> &rec_mng) const
 {
     std::vector<std::vector<Struct_Planner::Coordinate>> result;
 
-    int T = static_cast<int>(pos_targets.size());
+    auto T = static_cast<int>(pos_targets.size());
     if (T == 0 || num_drones <= 0) return result;
 
     std::vector<RoutingIndexManager::NodeIndex> starts;
@@ -312,7 +312,7 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
     return result;
 }
 
-std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Planner::Coordinate> &points_cp, const Struct_Planner::DroneData &drone_data)
+std::vector<size_t> Path_Cal::findNearestPoints(const std::vector<Struct_Planner::Coordinate> &points_cp, const Struct_Planner::DroneData &drone_data) const
 {
     std::vector<size_t> nearest_indices;  
     nearest_indices.reserve(drone_data.pos_targets.size());

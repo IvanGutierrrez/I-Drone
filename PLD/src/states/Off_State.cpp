@@ -39,9 +39,9 @@ void Off_State::end()
     state_machine()->transitionTo(std::move(planner_state));
 }
 
-void Off_State::handle_config_mission_message(const std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message)
+void Off_State::handle_config_mission_message(const google::protobuf::Message* proto_msg, const std::string &raw_message)
 {
-    const Config_mission* config_proto = dynamic_cast<const Config_mission*>(proto_msg.get());
+    const auto* config_proto = dynamic_cast<const Config_mission*>(proto_msg);
     if (!config_proto) {
         Logger::log_message(Logger::Type::ERROR, "Unable to decode message config mission from Client");
         if (state_machine()->getRecorder()) {
@@ -68,9 +68,9 @@ void Off_State::handle_config_mission_message(const std::unique_ptr<google::prot
     end();
 }
 
-void Off_State::handle_command_message(const std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message)
+void Off_State::handle_command_message(const google::protobuf::Message* proto_msg, const std::string &raw_message)
 {
-    const Command* command = dynamic_cast<const Command*>(proto_msg.get());
+    const auto* command = dynamic_cast<const Command*>(proto_msg);
     if (!command) {
         Logger::log_message(Logger::Type::WARNING, "Unable to decode command from Client");
         if (state_machine()->getRecorder()) {
@@ -109,12 +109,12 @@ void Off_State::handleMessage(const std::string &message)
     auto [type, proto_msg] = Enc_Dec_PLD::decode_from_client(message);
 
     if (type == Enc_Dec_PLD::PLD::CONFIG_MISSION) {
-        handle_config_mission_message(proto_msg, message);
+        handle_config_mission_message(proto_msg.get(), message);
         return;
     }
 
     if (type == Enc_Dec_PLD::PLD::COMMAND) {
-        handle_command_message(proto_msg, message);
+        handle_command_message(proto_msg.get(), message);
         return;
     }
 

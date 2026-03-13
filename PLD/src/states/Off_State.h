@@ -22,8 +22,8 @@ public:
     void handleMessage(const std::string &message) override;
 
 private:
-    void handle_config_mission_message(const std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message);
-    void handle_command_message(const std::unique_ptr<google::protobuf::Message>& proto_msg, const std::string &raw_message);
+    void handle_config_mission_message(const google::protobuf::Message* proto_msg, const std::string &raw_message);
+    void handle_command_message(const google::protobuf::Message* proto_msg, const std::string &raw_message);
     void handle_unexpected_message(Enc_Dec_PLD::PLD type, const std::string &raw_message);
     Structs_PLD::Config_mission config_;
 

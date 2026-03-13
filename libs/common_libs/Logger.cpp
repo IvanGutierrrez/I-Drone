@@ -11,6 +11,7 @@
 #include <iostream>
 #include <chrono>
 #include <fstream>
+#include <cstdio>
 
 namespace Logger{
 
@@ -21,7 +22,11 @@ public:
     bool initialized = false;
 };
 
-inline Logger_State logger_state;
+Logger_State& state()
+{
+    static Logger_State instance;
+    return instance;
+}
 } // namespace
 
 std::string to_string(const Type &t)
@@ -41,6 +46,7 @@ std::string to_string(const Type &t)
 bool initialize(const std::filesystem::path &path,
                        const std::string &name)
 {
+    auto &logger_state = state();
     try {
         if (!std::filesystem::exists(path)) {
             std::filesystem::create_directories(path);
@@ -72,15 +78,10 @@ std::string getTimeFormatted() { // return time in doyyy_hhmm
     localtime_r(&now_time, &tm_info);
 
     const int doy = tm_info.tm_yday + 1;
-    int year = tm_info.tm_year % 100;
-    std::ostringstream oss;
-    oss << std::setw(3) << std::setfill('0') << doy
-        << std::setw(2) << std::setfill('0') << year
-        << "_" 
-        << std::setw(2) << std::setfill('0') << tm_info.tm_hour
-        << std::setw(2) << std::setfill('0') << tm_info.tm_min;
-
-    return oss.str();
+    const int year = tm_info.tm_year % 100;
+    char buffer[16];
+    std::snprintf(buffer, sizeof(buffer), "%03d%02d_%02d%02d", doy, year, tm_info.tm_hour, tm_info.tm_min);
+    return std::string(buffer);
 }
 
 std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
@@ -90,19 +91,22 @@ std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
     std::tm tm_info {};
     localtime_r(&now_time, &tm_info);
 
-    std::ostringstream oss;
-    oss << std::setw(2) << std::setfill('0') << tm_info.tm_mday << "/"
-        << std::setw(2) << std::setfill('0') << (tm_info.tm_mon + 1) << "/"
-        << (tm_info.tm_year + 1900) << "T"
-        << std::setw(2) << std::setfill('0') << tm_info.tm_hour << ":"
-        << std::setw(2) << std::setfill('0') << tm_info.tm_min << ":"
-        << std::setw(2) << std::setfill('0') << tm_info.tm_sec;
-
-    return oss.str();
+    char buffer[24];
+    std::snprintf(buffer,
+                  sizeof(buffer),
+                  "%02d/%02d/%04dT%02d:%02d:%02d",
+                  tm_info.tm_mday,
+                  tm_info.tm_mon + 1,
+                  tm_info.tm_year + 1900,
+                  tm_info.tm_hour,
+                  tm_info.tm_min,
+                  tm_info.tm_sec);
+    return std::string(buffer);
 }
 
 void log_message(const Type &t, const std::string &log)
 {
+    auto &logger_state = state();
     if (!logger_state.initialized || !logger_state.rec)
     {
         std::cout << "The logger is not initialized" << std::endl;
@@ -130,6 +134,7 @@ void log_message(const Type &t, const std::string &log)
 
 void close()
 {
+    auto &logger_state = state();
     if (logger_state.initialized && logger_state.rec) {
         logger_state.rec->close();
     }

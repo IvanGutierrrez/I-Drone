@@ -136,8 +136,8 @@ std::vector<Struct_Planner::Coordinate> matrixToVector(
     double lonMax,
     double threshold
 ) {
-    int rows = static_cast<int>(matrix.size());
-    int cols = static_cast<int>(matrix[0].size());
+    auto rows = static_cast<int>(matrix.size());
+    auto cols = static_cast<int>(matrix[0].size());
 
     double latStep = (latMax - latMin) / rows;
     double lonStep = (lonMax - lonMin) / cols;
