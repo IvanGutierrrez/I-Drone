@@ -359,7 +359,7 @@ bool Path_Cal::check_targets_signal(Struct_Planner::DroneData &drone_data, const
     return drone_data.pos_targets.size() > static_cast<size_t>(drone_data.num_drones);
 }
 
-bool Path_Cal::calculate_path(Struct_Planner::DroneData &drone_data, std::vector<Struct_Planner::Coordinate> &points_cp, std::vector<std::vector<Struct_Planner::Coordinate>> &result, const std::shared_ptr<Planner_Recorder> &rec_mng)
+bool Path_Cal::calculate_path(Struct_Planner::DroneData &drone_data, std::vector<Struct_Planner::Coordinate> &points_cp, std::vector<std::vector<Struct_Planner::Coordinate>> &result, const std::shared_ptr<Planner_Recorder> &rec_mng) const
 {
     int num_drones = drone_data.num_drones;
 

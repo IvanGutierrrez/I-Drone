@@ -21,8 +21,6 @@ public:
     bool initialized = false;
 };
 
-inline Logger_State logger_state;
-
 std::string pad2(int value)
 {
     std::string s = std::to_string(value);
@@ -43,7 +41,8 @@ std::string pad3(int value)
 
 Logger_State& state()
 {
-    return logger_state;
+    static Logger_State instance;
+    return instance;
 }
 } // namespace
 
@@ -64,7 +63,7 @@ std::string to_string(const Type &t)
 bool initialize(const std::filesystem::path &path,
                        const std::string &name)
 {
-    auto &logger_state = state();
+    auto &state_ref = state();
     try {
         if (!std::filesystem::exists(path)) {
             std::filesystem::create_directories(path);
@@ -81,8 +80,8 @@ bool initialize(const std::filesystem::path &path,
         
         std::stringstream filename;
         filename << name << getTimeFormatted();
-        logger_state.rec = std::make_unique<Recorder>(path,filename.str(),"log");
-        logger_state.initialized = true;
+        state_ref.rec = std::make_unique<Recorder>(path,filename.str(),"log");
+        state_ref.initialized = true;
         return true;
     } catch (...) {
         return false;
@@ -107,18 +106,20 @@ std::string getCurrentTimestamp() { // return time in DD/MM/YYYYTHH:MM:SS
     std::tm tm_info {};
     localtime_r(&now_time, &tm_info);
 
-    return pad2(tm_info.tm_mday) + "/" +
-           pad2(tm_info.tm_mon + 1) + "/" +
-           std::to_string(tm_info.tm_year + 1900) + "T" +
-           pad2(tm_info.tm_hour) + ":" +
-           pad2(tm_info.tm_min) + ":" +
-           pad2(tm_info.tm_sec);
+    std::ostringstream timestamp;
+    timestamp << pad2(tm_info.tm_mday) << '/'
+              << pad2(tm_info.tm_mon + 1) << '/'
+              << (tm_info.tm_year + 1900) << 'T'
+              << pad2(tm_info.tm_hour) << ':'
+              << pad2(tm_info.tm_min) << ':'
+              << pad2(tm_info.tm_sec);
+    return timestamp.str();
 }
 
 void log_message(const Type &t, const std::string &log)
 {
-    auto &logger_state = state();
-    if (!logger_state.initialized || !logger_state.rec)
+    auto &state_ref = state();
+    if (!state_ref.initialized || !state_ref.rec)
     {
         std::cout << "The logger is not initialized" << std::endl;
         return;
@@ -131,7 +132,7 @@ void log_message(const Type &t, const std::string &log)
             << std::setw(2) << "" << log << std::endl;
 
     try {
-        if (!logger_state.rec->write(message.str()))
+        if (!state_ref.rec->write(message.str()))
         {
             std::cout << "Error while dumping the log" << std::endl;
             return;
@@ -145,9 +146,9 @@ void log_message(const Type &t, const std::string &log)
 
 void close()
 {
-    auto &logger_state = state();
-    if (logger_state.initialized && logger_state.rec) {
-        logger_state.rec->close();
+    auto &state_ref = state();
+    if (state_ref.initialized && state_ref.rec) {
+        state_ref.rec->close();
     }
 }
 

@@ -21,7 +21,7 @@ public:
     bool calculate_path(Struct_Planner::DroneData &drone_data, 
                         std::vector<Struct_Planner::Coordinate> &points, 
                         std::vector<std::vector<Struct_Planner::Coordinate>> &result,
-                        const std::shared_ptr<Planner_Recorder> &rec_mng);
+                        const std::shared_ptr<Planner_Recorder> &rec_mng) const;
 
 private:
     Struct_Planner::Config_struct global_cnf_;
