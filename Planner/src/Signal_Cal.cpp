@@ -156,7 +156,7 @@ std::vector<Struct_Planner::Coordinate> matrixToVector(
     return points;
 }
 
-std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struct_Planner::Config_struct &global_config, const Struct_Planner::SignalServerConfig &signal_server_conf)
+std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struct_Planner::Config_struct &global_config, const Struct_Planner::SignalServerConfig &signal_server_conf) const
 {
     std::vector<Struct_Planner::Coordinate> points_empty;
     std::string cmd;
