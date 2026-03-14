@@ -147,12 +147,12 @@ void Communication_Manager::on_error_client(const boost::system::error_code& ec,
     server_.accept_new_connection();
 }
 
-void Communication_Manager::set_message_handler(const message_handler &handler)
+void Communication_Manager::set_message_handler(message_handler handler)
 {
     message_handler_ = std::move(handler);
 }
 
-void Communication_Manager::on_message_client(const std::string& msg)
+void Communication_Manager::on_message_client(const std::string& msg) const
 {    
     if (shutting_down_) return;
     Logger::log_message(Logger::Type::INFO, "Message received from Client");
@@ -190,13 +190,15 @@ int Communication_Manager::create_server(Server::handlers &handler_obj, const st
         }
 
         endpoint = *endpoints.begin();
-        Logger::log_message(Logger::Type::INFO,"Server endpoint: " + endpoint.address().to_string() + ":" + std::to_string(endpoint.port()) + " created");
-    } catch (const std::exception& e) {
+        std::stringstream endpoint_log;
+        endpoint_log << "Server endpoint: " << endpoint.address().to_string() << ":" << endpoint.port() << " created";
+        Logger::log_message(Logger::Type::INFO, endpoint_log.str());
+    } catch (const boost::system::system_error& e) {
         Logger::log_message(Logger::Type::ERROR, std::string("Error creating Server endpoint: ") + e.what());
         return -1;
     }
 
-    std::shared_ptr<Server> s = std::make_shared<Server>(io_context_);
+    auto s = std::make_shared<Server>(io_context_);
      
     s->set_handlers(handler_obj);
     number_servers_++;

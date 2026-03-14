@@ -12,7 +12,7 @@
 #include <map>
 #include "common_libs/Logger.h"
 
-std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) {
+std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) const{
     std::ifstream file(dcf_filename);
     std::map<RGB, double> colorToDbm;
     
@@ -82,12 +82,11 @@ CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, c
         return {};
 
     auto findColor = [&](RGB c) -> double {
-        for (auto& kv : colorMap) {
-            RGB cc = kv.first;
-            if (std::abs(int(c.r) - int(cc.r)) <= 1 &&
-                std::abs(int(c.g) - int(cc.g)) <= 1 &&
-                std::abs(int(c.b) - int(cc.b)) <= 1)
-                return kv.second;
+        for (auto& [first, second] : colorMap) {
+            if (std::abs(int(c.r) - int(first.r)) <= 1 &&
+                std::abs(int(c.g) - int(first.g)) <= 1 &&
+                std::abs(int(c.b) - int(first.b)) <= 1)
+                return second;
         }
         return -120.0;
     };
@@ -113,7 +112,7 @@ CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, c
     return matrix;
 }
 
-std::vector<double> Signal_Cal::parse_Bounds(const std::string& str)
+std::vector<double> Signal_Cal::parse_Bounds(const std::string& str) const
 {
     std::vector<double> values;
     std::stringstream ss(str);
@@ -198,8 +197,8 @@ std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struc
         return points_empty;
     }
 
-    std::string dcfFilename = signal_server_conf.outputFile + ".dcf";
-    std::string ppmPath = global_config.executable_path + "/" + signal_server_conf.outputFile + ".ppm";
+    std::string dcfFilename = signal_server_conf.filePaths.outputFile + ".dcf";
+    std::string ppmPath = global_config.executable_path + "/" + signal_server_conf.filePaths.outputFile + ".ppm";
     std::string dcfPath = global_config.executable_path + "/" + dcfFilename;
     
     Logger::log_message(Logger::Type::INFO, "PPM path: " + ppmPath);

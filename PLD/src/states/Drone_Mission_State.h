@@ -22,7 +22,7 @@ public:
 
     void start() override;
     void end() override;
-    void set_data(Structs_PLD::Config_drone config);
+    void set_data(const Structs_PLD::Config_drone &config);
 
 private:
     Structs_PLD::Config_drone config_;
@@ -30,12 +30,12 @@ private:
     std::shared_ptr<Docker_Manager> docker_manager_;
     boost::asio::steady_timer wait_timer_;
     boost::asio::steady_timer send_timer_;
-    bool drone_module_running_;
-    Struct_Drone::Status last_status_;
-    int attemps_;
-    size_t  drone_i_;
-    size_t  coor_j_;
-    bool state_closing_;
+    bool drone_module_running_ = false;
+    Struct_Drone::Status last_status_ = Struct_Drone::Status::UNKNOWN;
+    int attemps_ = 0;
+    size_t  drone_i_ = 0;
+    size_t  coor_j_ = 0;
+    bool state_closing_ = false;
 
     const char* state_name() const override;
     void handle_finish_command() override;

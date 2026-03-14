@@ -42,7 +42,7 @@ public:
     Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
     ~Communication_Manager();
     void set_status(const Struct_Drone::Status &new_status);
-    void set_message_handler(const message_handler &handler);
+    void set_message_handler(message_handler handler);
     void deliver(const std::string &msg);
     void shutdown();
 

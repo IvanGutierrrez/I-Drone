@@ -11,12 +11,12 @@
 
 
 Server::Server(boost::asio::io_context& io_context)
-        : io_context_(io_context), acceptor_(io_context), is_listening_(false)
+        : io_context_(io_context), acceptor_(io_context)
 {
 }
 
 Server::Server(boost::asio::io_context& io_context,  const handlers &handlers)
-        : io_context_(io_context), acceptor_(io_context), handlers_(handlers), is_listening_(false)
+        : io_context_(io_context), acceptor_(io_context), handlers_(handlers)
 {
 }
 
@@ -43,7 +43,10 @@ void Server::server_close()
                 socket->close(ec);
             }
         }
-    } catch (const std::exception& e) {}
+    } catch (const boost::system::system_error& e) {
+        // Ignored: any exception here is harmless because the server/socket is closing.
+        // Logging is unnecessary.
+    }
 }
 
 
@@ -135,12 +138,29 @@ void Server::accept_new_connection()
     start_async_accept(new_socket);
 }
 
+void Server::handle_read_message(
+    std::shared_ptr<tcp::socket> socket,
+    std::shared_ptr<std::vector<char>> data_buf,
+    const boost::system::error_code& ec)
+{
+    if (ec) {
+        if (handlers_.call_error) handlers_.call_error(ec, Type_Error::READING);
+        return;
+    }
+
+    if (handlers_.call_message) {
+        handlers_.call_message(std::string(data_buf->data(), data_buf->size()));
+    }
+
+    // Read next message
+    start_read(socket);
+}
 
 void Server::start_read(std::shared_ptr<tcp::socket> socket)
 {
     auto length_buf = std::make_shared<std::array<char, 4>>();
 
-    // Read 4 first bytes
+    // Read the first 4 bytes (message length)
     boost::asio::async_read(*socket, boost::asio::buffer(*length_buf),
         [this, socket, length_buf](const boost::system::error_code& ec, std::size_t) {
             if (ec) {
@@ -148,6 +168,7 @@ void Server::start_read(std::shared_ptr<tcp::socket> socket)
                 return;
             }
 
+            // Decode message length
             uint32_t msg_size = 0;
             std::memcpy(&msg_size, length_buf->data(), 4);
             msg_size = ntohl(msg_size);
@@ -157,19 +178,7 @@ void Server::start_read(std::shared_ptr<tcp::socket> socket)
             // Read the exact length of the message
             boost::asio::async_read(*socket, boost::asio::buffer(*data_buf),
                 [this, socket, data_buf](const boost::system::error_code& read_ec, std::size_t) {
-                    if (read_ec) {
-                        if (handlers_.call_error) handlers_.call_error(read_ec, Type_Error::READING);
-                        return;
-                    }
-
-                    if (handlers_.call_message) {
-                        handlers_.call_message(
-                            std::string(data_buf->data(), data_buf->size())
-                        );
-                    }
-
-                    // Read next message
-                    start_read(socket);
+                    handle_read_message(socket, data_buf, read_ec);
                 });
         });
 }

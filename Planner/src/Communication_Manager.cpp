@@ -18,23 +18,26 @@
 
 constexpr int NUMBER_ATTEMPS_MAX = 10;
 constexpr int RATE_STATUS_MESSAGE = 1;
-constexpr int CALCULATION_POOL_SIZE = 1;
 
 Communication_Manager::Communication_Manager(boost::asio::io_context& io_context, 
                                              const tcp::endpoint& endpoint,
-                                             const std::shared_ptr<Planner_Recorder> &rec_mng): io_context_(io_context),
-                                                                                                  calculation_pool_(CALCULATION_POOL_SIZE),
+                                             std::shared_ptr<Planner_Recorder> rec_mng): io_context_(io_context),
                                                                                                   server_(io_context),
                                                                                                   endpoint_(endpoint),
                                                                                                   recorder_ptr_(std::move(rec_mng)),
-                                                                                                  status_timer(io_context_),
-                                                                                                  status_(Struct_Planner::Status::EXPECTING_DATA)
+                                                                                                  status_timer(io_context_)
 {
     Server::handlers handler_obj;
 
-    handler_obj.call_error = std::bind(&Communication_Manager::on_error, this, std::placeholders::_1, std::placeholders::_2);
-    handler_obj.call_connect = std::bind(&Communication_Manager::on_connect, this);
-    handler_obj.call_message = std::bind(&Communication_Manager::on_message, this, std::placeholders::_1);
+    handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error& type_error) {
+        on_error(ec, type_error);
+    };
+    handler_obj.call_connect = [this]() {
+        on_connect();
+    };
+    handler_obj.call_message = [this](const std::string& msg) {
+        on_message(msg);
+    };
     server_.set_handlers(handler_obj);
 
     std::stringstream ss;
@@ -104,7 +107,9 @@ void Communication_Manager::send_status_message(const boost::system::error_code&
     
     if (!shutting_down_) {
         status_timer.expires_after(std::chrono::seconds(RATE_STATUS_MESSAGE));
-        status_timer.async_wait(std::bind(&Communication_Manager::send_status_message, this, std::placeholders::_1));
+        status_timer.async_wait([this](const boost::system::error_code& wait_ec) {
+            send_status_message(wait_ec);
+        });
     }
 }
 
@@ -165,7 +170,7 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
     }
 }
 
-void Communication_Manager::set_calculate_handler(const calculate_handler &handler)
+void Communication_Manager::set_calculate_handler(calculate_handler handler)
 {
     calculate_handler_ = std::move(handler);
 }

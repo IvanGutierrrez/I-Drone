@@ -108,41 +108,53 @@ class SignalServerConfig {
 
 public:
     // --- File and directory paths ---
-    std::string sdfDirectory{};       // -d : Directory containing .sdf tiles, mandatory argument
-    std::string outputFile{};         // -o : Output filename (required), mandatory argument
-    std::string userTerrainFile{};    // -udt : User-defined terrain filename
-    std::string terrainBackground{};  // -t : Terrain background image (optional)
+    struct FilePaths {
+        std::string sdfDirectory{};       // -d : Directory containing .sdf tiles, mandatory argument
+        std::string outputFile{};         // -o : Output filename (required), mandatory argument
+        std::string userTerrainFile{};    // -udt : User-defined terrain filename
+        std::string terrainBackground{};  // -t : Terrain background image (optional)
+    } filePaths;
 
     // --- Geographic position and heights ---
-    double latitude{};                // -lat : Transmitter latitude (decimal degrees), mandatory argument
-    double longitude{};               // -lon : Transmitter longitude (0–360 or -180–180), mandatory argument
-    double txHeight{};                // -txh : Transmitter height above ground, mandatory argument
-    std::vector<double> rxHeights;    // -rxh : Receiver height(s), can be multiple
+    struct Position {
+        double latitude{};                // -lat : Transmitter latitude (decimal degrees), mandatory argument
+        double longitude{};               // -lon : Transmitter longitude (0–360 or -180–180), mandatory argument
+        double txHeight{};                // -txh : Transmitter height above ground, mandatory argument
+        std::vector<double> rxHeights;    // -rxh : Receiver height(s), can be multiple
+    } position;
 
     // --- Transmission parameters ---
-    double frequencyMHz{};            // -f : Frequency in MHz (20 MHz – 100 GHz), mandatory argument
-    double erpWatts{};                // -erp : Effective radiated power (Watts), mandatory argument
-    double rxThreshold{};             // -rt : Receiver threshold (dB / dBm / dBuV/m)
-    bool horizontalPol{};             // -hp : Horizontal polarization (default is vertical)
+    struct Transmission {
+        double frequencyMHz{};            // -f : Frequency in MHz (20 MHz – 100 GHz), mandatory argument
+        double erpWatts{};                // -erp : Effective radiated power (Watts), mandatory argument
+        double rxThreshold{};             // -rt : Receiver threshold (dB / dBm / dBuV/m)
+        bool horizontalPol{};             // -hp : Horizontal polarization (default is vertical)
+    } transmission;
 
     // --- Environment and terrain parameters ---
-    double groundClutter{};           // -gc : Ground clutter height (feet/meters)
-    int terrainCode{};                // -te : Terrain code (1–6)
-    double terrainDielectric{};       // -terdic : Terrain dielectric constant (2–80)
-    double terrainConductivity{};     // -tercon : Terrain conductivity (0.01–0.0001)
-    int climateCode{};                // -cl : Climate code (1–6)
+    struct Environment {
+        double groundClutter{};           // -gc : Ground clutter height (feet/meters)
+        int terrainCode{};                // -te : Terrain code (1–6)
+        double terrainDielectric{};       // -terdic : Terrain dielectric constant (2–80)
+        double terrainConductivity{};     // -tercon : Terrain conductivity (0.01–0.0001)
+        int climateCode{};                // -cl : Climate code (1–6)
+    } environment;
 
     // --- Model and computation options ---
-    int propagationModel{};           // -pm : Propagation model (1=ITM, 2=LOS, etc.), mandatory argument
-    bool knifeEdgeDiff{};             // -ked : Enable knife-edge diffraction
-    bool win32TileNames{};            // -wf : Use Win32-style SDF tile names
-    bool debugMode{};                 // -dbg : Enable debug mode
-    bool metricUnits{};               // -m : Use metric units
-    bool plotDbm{};                   // -dbm : Plot received signal power instead of field strength
+    struct Options {
+        int propagationModel{};           // -pm : Propagation model (1=ITM, 2=LOS, etc.), mandatory argument
+        bool knifeEdgeDiff{};             // -ked : Enable knife-edge diffraction
+        bool win32TileNames{};            // -wf : Use Win32-style SDF tile names
+        bool debugMode{};                 // -dbg : Enable debug mode
+        bool metricUnits{};               // -m : Use metric units
+        bool plotDbm{};                   // -dbm : Plot received signal power instead of field strength
+    } options;
 
     // --- Coverage and map parameters ---
-    double radius{};                  // -R : Coverage radius (miles/kilometers), mandatory argument
-    int resolution{};                 // -res : Pixels per degree (300/600/1200/3600), mandatory argument
+    struct Coverage {
+        double radius{};                  // -R : Coverage radius (miles/kilometers), mandatory argument
+        int resolution{};                 // -res : Pixels per degree (300/600/1200/3600), mandatory argument
+    } coverage;
 
     SignalServerConfig() = default;
 

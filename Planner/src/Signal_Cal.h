@@ -34,6 +34,6 @@ public:
 
 private:
     CoverageMatrix read_Coverage_File(const std::string& filename, const std::string& dcfFilename);
-    std::vector<double> parse_Bounds(const std::string& str);
-    std::map<RGB, double> read_DCF(const std::string& dcf_filename);
+    std::vector<double> parse_Bounds(const std::string& str) const;
+    std::map<RGB, double> read_DCF(const std::string& dcf_filename) const;
 };

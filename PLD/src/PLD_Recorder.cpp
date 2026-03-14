@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "PLD_Recorder.h"
 #include "common_libs/Logger.h"
+#include <cstdio>
 
 constexpr const char messages_file_name[] = "pld_messages";
 constexpr const char messages_file_extension[] = "json";
@@ -26,34 +27,54 @@ void PLD_Recorder::create_new_recorder()
     recorder_->write("[\n");
 }
 
-std::string PLD_Recorder::get_timestamp()
+std::string PLD_Recorder::get_timestamp() const
 {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
     std::tm tm_now {};
     localtime_r(&time_t_now, &tm_now);
-    
-    std::stringstream ss;
-    ss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S");
-    ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
-    
-    return ss.str();
+
+    char buffer[32] = {0};
+    std::snprintf(
+        buffer,
+        sizeof(buffer),
+        "%04d-%02d-%02d %02d:%02d:%02d.%03lld",
+        tm_now.tm_year + 1900,
+        tm_now.tm_mon + 1,
+        tm_now.tm_mday,
+        tm_now.tm_hour,
+        tm_now.tm_min,
+        tm_now.tm_sec,
+        static_cast<long long>(ms.count())
+    );
+
+    return std::string(buffer);
 }
 
-std::string PLD_Recorder::get_filename_timestamp()
+std::string PLD_Recorder::get_filename_timestamp() const
 {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
     std::tm tm_now {};
     localtime_r(&time_t_now, &tm_now);
-    
-    std::stringstream ss;
-    ss << std::put_time(&tm_now, "%Y%m%d_%H%M%S");
-    ss << '_' << std::setfill('0') << std::setw(6) << us.count();
-    
-    return ss.str();
+
+    char buffer[32] = {0};
+    std::snprintf(
+        buffer,
+        sizeof(buffer),
+        "%04d%02d%02d_%02d%02d%02d_%06lld",
+        tm_now.tm_year + 1900,
+        tm_now.tm_mon + 1,
+        tm_now.tm_mday,
+        tm_now.tm_hour,
+        tm_now.tm_min,
+        tm_now.tm_sec,
+        static_cast<long long>(us.count())
+    );
+
+    return std::string(buffer);
 }
 
 bool PLD_Recorder::write_json_entry(const std::string &event_type, const std::string &data)

@@ -10,6 +10,8 @@
 #include "Planner_Recorder.h"
 #include "common_libs/Logger.h"
 #include <chrono>
+#include <cstdio>
+#include <ctime>
 #include <iomanip>
 
 constexpr const char message_received_file_name[] = "message_received";
@@ -23,12 +25,24 @@ static std::string get_session_timestamp() {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
-    
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&time_t_now), "%Y%m%d_%H%M%S");
-    ss << '_' << std::setfill('0') << std::setw(6) << us.count();
-    
-    return ss.str();
+    std::tm tm_now {};
+    localtime_r(&time_t_now, &tm_now);
+
+    char buffer[32] = {0};
+    std::snprintf(
+        buffer,
+        sizeof(buffer),
+        "%04d%02d%02d_%02d%02d%02d_%06lld",
+        tm_now.tm_year + 1900,
+        tm_now.tm_mon + 1,
+        tm_now.tm_mday,
+        tm_now.tm_hour,
+        tm_now.tm_min,
+        tm_now.tm_sec,
+        static_cast<long long>(us.count())
+    );
+
+    return std::string(buffer);
 }
 
 Planner_Recorder::Planner_Recorder(const std::filesystem::path &path)
@@ -49,9 +63,18 @@ bool Planner_Recorder::write_signal_output(const std::vector<Struct_Planner::Coo
     
     std::stringstream data;
     data << "lat,lon,coverage\n";
-    for (const auto& p : points)
-        data << std::fixed << std::setprecision(6) << p.lat << "," << p.lon << ",1\n";
-    return recorder_sgn->write(data.str());
+
+    for (const auto& p : points) {
+        char buffer[64];
+
+        std::snprintf(buffer, sizeof(buffer),
+                    "%.6f,%.6f,1\n",
+                    p.lat, p.lon);
+
+        data << buffer;
+    }
+
+return recorder_sgn->write(data.str());
 }
 
 bool Planner_Recorder::write_message_received(const Struct_Planner::SignalServerConfig &sng_data, const Struct_Planner::DroneData &drone_data)

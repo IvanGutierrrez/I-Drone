@@ -18,7 +18,7 @@ public:
 
     ~SSH_Manager() = default;
 
-    bool execute_command(const std::string &command, std::string &output);
+    bool execute_command(const std::string &command, std::string &output) const;
     bool test_connection();
 
 private:

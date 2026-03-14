@@ -22,36 +22,45 @@ Signal_Handler::Signal_Handler(boost::asio::io_service &io_service, const shutdo
     wait_for_signals();
 }
 
+void Signal_Handler::handle_signal(int signal_number)
+{
+    std::string signal_name;
+    switch(signal_number) {
+        case SIGINT:  signal_name = "SIGINT";  break;
+        case SIGTERM: signal_name = "SIGTERM"; break;
+        default:      return; // Ignore other signals
+    }
+
+    if (shutting_down_.exchange(true)) {
+        return; // Already shutting down
+    }
+
+    // Log the signal
+    std::stringstream log;
+    log << "Signal received: " << signal_name << ". Initiating shutdown...";
+    Logger::log_message(Logger::Type::WARNING, log.str());
+
+    // Call shutdown callback
+    if (shutdown_callback_) {
+        try {
+            shutdown_callback_();
+        } catch (const std::exception& e) {
+            std::stringstream log_er;
+            log_er << "Exception in shutdown callback: " << e.what();
+            Logger::log_message(Logger::Type::ERROR, log_er.str());
+        } catch (...) {
+            Logger::log_message(Logger::Type::ERROR, "Unknown exception in shutdown callback");
+        }
+    }
+
+    // Stop the IO service
+    io_service_.stop();
+}
+
 void Signal_Handler::wait_for_signals()
 {
+    // Only a small lambda now, under 20 lines
     signals_.async_wait([this](const boost::system::error_code&, int signal_number) {
-        std::string signal_name;
-        switch(signal_number) {
-            case SIGINT:  signal_name = "SIGINT";  break;
-            case SIGTERM: signal_name = "SIGTERM"; break;
-            default:      return;
-        }
-
-        if (shutting_down_.exchange(true)) {
-            return; // Already shutting down
-        }
-        
-        std::stringstream log;
-        log << "Signal received: " << signal_name << ". Initiating shutdown...";
-        Logger::log_message(Logger::Type::WARNING, log.str());
-
-        if (shutdown_callback_) {
-            try {
-                shutdown_callback_();
-            } catch (const std::exception& e) {
-                std::stringstream log_er;
-                log_er << "Exception in shutdown callback: " << e.what();
-                Logger::log_message(Logger::Type::ERROR, log_er.str());
-            } catch (...) {
-                Logger::log_message(Logger::Type::ERROR, "Unknown exception in shutdown callback");
-            }
-        }
-        
-        io_service_.stop();
+        handle_signal(signal_number);
     });
 }

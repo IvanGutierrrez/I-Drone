@@ -32,8 +32,8 @@ private:
     std::filesystem::path base_path_;
     std::unique_ptr<Recorder> recorder_;
     
-    std::string get_timestamp();
-    std::string get_filename_timestamp();
+    std::string get_timestamp() const;
+    std::string get_filename_timestamp() const;
     bool write_json_entry(const std::string &event_type, const std::string &data);
     void create_new_recorder();
 };

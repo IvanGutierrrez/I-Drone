@@ -37,38 +37,38 @@ bool SignalServerConfig::toCommand(const std::string& exePath, std::string &cmd_
     std::ostringstream cmd;
     try {
         cmd << exePath;
-        if (!sdfDirectory.empty()) cmd << " -d " << sdfDirectory; //Mandatory argument
+        if (!filePaths.sdfDirectory.empty()) cmd << " -d " << filePaths.sdfDirectory; //Mandatory argument
         else return false;
-        cmd << " -lat " << latitude;
-        cmd << " -lon " << longitude;
-        cmd << " -txh " << txHeight;
-        cmd << " -f " << frequencyMHz;
-        cmd << " -erp " << erpWatts;
-        if (!rxHeights.empty()) {
+        cmd << " -lat " << position.latitude;
+        cmd << " -lon " << position.longitude;
+        cmd << " -txh " << position.txHeight;
+        cmd << " -f " << transmission.frequencyMHz;
+        cmd << " -erp " << transmission.erpWatts;
+        if (!position.rxHeights.empty()) {
             cmd << " -rxh ";
-            for (size_t i = 0; i < rxHeights.size(); ++i) {
-                cmd << rxHeights[i];
-                if (i < rxHeights.size() - 1) cmd << ",";
+            for (size_t i = 0; i < position.rxHeights.size(); ++i) {
+                cmd << position.rxHeights[i];
+                if (i < position.rxHeights.size() - 1) cmd << ",";
             }
         }
-        cmd << " -R " << radius;
-        cmd << " -pm " << propagationModel;
-        cmd << " -res " << resolution;
-        if (rxThreshold != 0.0) cmd << " -rt " << rxThreshold;
-        if (horizontalPol) cmd << " -hp";
-        if (knifeEdgeDiff) cmd << " -ked";
-        if (win32TileNames) cmd << " -wf";
-        if (debugMode) cmd << " -dbg";
-        if (metricUnits) cmd << " -m";
-        if (plotDbm) cmd << " -dbm";
-        if (groundClutter != 0.0) cmd << " -gc " << groundClutter;
-        if (terrainCode != 0) cmd << " -te " << terrainCode;
-        if (terrainDielectric != 0.0) cmd << " -terdic " << terrainDielectric;
-        if (terrainConductivity != 0.0) cmd << " -tercon " << terrainConductivity;
-        if (climateCode != 0) cmd << " -cl " << climateCode;
-        if (!userTerrainFile.empty()) cmd << " -udt " << userTerrainFile;
-        if (!terrainBackground.empty()) cmd << " -t " << terrainBackground;
-        if (!outputFile.empty()) cmd << " -o " << outputFile; //Mandatory argument
+        cmd << " -R " << coverage.radius;
+        cmd << " -pm " << options.propagationModel;
+        cmd << " -res " << coverage.resolution;
+        if (transmission.rxThreshold != 0.0) cmd << " -rt " << transmission.rxThreshold;
+        if (transmission.horizontalPol) cmd << " -hp";
+        if (options.knifeEdgeDiff) cmd << " -ked";
+        if (options.win32TileNames) cmd << " -wf";
+        if (options.debugMode) cmd << " -dbg";
+        if (options.metricUnits) cmd << " -m";
+        if (options.plotDbm) cmd << " -dbm";
+        if (environment.groundClutter != 0.0) cmd << " -gc " << environment.groundClutter;
+        if (environment.terrainCode != 0) cmd << " -te " << environment.terrainCode;
+        if (environment.terrainDielectric != 0.0) cmd << " -terdic " << environment.terrainDielectric;
+        if (environment.terrainConductivity != 0.0) cmd << " -tercon " << environment.terrainConductivity;
+        if (environment.climateCode != 0) cmd << " -cl " << environment.climateCode;
+        if (!filePaths.userTerrainFile.empty()) cmd << " -udt " << filePaths.userTerrainFile;
+        if (!filePaths.terrainBackground.empty()) cmd << " -t " << filePaths.terrainBackground;
+        if (!filePaths.outputFile.empty()) cmd << " -o " << filePaths.outputFile; //Mandatory argument
         else return false;
     } catch (...) {
         return false;
@@ -77,47 +77,56 @@ bool SignalServerConfig::toCommand(const std::string& exePath, std::string &cmd_
     return true;
 }
 
-std::ostream& operator<<(std::ostream& os, const SignalServerConfig& c)
+std::string print(const SignalServerConfig& c)
 {
-    os << "SignalServerConfig {\n"
-       << "  sdfDirectory        : " << c.sdfDirectory << "\n"
-       << "  outputFile          : " << c.outputFile << "\n"
-       << "  userTerrainFile     : " << c.userTerrainFile << "\n"
-       << "  terrainBackground   : " << c.terrainBackground << "\n\n"
+    std::stringstream ss;
 
-       << "  latitude            : " << c.latitude << "\n"
-       << "  longitude           : " << c.longitude << "\n"
-       << "  txHeight            : " << c.txHeight << "\n"
+    ss << "SignalServerConfig {\n"
+       << "  sdfDirectory        : " << c.filePaths.sdfDirectory << "\n"
+       << "  outputFile          : " << c.filePaths.outputFile << "\n"
+       << "  userTerrainFile     : " << c.filePaths.userTerrainFile << "\n"
+       << "  terrainBackground   : " << c.filePaths.terrainBackground << "\n\n"
+
+       << "  latitude            : " << c.position.latitude << "\n"
+       << "  longitude           : " << c.position.longitude << "\n"
+       << "  txHeight            : " << c.position.txHeight << "\n"
        << "  rxHeights           : [";
 
-    for (size_t i = 0; i < c.rxHeights.size(); ++i) {
-        os << c.rxHeights[i];
-        if (i + 1 < c.rxHeights.size()) os << ", ";
+    for (size_t i = 0; i < c.position.rxHeights.size(); ++i) {
+        ss << c.position.rxHeights[i];
+        if (i + 1 < c.position.rxHeights.size()) ss << ", ";
     }
 
-    os << "]\n\n"
+    ss << "]\n\n"
 
-       << "  frequencyMHz        : " << c.frequencyMHz << "\n"
-       << "  erpWatts            : " << c.erpWatts << "\n"
-       << "  rxThreshold         : " << c.rxThreshold << "\n"
-       << "  horizontalPol       : " << std::boolalpha << c.horizontalPol << "\n\n"
+       << "  frequencyMHz        : " << c.transmission.frequencyMHz << "\n"
+       << "  erpWatts            : " << c.transmission.erpWatts << "\n"
+       << "  rxThreshold         : " << c.transmission.rxThreshold << "\n"
+       << "  horizontalPol       : " << std::boolalpha << c.transmission.horizontalPol << "\n\n"
 
-       << "  groundClutter       : " << c.groundClutter << "\n"
-       << "  terrainCode         : " << c.terrainCode << "\n"
-       << "  terrainDielectric   : " << c.terrainDielectric << "\n"
-       << "  terrainConductivity : " << c.terrainConductivity << "\n"
-       << "  climateCode         : " << c.climateCode << "\n\n"
+       << "  groundClutter       : " << c.environment.groundClutter << "\n"
+       << "  terrainCode         : " << c.environment.terrainCode << "\n"
+       << "  terrainDielectric   : " << c.environment.terrainDielectric << "\n"
+       << "  terrainConductivity : " << c.environment.terrainConductivity << "\n"
+       << "  climateCode         : " << c.environment.climateCode << "\n\n"
 
-       << "  propagationModel    : " << c.propagationModel << "\n"
-       << "  knifeEdgeDiff       : " << std::boolalpha << c.knifeEdgeDiff << "\n"
-       << "  win32TileNames      : " << c.win32TileNames << "\n"
-       << "  debugMode           : " << c.debugMode << "\n"
-       << "  metricUnits         : " << c.metricUnits << "\n"
-       << "  plotDbm             : " << c.plotDbm << "\n\n"
+       << "  propagationModel    : " << c.options.propagationModel << "\n"
+       << "  knifeEdgeDiff       : " << std::boolalpha << c.options.knifeEdgeDiff << "\n"
+       << "  win32TileNames      : " << c.options.win32TileNames << "\n"
+       << "  debugMode           : " << c.options.debugMode << "\n"
+       << "  metricUnits         : " << c.options.metricUnits << "\n"
+       << "  plotDbm             : " << c.options.plotDbm << "\n\n"
 
-       << "  radius              : " << c.radius << "\n"
-       << "  resolution          : " << c.resolution << "\n"
+       << "  radius              : " << c.coverage.radius << "\n"
+       << "  resolution          : " << c.coverage.resolution << "\n"
        << "}";
+
+    return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const SignalServerConfig& c)
+{
+    os << print(c);
     return os;
 }
 
@@ -129,36 +138,36 @@ void DroneData::clear()
 
 void SignalServerConfig::clear()
 {
-    sdfDirectory.clear();
-    outputFile.clear();
-    userTerrainFile.clear();
-    terrainBackground.clear();
+    filePaths.sdfDirectory.clear();
+    filePaths.outputFile.clear();
+    filePaths.userTerrainFile.clear();
+    filePaths.terrainBackground.clear();
 
-    latitude = 0;
-    longitude = 0;
-    txHeight = 0;
-    rxHeights.clear();
+    position.latitude = 0;
+    position.longitude = 0;
+    position.txHeight = 0;
+    position.rxHeights.clear();
 
-    frequencyMHz = 0;
-    erpWatts = 0;
-    rxThreshold = 0;
-    horizontalPol = 0;
+    transmission.frequencyMHz = 0;
+    transmission.erpWatts = 0;
+    transmission.rxThreshold = 0;
+    transmission.horizontalPol = false;
 
-    groundClutter = 0;
-    terrainCode = 0;
-    terrainDielectric = 0;
-    terrainConductivity = 0;
-    climateCode = 0;
+    environment.groundClutter = 0;
+    environment.terrainCode = 0;
+    environment.terrainDielectric = 0;
+    environment.terrainConductivity = 0;
+    environment.climateCode = 0;
 
-    propagationModel = 0;
-    knifeEdgeDiff = 0;
-    win32TileNames = 0;
-    debugMode = 0;
-    metricUnits = 0;
-    plotDbm = 0;
+    options.propagationModel = 0;
+    options.knifeEdgeDiff = false;
+    options.win32TileNames = false;
+    options.debugMode = false;
+    options.metricUnits = false;
+    options.plotDbm = false;
 
-    radius = 0;
-    resolution = 0;
+    coverage.radius = 0;
+    coverage.resolution = 0;
 }
 
 };

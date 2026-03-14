@@ -47,11 +47,12 @@ private:
     tcp::acceptor acceptor_;
     handlers handlers_;
     std::shared_ptr<tcp::socket> current_client_;
-    bool is_listening_;
+    bool is_listening_ = false;
 
     void notify_connecting_error(const boost::system::error_code &error) const;
     bool prepare_listening(const tcp::endpoint& endpoint);
     void on_accept(const boost::system::error_code& error, const std::shared_ptr<tcp::socket> &new_socket);
     void start_async_accept(const std::shared_ptr<tcp::socket> &new_socket);
     void start_read(std::shared_ptr<tcp::socket> socket);
+    void handle_read_message(std::shared_ptr<tcp::socket> socket, std::shared_ptr<std::vector<char>> data_buf, const boost::system::error_code& ec);
 };

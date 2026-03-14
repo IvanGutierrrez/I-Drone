@@ -14,7 +14,7 @@
 State_Machine::State_Machine(std::shared_ptr<Communication_Manager> comm_mng, std::shared_ptr<PLD_Recorder> recorder)
     : cmm_manager_(std::move(comm_mng)), recorder_(std::move(recorder))
 {
-    cmm_manager_->set_message_handler(std::bind(&State_Machine::handleMessage, this, std::placeholders::_1));
+    cmm_manager_->set_message_handler([this](const std::string &message) { handleMessage(message); });
 }
 
 void State_Machine::transitionTo(std::unique_ptr<State> next_state)
