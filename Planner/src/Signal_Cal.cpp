@@ -49,7 +49,7 @@ std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) cons
     return colorToDbm;
 }
 
-CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, const std::string& dcf_filename)
+CoverageMatrix Signal_Cal::read_Coverage_File(const std::string& ppm_filename, const std::string& dcf_filename) const
 {
     std::ifstream file(ppm_filename, std::ios::binary);
     if (!file) {

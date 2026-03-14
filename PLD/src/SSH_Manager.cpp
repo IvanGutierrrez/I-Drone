@@ -47,7 +47,7 @@ bool SSH_Manager::execute_command(const std::string &command, std::string &outpu
     return (exit_code == 0);
 }
 
-bool SSH_Manager::test_connection()
+bool SSH_Manager::test_connection() const
 {
     std::string test_cmd = "echo 'connection_test'";
     std::string output;

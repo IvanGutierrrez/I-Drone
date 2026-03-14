@@ -28,21 +28,20 @@ static std::string get_session_timestamp() {
     std::tm tm_now {};
     localtime_r(&time_t_now, &tm_now);
 
-    char buffer[32] = {0};
-    std::snprintf(
-        buffer,
-        sizeof(buffer),
-        "%04d%02d%02d_%02d%02d%02d_%06lld",
-        tm_now.tm_year + 1900,
-        tm_now.tm_mon + 1,
-        tm_now.tm_mday,
-        tm_now.tm_hour,
-        tm_now.tm_min,
-        tm_now.tm_sec,
-        static_cast<long long>(us.count())
-    );
+    std::ostringstream ss;
 
-    return std::string(buffer);
+    ss << std::setfill('0')
+       << std::setw(4) << (tm_now.tm_year + 1900)
+       << std::setw(2) << (tm_now.tm_mon + 1)
+       << std::setw(2) << tm_now.tm_mday
+       << '_'
+       << std::setw(2) << tm_now.tm_hour
+       << std::setw(2) << tm_now.tm_min
+       << std::setw(2) << tm_now.tm_sec
+       << '_'
+       << std::setw(6) << (us.count() % 1000000);
+
+    return ss.str();
 }
 
 Planner_Recorder::Planner_Recorder(const std::filesystem::path &path)
@@ -60,18 +59,16 @@ Planner_Recorder::Planner_Recorder(const std::filesystem::path &path)
 bool Planner_Recorder::write_signal_output(const std::vector<Struct_Planner::Coordinate> &points)
 {
     if (!recorder_sgn) return false;
-    
+
     std::stringstream data;
     data << "lat,lon,coverage\n";
 
     for (const auto& p : points) {
-        char buffer[64];
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(6)
+             << p.lat << ',' << p.lon << ",1\n";
 
-        std::snprintf(buffer, sizeof(buffer),
-                    "%.6f,%.6f,1\n",
-                    p.lat, p.lon);
-
-        data << buffer;
+        data << line.str();
     }
 
 return recorder_sgn->write(data.str());
