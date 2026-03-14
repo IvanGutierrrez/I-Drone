@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include "PLD_Recorder.h"
 #include "common_libs/Logger.h"
+#include <cstdio>
 
 constexpr const char messages_file_name[] = "pld_messages";
 constexpr const char messages_file_extension[] = "json";
@@ -26,33 +27,49 @@ void PLD_Recorder::create_new_recorder()
     recorder_->write("[\n");
 }
 
-std::string PLD_Recorder::get_timestamp()
+std::string PLD_Recorder::get_timestamp() const
 {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
     std::tm tm_now {};
     localtime_r(&time_t_now, &tm_now);
-    
-    std::stringstream ss;
-    ss << std::put_time(&tm_now, "%Y-%m-%d %H:%M:%S");
-    ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
-    
+
+    std::ostringstream ss;
+
+    ss << std::setfill('0')
+       << std::setw(4) << (tm_now.tm_year + 1900) << '-'
+       << std::setw(2) << (tm_now.tm_mon + 1) << '-'
+       << std::setw(2) << tm_now.tm_mday << ' '
+       << std::setw(2) << tm_now.tm_hour << ':'
+       << std::setw(2) << tm_now.tm_min << ':'
+       << std::setw(2) << tm_now.tm_sec << '.'
+       << std::setw(3) << (ms.count() % 1000);
+
     return ss.str();
 }
 
-std::string PLD_Recorder::get_filename_timestamp()
+std::string PLD_Recorder::get_filename_timestamp() const
 {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
     std::tm tm_now {};
     localtime_r(&time_t_now, &tm_now);
-    
-    std::stringstream ss;
-    ss << std::put_time(&tm_now, "%Y%m%d_%H%M%S");
-    ss << '_' << std::setfill('0') << std::setw(6) << us.count();
-    
+
+    std::ostringstream ss;
+
+    ss << std::setfill('0')
+       << std::setw(4) << (tm_now.tm_year + 1900)
+       << std::setw(2) << (tm_now.tm_mon + 1)
+       << std::setw(2) << tm_now.tm_mday
+       << '_'
+       << std::setw(2) << tm_now.tm_hour
+       << std::setw(2) << tm_now.tm_min
+       << std::setw(2) << tm_now.tm_sec
+       << '_'
+       << std::setw(6) << (us.count() % 1000000);
+
     return ss.str();
 }
 

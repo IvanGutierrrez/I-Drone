@@ -74,9 +74,7 @@ void Path_Cal::build_knn_graph(const std::vector<Struct_Planner::Coordinate>& po
     }
 
     for (int i = 0; i < n; i++) {
-        for (auto& e : adj[i]) {
-            int j = e.first;
-            double w = e.second;
+        for (auto& [j, w] : adj[i]) {
 
             bool found = std::any_of(adj[j].cbegin(), adj[j].cend(),
                                      [i](const std::pair<int, double>& back) {
@@ -105,9 +103,7 @@ std::vector<double> Path_Cal::dijkstra(int src, const std::vector<std::vector<st
         pq.pop();
         if (d > dist[u]) continue;
 
-        for (auto& e : adj[u]) {
-            int v = e.first;
-            double w = e.second;
+        for (auto& [v, w] : adj[u]) {
 
             if (dist[u] + w < dist[v]) {
                 dist[v] = dist[u] + w;
@@ -137,9 +133,7 @@ std::vector<int> Path_Cal::dijkstra_path(int src, int tgt, const std::vector<std
         if (d > dist[u]) continue;
         if (u == tgt) break;
 
-        for (auto& e : adj[u]) {
-            int v = e.first;
-            double w = e.second;
+        for (auto& [v, w] : adj[u]) {
             if (dist[u] + w < dist[v]) {
                 dist[v] = dist[u] + w;
                 prev[v] = u;

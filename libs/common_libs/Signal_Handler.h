@@ -26,4 +26,5 @@ private:
     shutdown_callback shutdown_callback_;
     std::atomic<bool> shutting_down_{false};
 
+    void handle_signal(int signal_number);
 };

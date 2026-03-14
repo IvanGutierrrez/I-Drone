@@ -10,6 +10,8 @@
 #include "Planner_Recorder.h"
 #include "common_libs/Logger.h"
 #include <chrono>
+#include <cstdio>
+#include <ctime>
 #include <iomanip>
 
 constexpr const char message_received_file_name[] = "message_received";
@@ -23,11 +25,22 @@ static std::string get_session_timestamp() {
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
-    
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&time_t_now), "%Y%m%d_%H%M%S");
-    ss << '_' << std::setfill('0') << std::setw(6) << us.count();
-    
+    std::tm tm_now {};
+    localtime_r(&time_t_now, &tm_now);
+
+    std::ostringstream ss;
+
+    ss << std::setfill('0')
+       << std::setw(4) << (tm_now.tm_year + 1900)
+       << std::setw(2) << (tm_now.tm_mon + 1)
+       << std::setw(2) << tm_now.tm_mday
+       << '_'
+       << std::setw(2) << tm_now.tm_hour
+       << std::setw(2) << tm_now.tm_min
+       << std::setw(2) << tm_now.tm_sec
+       << '_'
+       << std::setw(6) << (us.count() % 1000000);
+
     return ss.str();
 }
 
@@ -46,12 +59,19 @@ Planner_Recorder::Planner_Recorder(const std::filesystem::path &path)
 bool Planner_Recorder::write_signal_output(const std::vector<Struct_Planner::Coordinate> &points)
 {
     if (!recorder_sgn) return false;
-    
+
     std::stringstream data;
     data << "lat,lon,coverage\n";
-    for (const auto& p : points)
-        data << std::fixed << std::setprecision(6) << p.lat << "," << p.lon << ",1\n";
-    return recorder_sgn->write(data.str());
+
+    for (const auto& p : points) {
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(6)
+             << p.lat << ',' << p.lon << ",1\n";
+
+        data << line.str();
+    }
+
+return recorder_sgn->write(data.str());
 }
 
 bool Planner_Recorder::write_message_received(const Struct_Planner::SignalServerConfig &sng_data, const Struct_Planner::DroneData &drone_data)

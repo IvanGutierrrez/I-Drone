@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <iostream>
+#include <sstream>
 #include <boost/asio.hpp>
 #include "Config.h"
 #include "common_libs/Logger.h"
@@ -55,21 +56,25 @@ int main(int argc, char* argv[]) {
         auto endpoints = resolver.resolve(own_address, std::to_string(own_port));
 
         if (endpoints.begin() == endpoints.end()) {
-            Logger::log_message(Logger::Type::ERROR, "No endpoints found for own Server: " + own_address + ":" + std::to_string(own_port));
+            std::ostringstream error_msg;
+            error_msg << "No endpoints found for own Server: " << own_address << ':' << own_port;
+            Logger::log_message(Logger::Type::ERROR, error_msg.str());
             return EXIT_FAILURE;
         }
 
         own_endpoint = *endpoints.begin();
         Logger::log_message(Logger::Type::INFO,"Own Server endpoint:  " + own_endpoint.address().to_string() + ":" + std::to_string(own_endpoint.port()));
     } catch (const std::exception& e) {
-        Logger::log_message(Logger::Type::ERROR, std::string("Error creating own Server endpoint: ") + e.what());
+        std::ostringstream error_msg;
+        error_msg << "Error creating own Server endpoint: " << e.what();
+        Logger::log_message(Logger::Type::ERROR, error_msg.str());
         return EXIT_FAILURE;
     }
 
-    std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context, own_endpoint);
-    std::shared_ptr<PLD_Recorder> recorder_ptr = std::make_shared<PLD_Recorder>(cnf.data_path);
+    auto comm_mng_ptr = std::make_shared<Communication_Manager>(io_context, own_endpoint);
+    auto recorder_ptr = std::make_shared<PLD_Recorder>(cnf.data_path);
 
-    std::shared_ptr<State_Machine> state_machine_ptr = std::make_shared<State_Machine>(comm_mng_ptr, recorder_ptr);
+    auto state_machine_ptr = std::make_shared<State_Machine>(comm_mng_ptr, recorder_ptr);
     std::unique_ptr<State> off_state = std::make_unique<Off_State>(state_machine_ptr);
     state_machine_ptr->transitionTo(std::move(off_state));
 

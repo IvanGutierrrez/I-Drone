@@ -55,24 +55,28 @@ int main(int argc, char* argv[]) {
         auto endpoints = resolver.resolve(pld_address, std::to_string(pld_port));
 
         if (endpoints.begin() == endpoints.end()) {
-            Logger::log_message(Logger::Type::ERROR, "No endpoints found for PLD: " + pld_address + ":" + std::to_string(pld_port));
+            std::ostringstream error_msg;
+            error_msg << "No endpoints found for PLD: " << pld_address << ':' << pld_port;
+            Logger::log_message(Logger::Type::ERROR, error_msg.str());
             return EXIT_FAILURE;
         }
 
         pld_endpoint = *endpoints.begin();
-        Logger::log_message(Logger::Type::INFO,"PLD endpoint:  " + pld_endpoint.address().to_string() + ":" + std::to_string(pld_endpoint.port()));
+        std::ostringstream error_msg;
+        error_msg << "PLD endpoint:  " << pld_endpoint.address() << ':' << pld_endpoint.port();
+        Logger::log_message(Logger::Type::ERROR, error_msg.str());
     } catch (const std::exception& e) {
         Logger::log_message(Logger::Type::ERROR, std::string("Error creating PLD endpoint: ") + e.what());
         return EXIT_FAILURE;
     }
 
-    std::shared_ptr<Planner_Recorder> rec_mng_ptr = std::make_shared<Planner_Recorder>(cnf.data_path);
+    auto rec_mng_ptr = std::make_shared<Planner_Recorder>(cnf.data_path);
 
-    std::shared_ptr<Communication_Manager> comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
+    auto comm_mng_ptr = std::make_shared<Communication_Manager>(io_context,pld_endpoint,rec_mng_ptr);
 
-    std::shared_ptr<Path_Cal> path_cal_ptr = std::make_shared<Path_Cal>(cnf);
+    auto path_cal_ptr = std::make_shared<Path_Cal>(cnf);
 
-    std::shared_ptr<Signal_Cal> signal_cal_ptr = std::make_shared<Signal_Cal>();
+    auto signal_cal_ptr = std::make_shared<Signal_Cal>();
 
     std::shared_ptr<Planner_Manager_Interface> planner_mng_ptr = std::make_shared<Planner_Manager>(comm_mng_ptr,
                                                                                                     rec_mng_ptr,

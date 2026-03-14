@@ -30,10 +30,10 @@ class Signal_Cal {
 
 public:
     Signal_Cal() = default;
-    std::vector<Struct_Planner::Coordinate> calculate_signal(const Struct_Planner::Config_struct &global_config,const Struct_Planner::SignalServerConfig &signal_server_conf);
+    std::vector<Struct_Planner::Coordinate> calculate_signal(const Struct_Planner::Config_struct &global_config,const Struct_Planner::SignalServerConfig &signal_server_conf) const;
 
 private:
-    CoverageMatrix read_Coverage_File(const std::string& filename, const std::string& dcfFilename);
-    std::vector<double> parse_Bounds(const std::string& str);
-    std::map<RGB, double> read_DCF(const std::string& dcf_filename);
+    CoverageMatrix read_Coverage_File(const std::string& filename, const std::string& dcfFilename) const;
+    std::vector<double> parse_Bounds(const std::string& str) const;
+    std::map<RGB, double> read_DCF(const std::string& dcf_filename) const;
 };

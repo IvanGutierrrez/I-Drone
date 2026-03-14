@@ -159,7 +159,7 @@ void Communication_Manager::on_error(const boost::system::error_code& ec, const 
     }
 }
 
-void Communication_Manager::set_message_handler(const message_handler &handler)
+void Communication_Manager::set_message_handler(message_handler handler)
 {
     message_handler_ = std::move(handler);
 }

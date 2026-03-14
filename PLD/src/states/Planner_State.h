@@ -28,12 +28,12 @@ private:
     int server_number_ = -1;
     std::shared_ptr<Docker_Manager> docker_manager_;
     boost::asio::steady_timer wait_timer_;
-    bool planner_running_;
-    bool response_message_received_;
-    Struct_Planner::Status last_status_;
-    int attemps_;
+    bool planner_running_ = false;
+    bool response_message_received_ = false;
+    Struct_Planner::Status last_status_ = Struct_Planner::Status::UNKNOWN;
+    int attemps_ = 0;
     Structs_PLD::Config_drone data_next_state_;
-    bool state_closing_;
+    bool state_closing_ = false;
 
     void transition_to_off_state();
     const char* state_name() const override;

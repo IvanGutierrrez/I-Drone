@@ -36,7 +36,7 @@ private:
 
     void on_connect_client();
     void on_error_client(const boost::system::error_code& ec, const Type_Error &type_error);
-    void on_message_client(const std::string& msg);
+    void on_message_client(const std::string& msg) const;
     void send_status_message(const boost::system::error_code& ec);
     Structs_PLD::Status get_status();
 
@@ -44,7 +44,7 @@ public:
     Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint);
     ~Communication_Manager();
     void set_status(const Structs_PLD::Status &new_status);
-    void set_message_handler(const message_handler &handler);
+    void set_message_handler(message_handler handler);
     void deliver(const std::string &msg);
     void shutdown();
 

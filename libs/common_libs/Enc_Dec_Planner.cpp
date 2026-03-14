@@ -32,40 +32,40 @@ namespace Enc_Dec_Planner {
         SignalServerConfigProto protoMsg;
 
         // Required fields
-        protoMsg.set_sdf_directory(signal_msg.sdfDirectory);
-        protoMsg.set_output_file(signal_msg.outputFile);
-        protoMsg.set_latitude(signal_msg.latitude);
-        protoMsg.set_longitude(signal_msg.longitude);
-        protoMsg.set_tx_height(signal_msg.txHeight);
-        protoMsg.set_frequency_mhz(signal_msg.frequencyMHz);
-        protoMsg.set_erp_watts(signal_msg.erpWatts);
-        protoMsg.set_propagation_model(signal_msg.propagationModel);
-        protoMsg.set_radius(signal_msg.radius);
-        protoMsg.set_resolution(signal_msg.resolution);
+        protoMsg.set_sdf_directory(signal_msg.filePaths.sdfDirectory);
+        protoMsg.set_output_file(signal_msg.filePaths.outputFile);
+        protoMsg.set_latitude(signal_msg.position.latitude);
+        protoMsg.set_longitude(signal_msg.position.longitude);
+        protoMsg.set_tx_height(signal_msg.position.txHeight);
+        protoMsg.set_frequency_mhz(signal_msg.transmission.frequencyMHz);
+        protoMsg.set_erp_watts(signal_msg.transmission.erpWatts);
+        protoMsg.set_propagation_model(signal_msg.options.propagationModel);
+        protoMsg.set_radius(signal_msg.coverage.radius);
+        protoMsg.set_resolution(signal_msg.coverage.resolution);
 
         // Optional strings
-        if (!signal_msg.userTerrainFile.empty())
-            protoMsg.set_user_terrain_file(signal_msg.userTerrainFile);
-        if (!signal_msg.terrainBackground.empty())
-            protoMsg.set_terrain_background(signal_msg.terrainBackground);
+        if (!signal_msg.filePaths.userTerrainFile.empty())
+            protoMsg.set_user_terrain_file(signal_msg.filePaths.userTerrainFile);
+        if (!signal_msg.filePaths.terrainBackground.empty())
+            protoMsg.set_terrain_background(signal_msg.filePaths.terrainBackground);
 
         // Optional repeated
-        for (double rxh : signal_msg.rxHeights)
+        for (double rxh : signal_msg.position.rxHeights)
             protoMsg.add_rx_heights(rxh);
 
         // Optional doubles/ints/bools
-        if (signal_msg.rxThreshold != 0.0) protoMsg.set_rx_threshold(signal_msg.rxThreshold);
-        if (signal_msg.horizontalPol) protoMsg.set_horizontal_pol(signal_msg.horizontalPol);
-        if (signal_msg.groundClutter != 0.0) protoMsg.set_ground_clutter(signal_msg.groundClutter);
-        if (signal_msg.terrainCode != 0) protoMsg.set_terrain_code(signal_msg.terrainCode);
-        if (signal_msg.terrainDielectric != 0.0) protoMsg.set_terrain_dielectric(signal_msg.terrainDielectric);
-        if (signal_msg.terrainConductivity != 0.0) protoMsg.set_terrain_conductivity(signal_msg.terrainConductivity);
-        if (signal_msg.climateCode != 0) protoMsg.set_climate_code(signal_msg.climateCode);
-        if (signal_msg.knifeEdgeDiff) protoMsg.set_knife_edge_diff(signal_msg.knifeEdgeDiff);
-        if (signal_msg.win32TileNames) protoMsg.set_win32_tile_names(signal_msg.win32TileNames);
-        if (signal_msg.debugMode) protoMsg.set_debug_mode(signal_msg.debugMode);
-        if (signal_msg.metricUnits) protoMsg.set_metric_units(signal_msg.metricUnits);
-        if (signal_msg.plotDbm) protoMsg.set_plot_dbm(signal_msg.plotDbm);
+        if (signal_msg.transmission.rxThreshold != 0.0) protoMsg.set_rx_threshold(signal_msg.transmission.rxThreshold);
+        if (signal_msg.transmission.horizontalPol) protoMsg.set_horizontal_pol(signal_msg.transmission.horizontalPol);
+        if (signal_msg.environment.groundClutter != 0.0) protoMsg.set_ground_clutter(signal_msg.environment.groundClutter);
+        if (signal_msg.environment.terrainCode != 0) protoMsg.set_terrain_code(signal_msg.environment.terrainCode);
+        if (signal_msg.environment.terrainDielectric != 0.0) protoMsg.set_terrain_dielectric(signal_msg.environment.terrainDielectric);
+        if (signal_msg.environment.terrainConductivity != 0.0) protoMsg.set_terrain_conductivity(signal_msg.environment.terrainConductivity);
+        if (signal_msg.environment.climateCode != 0) protoMsg.set_climate_code(signal_msg.environment.climateCode);
+        if (signal_msg.options.knifeEdgeDiff) protoMsg.set_knife_edge_diff(signal_msg.options.knifeEdgeDiff);
+        if (signal_msg.options.win32TileNames) protoMsg.set_win32_tile_names(signal_msg.options.win32TileNames);
+        if (signal_msg.options.debugMode) protoMsg.set_debug_mode(signal_msg.options.debugMode);
+        if (signal_msg.options.metricUnits) protoMsg.set_metric_units(signal_msg.options.metricUnits);
+        if (signal_msg.options.plotDbm) protoMsg.set_plot_dbm(signal_msg.options.plotDbm);
 
         DroneData dron_proto;
         dron_proto.set_num_drones(drone_msg.num_drones);
@@ -101,36 +101,36 @@ namespace Enc_Dec_Planner {
     bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Planner::SignalServerConfig &msg) 
     {
         try {
-            msg.sdfDirectory = protoMsg.sdf_directory();
-            msg.outputFile = protoMsg.output_file();
-            if (protoMsg.has_user_terrain_file()) msg.userTerrainFile = protoMsg.user_terrain_file();
-            if (protoMsg.has_terrain_background()) msg.terrainBackground = protoMsg.terrain_background();
+            msg.filePaths.sdfDirectory = protoMsg.sdf_directory();
+            msg.filePaths.outputFile = protoMsg.output_file();
+            if (protoMsg.has_user_terrain_file()) msg.filePaths.userTerrainFile = protoMsg.user_terrain_file();
+            if (protoMsg.has_terrain_background()) msg.filePaths.terrainBackground = protoMsg.terrain_background();
 
-            msg.latitude = protoMsg.latitude();
-            msg.longitude = protoMsg.longitude();
-            msg.txHeight = protoMsg.tx_height();
-            msg.rxHeights.clear();
+            msg.position.latitude = protoMsg.latitude();
+            msg.position.longitude = protoMsg.longitude();
+            msg.position.txHeight = protoMsg.tx_height();
+            msg.position.rxHeights.clear();
             for (int i = 0; i < protoMsg.rx_heights_size(); ++i)
-                msg.rxHeights.push_back(protoMsg.rx_heights(i));
-            msg.frequencyMHz = protoMsg.frequency_mhz();
-            msg.erpWatts = protoMsg.erp_watts();
-            if (protoMsg.has_rx_threshold()) msg.rxThreshold = protoMsg.rx_threshold();
-            if (protoMsg.has_horizontal_pol()) msg.horizontalPol = protoMsg.horizontal_pol();
+                msg.position.rxHeights.push_back(protoMsg.rx_heights(i));
+            msg.transmission.frequencyMHz = protoMsg.frequency_mhz();
+            msg.transmission.erpWatts = protoMsg.erp_watts();
+            if (protoMsg.has_rx_threshold()) msg.transmission.rxThreshold = protoMsg.rx_threshold();
+            if (protoMsg.has_horizontal_pol()) msg.transmission.horizontalPol = protoMsg.horizontal_pol();
 
-            if (protoMsg.has_ground_clutter()) msg.groundClutter = protoMsg.ground_clutter();
-            if (protoMsg.has_terrain_code()) msg.terrainCode = protoMsg.terrain_code();
-            if (protoMsg.has_terrain_conductivity()) msg.terrainConductivity = protoMsg.terrain_conductivity();
-            if (protoMsg.has_climate_code()) msg.climateCode = protoMsg.climate_code();
+            if (protoMsg.has_ground_clutter()) msg.environment.groundClutter = protoMsg.ground_clutter();
+            if (protoMsg.has_terrain_code()) msg.environment.terrainCode = protoMsg.terrain_code();
+            if (protoMsg.has_terrain_conductivity()) msg.environment.terrainConductivity = protoMsg.terrain_conductivity();
+            if (protoMsg.has_climate_code()) msg.environment.climateCode = protoMsg.climate_code();
 
-            msg.propagationModel = protoMsg.propagation_model();
-            if (protoMsg.has_knife_edge_diff()) msg.knifeEdgeDiff = protoMsg.knife_edge_diff();
-            if (protoMsg.has_win32_tile_names()) msg.win32TileNames = protoMsg.win32_tile_names();
-            if (protoMsg.has_debug_mode()) msg.debugMode = protoMsg.debug_mode();
-            if (protoMsg.has_metric_units()) msg.metricUnits = protoMsg.metric_units();
-            if (protoMsg.has_plot_dbm()) msg.plotDbm = protoMsg.plot_dbm();
+            msg.options.propagationModel = protoMsg.propagation_model();
+            if (protoMsg.has_knife_edge_diff()) msg.options.knifeEdgeDiff = protoMsg.knife_edge_diff();
+            if (protoMsg.has_win32_tile_names()) msg.options.win32TileNames = protoMsg.win32_tile_names();
+            if (protoMsg.has_debug_mode()) msg.options.debugMode = protoMsg.debug_mode();
+            if (protoMsg.has_metric_units()) msg.options.metricUnits = protoMsg.metric_units();
+            if (protoMsg.has_plot_dbm()) msg.options.plotDbm = protoMsg.plot_dbm();
 
-            msg.radius = protoMsg.radius();
-            msg.resolution = protoMsg.resolution();
+            msg.coverage.radius = protoMsg.radius();
+            msg.coverage.resolution = protoMsg.resolution();
         } catch (...) {
             return false;
         }

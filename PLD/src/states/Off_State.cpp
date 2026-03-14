@@ -31,7 +31,7 @@ void Off_State::start()
 
 void Off_State::end()
 {
-    std::unique_ptr<Planner_State> planner_state = std::make_unique<Planner_State>(state_machine());
+    auto planner_state = std::make_unique<Planner_State>(state_machine());
     planner_state->set_data(config_);
 
     Logger::log_message(Logger::Type::INFO, "Off State functionality complete, transitioning to the next state");

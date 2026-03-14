@@ -24,13 +24,15 @@ Planner_Manager::Planner_Manager(std::shared_ptr<Communication_Manager> comm_mng
                                      std::shared_ptr<Planner_Recorder> rec_mng,
                                      std::shared_ptr<Path_Cal> path_cal,
                                      std::shared_ptr<Signal_Cal> signal_cal,
-                                     const Struct_Planner::Config_struct cnf): comm_mng_ptr_(std::move(comm_mng)),
+                                     const Struct_Planner::Config_struct &cnf): comm_mng_ptr_(std::move(comm_mng)),
                                                                             recorder_ptr_(std::move(rec_mng)),
                                                                             path_cal_ptr_(std::move(path_cal)),
                                                                             signal_cal_ptr_(std::move(signal_cal)),
                                                                             global_config_(cnf)
 {
-    comm_mng_ptr_->set_calculate_handler(std::bind(&Planner_Manager::calculate, this, std::placeholders::_1, std::placeholders::_2));
+    comm_mng_ptr_->set_calculate_handler([this](const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data) {
+        calculate(config, std::move(drone_data));
+    });
 }
 
 void Planner_Manager::calculate(const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data)

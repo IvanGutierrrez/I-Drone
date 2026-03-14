@@ -20,13 +20,7 @@ constexpr int RATE_WAIT_FOR_MESSAGE = 10;
 constexpr int NUMBER_ATTEMPS_MAX = 3;
 
 Planner_State::Planner_State(std::shared_ptr<State_Machine> state_machine_ptr): State(state_machine_ptr),
-                                                                                server_number_(-1),
-                                                                                wait_timer_(state_machine()->get_io_context()),
-                                                                                planner_running_(false),
-                                                                                response_message_received_(false),
-                                                                                last_status_(Struct_Planner::Status::UNKNOWN),
-                                                                                attemps_(0),
-                                                                                state_closing_(false)
+                                                                                wait_timer_(state_machine()->get_io_context())
 {
 }
 
@@ -94,9 +88,15 @@ void Planner_State::start()
     }
 
     Server::handlers handler_obj;
-    handler_obj.call_error = std::bind(&Planner_State::on_error_planner, this, std::placeholders::_1, std::placeholders::_2);
-    handler_obj.call_connect = std::bind(&Planner_State::on_connect_planner, this);
-    handler_obj.call_message = std::bind(&Planner_State::on_message_planner, this, std::placeholders::_1);
+    handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error &type_error) {
+        on_error_planner(ec, type_error);
+    };
+    handler_obj.call_connect = [this]() {
+        on_connect_planner();
+    };
+    handler_obj.call_message = [this](const std::string& msg) {
+        on_message_planner(msg);
+    };
 
     server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.planner_module_data.module_ip,config_.planner_module_data.port);
 
@@ -110,7 +110,9 @@ void Planner_State::start()
     docker_manager_->start_container(config_.planner_module_data.docker_name);
 
     wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-    wait_timer_.async_wait(std::bind(&Planner_State::continue_start_process, this, std::placeholders::_1));
+    wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+        continue_start_process(ec);
+    });
 
 }
 
@@ -165,14 +167,22 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
             }
 
             Server::handlers handler_obj;
-            handler_obj.call_error = std::bind(&Planner_State::on_error_planner, this, std::placeholders::_1, std::placeholders::_2);
-            handler_obj.call_connect = std::bind(&Planner_State::on_connect_planner, this);
-            handler_obj.call_message = std::bind(&Planner_State::on_message_planner, this, std::placeholders::_1);
+            handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error &type_error) {
+                on_error_planner(ec, type_error);
+            };
+            handler_obj.call_connect = [this]() {
+                on_connect_planner();
+            };
+            handler_obj.call_message = [this](const std::string& msg) {
+                on_message_planner(msg);
+            };
 
             server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.planner_module_data.module_ip,config_.planner_module_data.port);
             Logger::log_message(Logger::Type::INFO, "Retrying to start Planner module");
             wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-            wait_timer_.async_wait(std::bind(&Planner_State::continue_start_process, this, std::placeholders::_1));
+            wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+                continue_start_process(ec);
+            });
             return;
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
@@ -187,7 +197,9 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
         attemps_++;
         if (attemps_ <= NUMBER_ATTEMPS_MAX) {
             wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-            wait_timer_.async_wait(std::bind(&Planner_State::continue_start_process, this, std::placeholders::_1));
+            wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+                continue_start_process(ec);
+            });
             return;
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
@@ -279,15 +291,23 @@ void Planner_State::on_error_planner(const boost::system::error_code& ec, const 
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX) {
         Server::handlers handler_obj;
-        handler_obj.call_error = std::bind(&Planner_State::on_error_planner, this, std::placeholders::_1, std::placeholders::_2);
-        handler_obj.call_connect = std::bind(&Planner_State::on_connect_planner, this);
-        handler_obj.call_message = std::bind(&Planner_State::on_message_planner, this, std::placeholders::_1);
+        handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error &type_error) {
+            on_error_planner(ec, type_error);
+        };
+        handler_obj.call_connect = [this]() {
+            on_connect_planner();
+        };
+        handler_obj.call_message = [this](const std::string& msg) {
+            on_message_planner(msg);
+        };
         planner_running_ = false;
 
         server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.planner_module_data.module_ip,config_.planner_module_data.port);
 
         wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-        wait_timer_.async_wait(std::bind(&Planner_State::continue_start_process, this, std::placeholders::_1));
+        wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+            continue_start_process(ec);
+        });
     } else {
         Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
         close_state();

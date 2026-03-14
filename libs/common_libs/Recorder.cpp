@@ -20,13 +20,11 @@ Recorder::~Recorder()
         file_.close();
 }
 
-bool Recorder::write(const std::string text)
+bool Recorder::write(const std::string& text)
 {
 
-    if (!is_open()) {
-        if (!open_file()){
-            return false;
-        }
+    if (!is_open() && !open_file()) {
+        return false;
     }
     file_ << text;
     file_.flush(); // Force write to disk immediately

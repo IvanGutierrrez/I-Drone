@@ -20,15 +20,8 @@ constexpr int RATE_FOR_SEND_MESSAGES = 1;
 constexpr int NUMBER_ATTEMPS_MAX = 3;
 
 Drone_Mission_State::Drone_Mission_State(std::shared_ptr<State_Machine> state_machine_ptr): State(state_machine_ptr),
-                                                                                            server_number_(-1),
                                                                                             wait_timer_(state_machine()->get_io_context()),
-                                                                                            send_timer_(state_machine()->get_io_context()),
-                                                                                            drone_module_running_(false),
-                                                                                            last_status_(Struct_Drone::Status::UNKNOWN),
-                                                                                            attemps_(0),
-                                                                                            drone_i_(0),
-                                                                                            coor_j_(0),
-                                                                                            state_closing_(false)
+                                                                                            send_timer_(state_machine()->get_io_context())
 
 {
 }
@@ -82,9 +75,15 @@ void Drone_Mission_State::start()
     }
 
     Server::handlers handler_obj;
-    handler_obj.call_error = std::bind(&Drone_Mission_State::on_error_drone, this, std::placeholders::_1, std::placeholders::_2);
-    handler_obj.call_connect = std::bind(&Drone_Mission_State::on_connect_drone, this);
-    handler_obj.call_message = std::bind(&Drone_Mission_State::on_message_drone, this, std::placeholders::_1);
+    handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error &type_error) {
+        on_error_drone(ec, type_error);
+    };
+    handler_obj.call_connect = [this]() {
+        on_connect_drone();
+    };
+    handler_obj.call_message = [this](const std::string& msg) {
+        on_message_drone(msg);
+    };
 
     server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
 
@@ -98,7 +97,9 @@ void Drone_Mission_State::start()
     docker_manager_->start_container(config_.drone_module_data.docker_name);
 
     wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-    wait_timer_.async_wait(std::bind(&Drone_Mission_State::continue_start_process, this, std::placeholders::_1));
+    wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+        continue_start_process(ec);
+    });
 }
 
 void Drone_Mission_State::end()
@@ -133,14 +134,22 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
             }
 
             Server::handlers handler_obj;
-            handler_obj.call_error = std::bind(&Drone_Mission_State::on_error_drone, this, std::placeholders::_1, std::placeholders::_2);
-            handler_obj.call_connect = std::bind(&Drone_Mission_State::on_connect_drone, this);
-            handler_obj.call_message = std::bind(&Drone_Mission_State::on_message_drone, this, std::placeholders::_1);
+            handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error &type_error) {
+                on_error_drone(ec, type_error);
+            };
+            handler_obj.call_connect = [this]() {
+                on_connect_drone();
+            };
+            handler_obj.call_message = [this](const std::string& msg) {
+                on_message_drone(msg);
+            };
 
             server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
             Logger::log_message(Logger::Type::INFO, "Retrying to start Drone module");
             wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-            wait_timer_.async_wait(std::bind(&Drone_Mission_State::continue_start_process, this, std::placeholders::_1));
+            wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+                continue_start_process(ec);
+            });
             return;
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
@@ -155,7 +164,9 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
         attemps_++;
         if (attemps_ <= NUMBER_ATTEMPS_MAX) {
             wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-            wait_timer_.async_wait(std::bind(&Drone_Mission_State::continue_start_process, this, std::placeholders::_1));
+            wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+                continue_start_process(ec);
+            });
             return;
         } else {
             Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
@@ -180,7 +191,9 @@ void Drone_Mission_State::continue_start_process(const boost::system::error_code
     coor_j_ = 0;
 
     send_timer_.expires_after(std::chrono::seconds(RATE_FOR_SEND_MESSAGES));
-    send_timer_.async_wait(std::bind(&Drone_Mission_State::send_message, this, std::placeholders::_1));
+    send_timer_.async_wait([this](const boost::system::error_code& ec) {
+        send_message(ec);
+    });
 }
 
 void Drone_Mission_State::prepare_next_drone_message(Struct_Planner::Coordinate& coor, std::string& type)
@@ -276,7 +289,9 @@ void Drone_Mission_State::send_message(const boost::system::error_code& ec)
         return;
 
     send_timer_.expires_after(std::chrono::seconds(RATE_FOR_SEND_MESSAGES));
-    send_timer_.async_wait(std::bind(&Drone_Mission_State::send_message, this, std::placeholders::_1));
+    send_timer_.async_wait([this](const boost::system::error_code& ec) {
+        send_message(ec);
+    });
 }
 
 void Drone_Mission_State::on_connect_drone()
@@ -333,15 +348,23 @@ void Drone_Mission_State::on_error_drone(const boost::system::error_code& ec, co
     attemps_++;
     if (attemps_ <= NUMBER_ATTEMPS_MAX) {
         Server::handlers handler_obj;
-        handler_obj.call_error = std::bind(&Drone_Mission_State::on_error_drone, this, std::placeholders::_1, std::placeholders::_2);
-        handler_obj.call_connect = std::bind(&Drone_Mission_State::on_connect_drone, this);
-        handler_obj.call_message = std::bind(&Drone_Mission_State::on_message_drone, this, std::placeholders::_1);
+        handler_obj.call_error = [this](const boost::system::error_code& ec, const Type_Error &type_error) {
+            on_error_drone(ec, type_error);
+        };
+        handler_obj.call_connect = [this]() {
+            on_connect_drone();
+        };
+        handler_obj.call_message = [this](const std::string& msg) {
+            on_message_drone(msg);
+        };
         drone_module_running_ = false;
 
         server_number_ = state_machine()->getCommunicationManager()->create_server(handler_obj,config_.drone_module_data.module_ip,config_.drone_module_data.port);
 
         wait_timer_.expires_after(std::chrono::seconds(RATE_WAIT_FOR_MESSAGE));
-        wait_timer_.async_wait(std::bind(&Drone_Mission_State::continue_start_process, this, std::placeholders::_1));
+        wait_timer_.async_wait([this](const boost::system::error_code& ec) {
+            continue_start_process(ec);
+        });
     } else {
         Logger::log_message(Logger::Type::ERROR,"Number of allowed attempts exceeded. Transitioning to off state");
         close_state();
@@ -398,7 +421,7 @@ void Drone_Mission_State::on_message_drone(const std::string& msg)
     }
 }
 
-void Drone_Mission_State::set_data(Structs_PLD::Config_drone config)
+void Drone_Mission_State::set_data(const Structs_PLD::Config_drone &config)
 {
     config_ = config;
 }

@@ -22,14 +22,14 @@ class Communication_Manager {
 
 private:
     boost::asio::io_context& io_context_;
-    boost::asio::thread_pool calculation_pool_;
+    boost::asio::thread_pool calculation_pool_{1};
     Server server_;
     tcp::endpoint endpoint_;
     std::shared_ptr<Planner_Recorder> recorder_ptr_;
     boost::asio::steady_timer status_timer;
     std::shared_ptr<boost::asio::steady_timer> retry_timer_;
     int attemps_ = 0;
-    Struct_Planner::Status status_;
+    Struct_Planner::Status status_ = Struct_Planner::Status::EXPECTING_DATA;
     calculate_handler calculate_handler_;
     std::mutex mutex_status_;
     std::mutex mutex_deliver_;
@@ -42,10 +42,10 @@ private:
     Struct_Planner::Status get_status();
 
 public:
-    Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint,const std::shared_ptr<Planner_Recorder> &rec_mng);
+    Communication_Manager(boost::asio::io_context& io_context, const tcp::endpoint& endpoint, std::shared_ptr<Planner_Recorder> rec_mng);
     ~Communication_Manager();
     void set_status(const Struct_Planner::Status &new_status);
-    void set_calculate_handler(const calculate_handler &handler);
+    void set_calculate_handler(calculate_handler handler);
     void deliver(const std::string &msg);
     void shutdown();
 
