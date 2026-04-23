@@ -15,7 +15,7 @@
 #include "common_libs/Enc_Dec_PLD.h"
 #include "structs/Structs_Planner.h"
 
-constexpr int RATE_WAIT_FOR_MESSAGE = 10;
+constexpr int RATE_WAIT_FOR_MESSAGE = 300;
 constexpr int RATE_FOR_SEND_MESSAGES = 1;
 constexpr int NUMBER_ATTEMPS_MAX = 3;
 

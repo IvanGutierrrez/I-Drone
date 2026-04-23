@@ -65,3 +65,5 @@ htmlcov/
 
 # Client logs
 Client/logs/*.log
+# Large terrain rasters (keep local, do not track)
+Docker/Sim/*.tif

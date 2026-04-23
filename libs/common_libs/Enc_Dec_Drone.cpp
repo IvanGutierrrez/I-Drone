@@ -173,7 +173,7 @@ namespace Enc_Dec_Drone {
         Struct_Drone::MissionItem mission_msg;
         mission_msg.latitude_deg = coord_point.lat;
         mission_msg.longitude_deg = coord_point.lon;
-        mission_msg.relative_altitude_m = 10.0;
+        mission_msg.relative_altitude_m = 25;
         mission_msg.speed_m_s = 2.0;
         mission_msg.is_fly_through = false;
         mission_msg.gimbal_pitch_deg = 0.0;

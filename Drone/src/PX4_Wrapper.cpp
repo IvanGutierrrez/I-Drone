@@ -22,6 +22,8 @@ using std::chrono::seconds;
 using std::this_thread::sleep_for;
 
 constexpr double autopilot_timeout_s = 220.0;
+constexpr int mission_watchdog_timeout_s = 7200;
+constexpr int mission_no_progress_timeout_s = 600;
 
 static double get_current_timestamp() {
     return std::chrono::duration<double>(
@@ -468,8 +470,36 @@ bool PX4_Wrapper::start_mission_execution() {
     return true;
 }
 
-void PX4_Wrapper::wait_mission_completion() {
+bool PX4_Wrapper::wait_mission_completion() {
+    const auto started = std::chrono::steady_clock::now();
     while (!mission_->is_mission_finished().second) {
+        const auto now = std::chrono::steady_clock::now();
+        const auto total_elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - started).count();
+        const auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+        const auto last_ns = last_progress_ns_.load();
+        const auto no_progress_elapsed = (last_ns > 0) ? ((now_ns - last_ns) / 1000000000LL) : total_elapsed;
+
+        if (total_elapsed > mission_watchdog_timeout_s) {
+            Logger::log_message(Logger::Type::ERROR,
+                "Mission watchdog timeout exceeded (" + std::to_string(mission_watchdog_timeout_s) + "s)");
+            if (handlers().error) {
+                handlers().error(drone_config().drone_id);
+            }
+            return false;
+        }
+
+        if (no_progress_elapsed > mission_no_progress_timeout_s) {
+            std::stringstream log;
+            log << "Mission stalled: no progress for " << no_progress_elapsed
+                << "s at waypoint " << last_mission_progress_.load()
+                << " / " << last_mission_total_.load();
+            Logger::log_message(Logger::Type::ERROR, log.str());
+            if (handlers().error) {
+                handlers().error(drone_config().drone_id);
+            }
+            return false;
+        }
+
         sleep_for(seconds(1));
     }
     Logger::log_message(Logger::Type::INFO, "Mission completed, returning home");
@@ -487,6 +517,7 @@ void PX4_Wrapper::wait_mission_completion() {
         };
         recorder_->log_mission_event(event);
     }
+    return true;
 }
 
 bool PX4_Wrapper::return_to_launch() {
@@ -569,10 +600,25 @@ void PX4_Wrapper::execute_mission()
     if (!wait_system_healthy()) return;
     if (!arm_vehicle()) return;
     
+    const auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+    last_mission_progress_.store(-1);
+    last_mission_total_.store(static_cast<int>(mission_items.size()));
+    last_progress_ns_.store(now_ns);
+
     mission_->subscribe_mission_progress([this, mission_items](Mission::MissionProgress mission_progress) {
         std::stringstream log;
         log << "Mission status update: " << mission_progress.current << " / " << mission_progress.total;
         Logger::log_message(Logger::Type::INFO, log.str());
+
+        const int prev = last_mission_progress_.load();
+        last_mission_total_.store(mission_progress.total);
+        if (mission_progress.current != prev) {
+            last_mission_progress_.store(mission_progress.current);
+            const auto tick_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count();
+            last_progress_ns_.store(tick_ns);
+        }
         
         // Log waypoint reached event
         if (recorder_ && mission_progress.current < mission_items.size()) {
@@ -592,7 +638,7 @@ void PX4_Wrapper::execute_mission()
     wait_for_start_signal();
     if (!perform_takeoff()) return;
     if (!start_mission_execution()) return;
-    wait_mission_completion();
+    if (!wait_mission_completion()) return;
     if (!return_to_launch()) return;
     
     // Flush all remaining data

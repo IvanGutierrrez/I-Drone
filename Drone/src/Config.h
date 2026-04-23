@@ -102,7 +102,8 @@ inline bool get_drone_config(int drone_id, const Struct_Drone::Config_struct& co
                                 "export GAZEBO_MODEL_PATH=/root/tfg/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models:${GAZEBO_MODEL_PATH} && " +
                                 "export GAZEBO_PLUGIN_PATH=/root/tfg/PX4-Autopilot/build/px4_sitl_default/build_gazebo-classic:${GAZEBO_PLUGIN_PATH} && " +
                                 // Wait for Gazebo
-                                "timeout 30 bash -c \"until nc -z localhost 11345 2>/dev/null; do sleep 0.5; done\" && " +
+                                // Wait for Gazebo (terrain generation can take several minutes)
+                                "timeout 300 bash -c \"until nc -z localhost 11345 2>/dev/null; do sleep 0.5; done\" && " +
                                 // Staggered spawn
                                 "sleep " + std::to_string(drone_id * 3) + " && " +
                                 // Generate SDF using jinja (official method)

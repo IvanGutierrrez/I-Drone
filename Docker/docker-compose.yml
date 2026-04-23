@@ -34,10 +34,17 @@ services:
     environment:
       - DISPLAY=:0
       - QT_X11_NO_MITSHM=1
+      - DRONE_USE_TERRAIN=${DRONE_USE_TERRAIN:-1}
+      - DRONE_TERRAIN_TIF=${DRONE_TERRAIN_TIF:-/workspace/Docker/Sim/MDT02-ETRS89-HU30-0581-2-COB2.tif}
+      - DRONE_TERRAIN_ALBEDO_TIF=${DRONE_TERRAIN_ALBEDO_TIF:-/workspace/Docker/Sim/PNOA_MA_OF_ETRS89_HU30_h25_0581_2.tif}
+      - DRONE_HEIGHTMAP_DIM=${DRONE_HEIGHTMAP_DIM:-4097}
+      - DRONE_TERRAIN_ALBEDO_DIM=${DRONE_TERRAIN_ALBEDO_DIM:-native}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - $HOME/test/Drone/logs:/opt/I-Drone/logs
       - $HOME/test/Drone/data:/opt/I-Drone/data
+      - ./Sim/multi_drone.world:/opt/I-Drone/multi_drone.world:ro
+      - ../:/workspace:ro
     command: >
       bash -c "/opt/I-Drone/start_gazebo.sh & 
       sleep 5 && 
