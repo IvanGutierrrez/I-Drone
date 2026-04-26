@@ -24,7 +24,7 @@ inline Struct_Planner::Config_struct get_config() {
     cnf.threshold = -90.0;
     cnf.max_neighbor = 8;
     cnf.max_distance_for_neighbor = 100.0;
-    cnf.max_ortools_time = 120;
+    cnf.max_ortools_time = 600;
 
     return cnf;
 }

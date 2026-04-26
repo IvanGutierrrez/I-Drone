@@ -7,7 +7,7 @@ message Wrapper {
 }
 
 message PlannerMessage {
-    SignalServerConfigProto signal_server_config = 1;
+    repeated SignalServerConfigProto signal_server_config = 1;
     DroneData drone_data = 2;
 }
 

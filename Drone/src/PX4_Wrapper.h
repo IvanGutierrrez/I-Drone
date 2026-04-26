@@ -54,6 +54,10 @@
 #include <vector>
 #include <future>
 
+namespace Logger {
+enum class Type;
+}
+
 
 // Interface
 class PX4_Wrapper: public Engine {
@@ -97,6 +101,7 @@ private:
     bool wait_mission_completion();
     bool return_to_launch();
     bool wait_for_px4_shutdown();
+    void log_message(const Logger::Type &type, const std::string &message) const;
     
     void execute_mission();
     void cleanup_px4_process();

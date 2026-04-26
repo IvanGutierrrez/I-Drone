@@ -211,6 +211,8 @@ void Drone_Mission_State::prepare_next_drone_message(Struct_Planner::Coordinate&
             return;
         }
 
+        coor_j_ = 0;
+
         coor = config_.coor_points[drone_i_][0];
         if (1 == config_.coor_points[drone_i_].size()) {// If only have 1 coordinate add another one slightly offset for FINISH
             config_.coor_points[drone_i_].push_back(coor);

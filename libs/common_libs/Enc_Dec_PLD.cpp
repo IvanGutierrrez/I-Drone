@@ -190,7 +190,7 @@ namespace Enc_Dec_PLD {
 
         std::string planner_msg_str;
         if (!Enc_Dec_Planner::encode_config_message(
-            config.planner_info.signal_server_config,
+            config.planner_info.signal_server_configs,
             config.planner_info.dron_data,
             planner_msg_str)) {
             return false;
@@ -243,8 +243,8 @@ namespace Enc_Dec_PLD {
         config.clear();
 
         const PlannerMessage& planner_msg = proto.planner_config();
-        
-        if (!Enc_Dec_Planner::decode_signal_server(planner_msg.signal_server_config(), config.planner_info.signal_server_config)) {
+
+        if (!Enc_Dec_Planner::decode_signal_server_list(planner_msg, config.planner_info.signal_server_configs)) {
             return false;
         }
         

@@ -201,8 +201,8 @@ void Communication_Manager::on_message(const std::string& msg)
             if (my_msg) {
                 Logger::log_message(Logger::Type::INFO, "Configuration message received");
 
-                Struct_Planner::SignalServerConfig signal_server;
-                if (!Enc_Dec_Planner::decode_signal_server(my_msg->signal_server_config(), signal_server))
+                std::vector<Struct_Planner::SignalServerConfig> signal_servers;
+                if (!Enc_Dec_Planner::decode_signal_server_list(*my_msg, signal_servers))
                 {
                     Logger::log_message(Logger::Type::WARNING, "Unabled to decode Signal-Server message");
                     return;
@@ -214,11 +214,11 @@ void Communication_Manager::on_message(const std::string& msg)
                     Logger::log_message(Logger::Type::WARNING, "Unabled to decode drone data message");
                     return;
                 }
-                recorder_ptr_->write_message_received(signal_server,drone_data);
+                recorder_ptr_->write_message_received(signal_servers,drone_data);
                 
-                boost::asio::post(calculation_pool_, [this, signal_server, drone_data]() {
+                boost::asio::post(calculation_pool_, [this, signal_servers, drone_data]() {
                     if (!shutting_down_) {
-                        calculate_handler_(signal_server, drone_data);
+                        calculate_handler_(signal_servers, drone_data);
                     }
                 });
             }

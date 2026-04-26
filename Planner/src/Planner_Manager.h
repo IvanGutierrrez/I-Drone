@@ -33,5 +33,5 @@ public:
                       std::shared_ptr<Signal_Cal> signal_cal,
                       const Struct_Planner::Config_struct &cnf);
     ~Planner_Manager() override = default;
-    void calculate(const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data) override;
+    void calculate(const std::vector<Struct_Planner::SignalServerConfig> &configs, Struct_Planner::DroneData drone_data) override;
 };

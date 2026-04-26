@@ -83,10 +83,13 @@ void Multi_Drone_Manager::handle_mission_block_command(const std::string &messag
     // Group commands by START-FINISH blocks
     // START begins a mission for current drone, FINISH completes it
     if (cmd_type == "START") {
-        current_drone_index_ = (current_drone_index_ + 1) % drones_.size();
+        current_drone_index_ = next_drone_.fetch_add(1) % drones_.size();
         Logger::log_message(Logger::Type::INFO,
             "Starting mission block for Drone " + std::to_string(current_drone_index_));
     }
+
+    Logger::log_message(Logger::Type::INFO,
+        "Routing command [" + cmd_type + "] to Drone " + std::to_string(current_drone_index_));
 
     // Send command to current drone
     drones_[current_drone_index_]->send_command(message);

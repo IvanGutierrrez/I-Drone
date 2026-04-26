@@ -10,7 +10,28 @@
 #include "./Signal_Cal.h"
 #include <vector>
 #include <map>
+#include <algorithm>
 #include "common_libs/Logger.h"
+
+namespace {
+CoverageMatrix merge_max(const CoverageMatrix& a, const CoverageMatrix& b)
+{
+    if (a.empty()) return b;
+    if (b.empty()) return a;
+
+    if (a.size() != b.size() || a[0].size() != b[0].size()) {
+        return a;
+    }
+
+    CoverageMatrix merged = a;
+    for (size_t r = 0; r < merged.size(); ++r) {
+        for (size_t c = 0; c < merged[r].size(); ++c) {
+            merged[r][c] = std::max(merged[r][c], b[r][c]);
+        }
+    }
+    return merged;
+}
+}
 
 std::map<RGB, double> Signal_Cal::read_DCF(const std::string& dcf_filename) const{
     std::ifstream file(dcf_filename);
@@ -156,63 +177,81 @@ std::vector<Struct_Planner::Coordinate> matrixToVector(
     return points;
 }
 
-std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struct_Planner::Config_struct &global_config, const Struct_Planner::SignalServerConfig &signal_server_conf) const
+std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struct_Planner::Config_struct &global_config, const std::vector<Struct_Planner::SignalServerConfig> &signal_server_confs) const
 {
     std::vector<Struct_Planner::Coordinate> points_empty;
-    std::string cmd;
-    if (!signal_server_conf.toCommand(global_config.signal_server_path,cmd)) {
-        Logger::log_message(Logger::Type::ERROR, "Error creating Signal-Server command");
+    if (signal_server_confs.empty()) {
+        Logger::log_message(Logger::Type::ERROR, "Signal config list is empty");
         return points_empty;
     }
 
-    cmd += " > output.txt 2>&1";
-    
-    Logger::log_message(Logger::Type::INFO, "Executing Signal-Server command: " + cmd);
+    CoverageMatrix merged_matrix;
+    std::vector<double> bounds;
 
-    if (std::system(cmd.c_str()) == 0) {
-        Logger::log_message(Logger::Type::INFO, "Signal-Server command execute succesfully");
-    } else {
-        Logger::log_message(Logger::Type::ERROR, "Error executing Signal-Server command");
+    for (size_t i = 0; i < signal_server_confs.size(); ++i) {
+        auto cfg = signal_server_confs[i];
+        cfg.filePaths.outputFile = signal_server_confs[i].filePaths.outputFile + "_cfg_" + std::to_string(i);
+
+        std::string cmd;
+        if (!cfg.toCommand(global_config.signal_server_path, cmd)) {
+            Logger::log_message(Logger::Type::ERROR, "Error creating Signal-Server command for config " + std::to_string(i));
+            return points_empty;
+        }
+
+        cmd += " > output.txt 2>&1";
+        Logger::log_message(Logger::Type::INFO, "Executing Signal-Server command: " + cmd);
+
+        if (std::system(cmd.c_str()) != 0) {
+            Logger::log_message(Logger::Type::ERROR, "Error executing Signal-Server command for config " + std::to_string(i));
+            return points_empty;
+        }
+
+        std::string path = std::string(global_config.executable_path) + "/output.txt";
+        std::ifstream in(path);
+        if (!in.is_open()) {
+            Logger::log_message(Logger::Type::ERROR, "Cannot open output.txt file: " + path);
+            return points_empty;
+        }
+
+        std::string line;
+        if (!std::getline(in, line)) {
+            Logger::log_message(Logger::Type::ERROR, "Error getting Signal-Server output");
+            return points_empty;
+        }
+        in.close();
+
+        auto values = parse_Bounds(line);
+        if (values.size() != 4) {
+            Logger::log_message(Logger::Type::ERROR, "Error decoding Signal-Server output: " + line);
+            return points_empty;
+        }
+
+        if (bounds.empty()) {
+            bounds = values;
+        }
+
+        std::string dcfFilename = cfg.filePaths.outputFile + ".dcf";
+        std::string ppmPath = global_config.executable_path + "/" + cfg.filePaths.outputFile + ".ppm";
+        std::string dcfPath = global_config.executable_path + "/" + dcfFilename;
+
+        Logger::log_message(Logger::Type::INFO, "PPM path: " + ppmPath);
+        Logger::log_message(Logger::Type::INFO, "DCF path: " + dcfPath);
+
+        auto matrix = read_Coverage_File(ppmPath, dcfPath);
+        if (matrix.empty()) {
+            Logger::log_message(Logger::Type::ERROR, "Error reading coverage file for config " + std::to_string(i));
+            return points_empty;
+        }
+
+        merged_matrix = merge_max(merged_matrix, matrix);
+    }
+
+    if (bounds.size() != 4 || merged_matrix.empty()) {
+        Logger::log_message(Logger::Type::ERROR, "Error creating merged coverage matrix");
         return points_empty;
     }
 
-    std::string path = std::string(global_config.executable_path) + "/output.txt";
-    std::ifstream in(path);
-    if (!in.is_open()) {
-        Logger::log_message(Logger::Type::ERROR, "Cannot open output.txt file: " + path);
-        return points_empty;
-    }
-
-    std::string line;
-    if (!std::getline(in, line)) {
-        Logger::log_message(Logger::Type::ERROR, "Error getting Signal-Server output");
-        return points_empty;
-    }
-    in.close();
-
-    std::vector<double> values = parse_Bounds(line);
-
-    if (values.size() != 4) {
-        Logger::log_message(Logger::Type::ERROR, "Error decoding Signal-Server output: " + line);
-        return points_empty;
-    }
-
-    std::string dcfFilename = signal_server_conf.filePaths.outputFile + ".dcf";
-    std::string ppmPath = global_config.executable_path + "/" + signal_server_conf.filePaths.outputFile + ".ppm";
-    std::string dcfPath = global_config.executable_path + "/" + dcfFilename;
-    
-    Logger::log_message(Logger::Type::INFO, "PPM path: " + ppmPath);
-    Logger::log_message(Logger::Type::INFO, "DCF path: " + dcfPath);
-
-    auto matrix = read_Coverage_File(ppmPath, dcfPath);
-
-    if (matrix.empty())
-    {
-        Logger::log_message(Logger::Type::ERROR, "Error reading coverage file");
-        return points_empty;
-    }
-    
-    auto vector = matrixToVector(matrix,values[0],values[2],values[3],values[1],global_config.threshold);
+    auto vector = matrixToVector(merged_matrix, bounds[0], bounds[2], bounds[3], bounds[1], global_config.threshold);
     
     if (vector.empty())
         Logger::log_message(Logger::Type::ERROR, "Error parsing matrix into a vector");

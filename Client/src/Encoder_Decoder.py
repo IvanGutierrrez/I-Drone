@@ -19,6 +19,12 @@ import messages_planner_pb2
 
 class MessageEncoderDecoder:
     COMMAND_FINISH = "FINISH"
+    _OPTIONAL_SIGNAL_FIELDS = (
+        'user_terrain_file', 'terrain_background', 'rx_threshold', 'horizontal_pol',
+        'ground_clutter', 'terrain_code', 'terrain_dielectric', 'terrain_conductivity',
+        'climate_code', 'knife_edge_diff', 'win32_tile_names', 'debug_mode',
+        'metric_units', 'plot_dbm'
+    )
 
     @staticmethod
     def _assign_fields(target, source, field_names):
@@ -38,8 +44,7 @@ class MessageEncoderDecoder:
                 setattr(target, field_name, source[field_name])
 
     @staticmethod
-    def _set_signal_server_config(config, ss_config):
-        signal_server_config = config.planner_config.signal_server_config
+    def _set_signal_server_config(signal_server_config, ss_config):
         MessageEncoderDecoder._assign_fields(
             signal_server_config,
             ss_config,
@@ -49,6 +54,7 @@ class MessageEncoderDecoder:
                 'propagation_model', 'radius', 'resolution'
             )
         )
+
         signal_server_config.rx_heights.extend(ss_config['rx_heights'])
 
         MessageEncoderDecoder._assign_optional_truthy_fields(
@@ -83,6 +89,28 @@ class MessageEncoderDecoder:
         )
 
     @staticmethod
+    def _signal_server_config_to_dict(ss_config):
+        signal_config = {
+            "sdf_directory": ss_config.sdf_directory,
+            "output_file": ss_config.output_file,
+            "latitude": ss_config.latitude,
+            "longitude": ss_config.longitude,
+            "tx_height": ss_config.tx_height,
+            "rx_heights": list(ss_config.rx_heights),
+            "frequency_mhz": ss_config.frequency_mhz,
+            "erp_watts": ss_config.erp_watts,
+            "propagation_model": ss_config.propagation_model,
+            "radius": ss_config.radius,
+            "resolution": ss_config.resolution
+        }
+
+        for field_name in MessageEncoderDecoder._OPTIONAL_SIGNAL_FIELDS:
+            if ss_config.HasField(field_name):
+                signal_config[field_name] = getattr(ss_config, field_name)
+
+        return signal_config
+
+    @staticmethod
     def encode_message(message):
         serialized = message.SerializeToString()
         header = struct.pack('>I', len(serialized))
@@ -113,8 +141,12 @@ class MessageEncoderDecoder:
 
         config = messages_pld_pb2.Config_mission()
 
-        ss_config = config_data['planner_config']['signal_server_config']
-        MessageEncoderDecoder._set_signal_server_config(config, ss_config)
+        ss_configs = config_data['planner_config']['signal_server_configs']
+        if not ss_configs:
+            raise ValueError("planner_config.signal_server_configs must contain at least one item")
+        for ss_config in ss_configs:
+            signal_server_config = config.planner_config.signal_server_config.add()
+            MessageEncoderDecoder._set_signal_server_config(signal_server_config, ss_config)
 
         drone_data = config_data['planner_config']['drone_data']
         MessageEncoderDecoder._set_drone_data(config, drone_data)
@@ -139,32 +171,32 @@ class MessageEncoderDecoder:
 # ============================================================
 
 planner_config:
-  signal_server_config:
-    sdf_directory: ""  # REQUIRED
-    output_file: ""  # REQUIRED
-    user_terrain_file: ""  # OPTIONAL
-    terrain_background: ""  # OPTIONAL
-    latitude: 0.0  # REQUIRED
-    longitude: 0.0  # REQUIRED
-    tx_height: 0.0  # REQUIRED
-    rx_heights: []  # REQUIRED (list of doubles)
-    frequency_mhz: 0.0  # REQUIRED
-    erp_watts: 0.0  # REQUIRED
-    rx_threshold: 0.0  # OPTIONAL
-    horizontal_pol: false  # OPTIONAL
-    ground_clutter: 0.0  # OPTIONAL
-    terrain_code: 0  # OPTIONAL
-    terrain_dielectric: 0.0  # OPTIONAL
-    terrain_conductivity: 0.0  # OPTIONAL
-    climate_code: 0  # OPTIONAL
-    propagation_model: 0  # REQUIRED
-    knife_edge_diff: false  # OPTIONAL
-    win32_tile_names: false  # OPTIONAL
-    debug_mode: false  # OPTIONAL
-    metric_units: false  # OPTIONAL
-    plot_dbm: false  # OPTIONAL
-    radius: 0.0  # REQUIRED
-    resolution: 0  # REQUIRED
+    signal_server_configs:
+        - sdf_directory: ""  # REQUIRED
+            output_file: ""  # REQUIRED
+            user_terrain_file: ""  # OPTIONAL
+            terrain_background: ""  # OPTIONAL
+            latitude: 0.0  # REQUIRED
+            longitude: 0.0  # REQUIRED
+            tx_height: 0.0  # REQUIRED
+            rx_heights: []  # REQUIRED (list of doubles)
+            frequency_mhz: 0.0  # REQUIRED
+            erp_watts: 0.0  # REQUIRED
+            rx_threshold: 0.0  # OPTIONAL
+            horizontal_pol: false  # OPTIONAL
+            ground_clutter: 0.0  # OPTIONAL
+            terrain_code: 0  # OPTIONAL
+            terrain_dielectric: 0.0  # OPTIONAL
+            terrain_conductivity: 0.0  # OPTIONAL
+            climate_code: 0  # OPTIONAL
+            propagation_model: 0  # REQUIRED
+            knife_edge_diff: false  # OPTIONAL
+            win32_tile_names: false  # OPTIONAL
+            debug_mode: false  # OPTIONAL
+            metric_units: false  # OPTIONAL
+            plot_dbm: false  # OPTIONAL
+            radius: 0.0  # REQUIRED
+            resolution: 0  # REQUIRED
 
   drone_data:
     num_drones: 0  # REQUIRED
@@ -210,7 +242,7 @@ drone_sim: ""  # REQUIRED
 
     @staticmethod
     def format_config_mission_for_log(config_mission):
-        ss_config = config_mission.planner_config.signal_server_config
+        ss_configs = config_mission.planner_config.signal_server_config
         drone_data = config_mission.planner_config.drone_data
 
         targets = []
@@ -220,52 +252,14 @@ drone_sim: ""  # REQUIRED
                 "lat": drone_data.lat[i]
             })
 
-        signal_config = {
-            "sdf_directory": ss_config.sdf_directory,
-            "output_file": ss_config.output_file,
-            "latitude": ss_config.latitude,
-            "longitude": ss_config.longitude,
-            "tx_height": ss_config.tx_height,
-            "rx_heights": list(ss_config.rx_heights),
-            "frequency_mhz": ss_config.frequency_mhz,
-            "erp_watts": ss_config.erp_watts,
-            "propagation_model": ss_config.propagation_model,
-            "radius": ss_config.radius,
-            "resolution": ss_config.resolution
-        }
-
-        if ss_config.HasField('user_terrain_file'):
-            signal_config['user_terrain_file'] = ss_config.user_terrain_file
-        if ss_config.HasField('terrain_background'):
-            signal_config['terrain_background'] = ss_config.terrain_background
-        if ss_config.HasField('rx_threshold'):
-            signal_config['rx_threshold'] = ss_config.rx_threshold
-        if ss_config.HasField('horizontal_pol'):
-            signal_config['horizontal_pol'] = ss_config.horizontal_pol
-        if ss_config.HasField('ground_clutter'):
-            signal_config['ground_clutter'] = ss_config.ground_clutter
-        if ss_config.HasField('terrain_code'):
-            signal_config['terrain_code'] = ss_config.terrain_code
-        if ss_config.HasField('terrain_dielectric'):
-            signal_config['terrain_dielectric'] = ss_config.terrain_dielectric
-        if ss_config.HasField('terrain_conductivity'):
-            signal_config['terrain_conductivity'] = ss_config.terrain_conductivity
-        if ss_config.HasField('climate_code'):
-            signal_config['climate_code'] = ss_config.climate_code
-        if ss_config.HasField('knife_edge_diff'):
-            signal_config['knife_edge_diff'] = ss_config.knife_edge_diff
-        if ss_config.HasField('win32_tile_names'):
-            signal_config['win32_tile_names'] = ss_config.win32_tile_names
-        if ss_config.HasField('debug_mode'):
-            signal_config['debug_mode'] = ss_config.debug_mode
-        if ss_config.HasField('metric_units'):
-            signal_config['metric_units'] = ss_config.metric_units
-        if ss_config.HasField('plot_dbm'):
-            signal_config['plot_dbm'] = ss_config.plot_dbm
+        signal_configs = [
+            MessageEncoderDecoder._signal_server_config_to_dict(ss_config)
+            for ss_config in ss_configs
+        ]
 
         return {
             "planner_config": {
-                "signal_server_config": signal_config,
+                "signal_server_configs": signal_configs,
                 "drone_data": {
                     "num_drones": drone_data.num_drones,
                     "targets": targets

@@ -220,48 +220,14 @@ def add_heightmap_model(world_element, png_path, albedo_path, size_x, size_y, si
     ET.SubElement(texture, "size").text = f"{max(size_x, size_y):.3f}"
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--base-world", required=True)
-    parser.add_argument("--terrain-tif", required=True)
-    parser.add_argument("--albedo-tif")
-    parser.add_argument("--heightmap-png", required=True)
-    parser.add_argument("--output-world", required=True)
-    parser.add_argument("--heightmap-dim", type=int, default=2049)
-    parser.add_argument("--albedo-dim")
-    args = parser.parse_args()
+def resolve_heightmap_dim(requested_dim):
+    if is_pow2_plus_1(requested_dim):
+        return requested_dim
+    return nearest_pow2_plus_1(requested_dim)
 
-    if not os.path.isfile(args.base_world):
-        raise FileNotFoundError(f"Base world not found: {args.base_world}")
-    if not os.path.isfile(args.terrain_tif):
-        raise FileNotFoundError(f"Terrain GeoTIFF not found: {args.terrain_tif}")
 
-    info_text = run_cmd(["gdalinfo", "-mm", args.terrain_tif])
-    raster_x, raster_y, pixel_x, pixel_y, min_elev, max_elev = parse_gdalinfo(info_text)
-    min_x, min_y, max_x, max_y = parse_origin_and_extent(
-        info_text, raster_x, raster_y, pixel_x, pixel_y
-    )
-    band_count = count_raster_bands(info_text)
-
-    if max_elev <= min_elev:
-        max_elev = min_elev + 1.0
-
-    os.makedirs(os.path.dirname(args.heightmap_png), exist_ok=True)
-    os.makedirs(os.path.dirname(args.output_world), exist_ok=True)
-
-    target_dim = args.heightmap_dim
-    if not is_pow2_plus_1(target_dim):
-        target_dim = nearest_pow2_plus_1(target_dim)
-
-    # albedo dimensions resolved after terrain extent is known
-    _albedo_dim_result = parse_albedo_dim(args.albedo_dim)
-    albedo_width = None  # resolved below after albedo_info_text is available
-    albedo_height = None
-    _albedo_dim_explicit = _albedo_dim_result if _albedo_dim_result is not _ALBEDO_NATIVE_SENTINEL else None
-
-    temp_png = args.heightmap_png + ".raw.png"
-    albedo_png = args.heightmap_png + ".albedo.png"
-
+def build_heightmap_png(terrain_tif, heightmap_png, target_dim, min_elev, max_elev):
+    temp_png = heightmap_png + ".raw.png"
     run_cmd(
         [
             "gdal_translate",
@@ -277,7 +243,7 @@ def main():
             "-outsize",
             str(target_dim),
             str(target_dim),
-            args.terrain_tif,
+            terrain_tif,
             temp_png,
         ]
     )
@@ -297,33 +263,41 @@ def main():
                 "8",
                 "-blur",
                 "0x0.7",
-                f"PNG8:{args.heightmap_png}",
+                f"PNG8:{heightmap_png}",
             ]
         )
         os.remove(temp_png)
     else:
-        os.replace(temp_png, args.heightmap_png)
+        os.replace(temp_png, heightmap_png)
 
-    # Build a visual albedo from an external RGB orthophoto if provided, else fallback to terrain raster.
-    size_x = raster_x * pixel_x
-    size_y = raster_y * pixel_y
-    size_z = max(max_elev - min_elev, 1.0)
 
-    albedo_source = args.albedo_tif if args.albedo_tif and os.path.isfile(args.albedo_tif) else args.terrain_tif
-    albedo_info_text = run_cmd(["gdalinfo", albedo_source])
-    albedo_band_count = count_raster_bands(albedo_info_text)
+def resolve_albedo_dimensions(albedo_dim_arg, albedo_info_text, size_x, size_y, raster_x, raster_y):
+    albedo_dim_result = parse_albedo_dim(albedo_dim_arg)
+    if albedo_dim_result is not _ALBEDO_NATIVE_SENTINEL:
+        return albedo_dim_result
 
-    # Resolve albedo dimensions now that we have albedo_info_text and terrain extent
-    if _albedo_dim_explicit is not None:
-        albedo_width, albedo_height = _albedo_dim_explicit
-    else:
-        native = compute_native_albedo_dim(albedo_info_text, size_x, size_y)
-        if native:
-            albedo_width, albedo_height = native
-        else:
-            albedo_width, albedo_height = raster_x, raster_y
+    native = compute_native_albedo_dim(albedo_info_text, size_x, size_y)
+    if native:
+        return native
+    return raster_x, raster_y
 
-    if albedo_source != args.terrain_tif and albedo_band_count >= 3:
+
+def build_albedo_png(
+    terrain_tif,
+    albedo_source,
+    albedo_png,
+    albedo_width,
+    albedo_height,
+    min_x,
+    min_y,
+    max_x,
+    max_y,
+    min_elev,
+    max_elev,
+    terrain_band_count,
+    albedo_band_count,
+):
+    if albedo_source != terrain_tif and albedo_band_count >= 3:
         warped_albedo = albedo_png + ".warp.tif"
         run_cmd(
             [
@@ -361,7 +335,9 @@ def main():
             ]
         )
         os.remove(warped_albedo)
-    elif band_count >= 3:
+        return
+
+    if terrain_band_count >= 3:
         run_cmd(
             [
                 "gdal_translate",
@@ -376,30 +352,94 @@ def main():
                 "2",
                 "-b",
                 "3",
-                args.terrain_tif,
+                terrain_tif,
                 albedo_png,
             ]
         )
-    else:
-        run_cmd(
-            [
-                "gdal_translate",
-                "-of",
-                "PNG",
-                "-ot",
-                "Byte",
-                "-scale",
-                str(min_elev),
-                str(max_elev),
-                "0",
-                "255",
-                "-outsize",
-                str(albedo_width),
-                str(albedo_height),
-                args.terrain_tif,
-                albedo_png,
-            ]
-        )
+        return
+
+    run_cmd(
+        [
+            "gdal_translate",
+            "-of",
+            "PNG",
+            "-ot",
+            "Byte",
+            "-scale",
+            str(min_elev),
+            str(max_elev),
+            "0",
+            "255",
+            "-outsize",
+            str(albedo_width),
+            str(albedo_height),
+            terrain_tif,
+            albedo_png,
+        ]
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base-world", required=True)
+    parser.add_argument("--terrain-tif", required=True)
+    parser.add_argument("--albedo-tif")
+    parser.add_argument("--heightmap-png", required=True)
+    parser.add_argument("--output-world", required=True)
+    parser.add_argument("--heightmap-dim", type=int, default=2049)
+    parser.add_argument("--albedo-dim")
+    args = parser.parse_args()
+
+    if not os.path.isfile(args.base_world):
+        raise FileNotFoundError(f"Base world not found: {args.base_world}")
+    if not os.path.isfile(args.terrain_tif):
+        raise FileNotFoundError(f"Terrain GeoTIFF not found: {args.terrain_tif}")
+
+    info_text = run_cmd(["gdalinfo", "-mm", args.terrain_tif])
+    raster_x, raster_y, pixel_x, pixel_y, min_elev, max_elev = parse_gdalinfo(info_text)
+    min_x, min_y, max_x, max_y = parse_origin_and_extent(
+        info_text, raster_x, raster_y, pixel_x, pixel_y
+    )
+    band_count = count_raster_bands(info_text)
+
+    if max_elev <= min_elev:
+        max_elev = min_elev + 1.0
+
+    os.makedirs(os.path.dirname(args.heightmap_png), exist_ok=True)
+    os.makedirs(os.path.dirname(args.output_world), exist_ok=True)
+
+    target_dim = resolve_heightmap_dim(args.heightmap_dim)
+    albedo_png = args.heightmap_png + ".albedo.png"
+    build_heightmap_png(args.terrain_tif, args.heightmap_png, target_dim, min_elev, max_elev)
+
+    # Build a visual albedo from an external RGB orthophoto if provided, else fallback to terrain raster.
+    size_x = raster_x * pixel_x
+    size_y = raster_y * pixel_y
+    size_z = max(max_elev - min_elev, 1.0)
+
+    albedo_source = args.albedo_tif if args.albedo_tif and os.path.isfile(args.albedo_tif) else args.terrain_tif
+    albedo_info_text = run_cmd(["gdalinfo", albedo_source])
+    albedo_band_count = count_raster_bands(albedo_info_text)
+
+    albedo_width, albedo_height = resolve_albedo_dimensions(
+        args.albedo_dim, albedo_info_text, size_x, size_y, raster_x, raster_y
+    )
+
+    build_albedo_png(
+        args.terrain_tif,
+        albedo_source,
+        albedo_png,
+        albedo_width,
+        albedo_height,
+        min_x,
+        min_y,
+        max_x,
+        max_y,
+        min_elev,
+        max_elev,
+        band_count,
+        albedo_band_count,
+    )
 
     # No ImageMagick post-processing needed for albedo:
     # gdal_translate -b 1 -b 2 -b 3 already outputs clean RGB PNG without alpha.

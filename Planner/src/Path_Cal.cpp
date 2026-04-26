@@ -282,6 +282,7 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
         }
 
         std::vector<Struct_Planner::Coordinate> path_full;
+        int last_node_idx = -1;
 
         for (size_t i = 0; i + 1 < path_target_indices.size(); ++i) {
             int src_target = path_target_indices[i];
@@ -292,12 +293,19 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
 
             std::vector<int> inter_nodes = dijkstra_path(src_node, dst_node, adj);
             for (int n : inter_nodes) {
-                path_full.push_back(points_cp[n]);
+                if (n != last_node_idx) {
+                    path_full.push_back(points_cp[n]);
+                    last_node_idx = n;
+                }
             }
         }
 
         int start_node_idx = closest_point[path_target_indices.front()];
-        path_full.insert(path_full.begin(), points_cp[start_node_idx]);
+        if (path_full.empty() || haversine_m(path_full.front(), points_cp[start_node_idx]) > 0.01) {
+            path_full.insert(path_full.begin(), points_cp[start_node_idx]);
+        }
+
+        // Keep origin repeated at the end to force explicit return-to-origin behavior.
         path_full.push_back(points_cp[start_node_idx]);
 
         result[d] = std::move(path_full);
