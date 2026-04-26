@@ -18,5 +18,5 @@ class Planner_Manager_Interface {
 
 public:
     virtual ~Planner_Manager_Interface();
-    virtual void calculate(const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data);
+    virtual void calculate(const std::vector<Struct_Planner::SignalServerConfig> &configs, Struct_Planner::DroneData drone_data);
 };

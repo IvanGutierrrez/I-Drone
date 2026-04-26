@@ -214,7 +214,7 @@ void Planner_State::continue_start_process(const boost::system::error_code& ec)
 
     std::string message_to_planner;
 
-    if (!Enc_Dec_Planner::encode_config_message(config_.planner_info.signal_server_config,config_.planner_info.dron_data,message_to_planner)) {
+    if (!Enc_Dec_Planner::encode_config_message(config_.planner_info.signal_server_configs,config_.planner_info.dron_data,message_to_planner)) {
         Logger::log_message(Logger::Type::ERROR,"Unable to encode configuration message to Planner. Transitioning to off state");
         close_state();
         auto off_state = std::make_unique<Off_State>(state_machine());

@@ -49,6 +49,14 @@ Para construir la imagen usada por el módulo `Drone` (la cual instala Gazebo, P
 docker build -f Docker/Sim/Dockerfile -t px4_sim_i-drone:latest .
 ```
 
+Para añadir un mapa dentro de la simulación, se debe usar un archivo PNOA para el color del terreno y un archivo MDT02 para el relieve del terreno, cambiando en `Docker/docker-compose.yml` las rutas de `DRONE_TERRAIN_ALBEDO_TIF` y `DRONE_TERRAIN_TIF` por las del mapa que se quiera usar.
+
+El portal recomendado para descargar estos mapas en España es:
+
+```bash
+https://pnoa.ign.es/web/portal/pnoa-lidar/productos-a-descarga
+```
+
 <a id="dockerizar-client"></a>
 ### 1.3 Dockerizar imagen de `Client`
 

@@ -166,11 +166,11 @@ public:
 };
 
 struct Planner_info{
-    SignalServerConfig signal_server_config;
+    std::vector<SignalServerConfig> signal_server_configs;
     DroneData dron_data;
 
     void clear(){
-        signal_server_config.clear();
+        signal_server_configs.clear();
         dron_data.clear();
     }
 };

@@ -14,16 +14,49 @@
 #include "Engine.h"
 #include "Drone_Recorder.h"
 #include "structs/Structs_Drone.h"
+
+#if __has_include(<mavsdk/mavsdk.h>)
 #include <mavsdk/mavsdk.h>
+#elif __has_include(<mavsdk/mavsdk.hpp>)
+#include <mavsdk/mavsdk.hpp>
+#else
+#error "MAVSDK core header not found"
+#endif
+
+#if __has_include(<mavsdk/plugins/action/action.h>)
 #include <mavsdk/plugins/action/action.h>
+#elif __has_include(<mavsdk/plugins/action/action.hpp>)
+#include <mavsdk/plugins/action/action.hpp>
+#else
+#error "MAVSDK Action plugin header not found"
+#endif
+
+#if __has_include(<mavsdk/plugins/mission/mission.h>)
 #include <mavsdk/plugins/mission/mission.h>
+#elif __has_include(<mavsdk/plugins/mission/mission.hpp>)
+#include <mavsdk/plugins/mission/mission.hpp>
+#else
+#error "MAVSDK Mission plugin header not found"
+#endif
+
+#if __has_include(<mavsdk/plugins/telemetry/telemetry.h>)
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#elif __has_include(<mavsdk/plugins/telemetry/telemetry.hpp>)
+#include <mavsdk/plugins/telemetry/telemetry.hpp>
+#else
+#error "MAVSDK Telemetry plugin header not found"
+#endif
+
 #include <memory>
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
 #include <vector>
 #include <future>
+
+namespace Logger {
+enum class Type;
+}
 
 
 // Interface
@@ -43,6 +76,9 @@ private:
     std::atomic<bool> command_upload_{false};
     std::mutex start_signal_mutex_;
     pid_t px4_pid_{-1}; // Track PX4 process for cleanup
+    std::atomic<int> last_mission_progress_{-1};
+    std::atomic<int> last_mission_total_{0};
+    std::atomic<long long> last_progress_ns_{0};
 
     mavsdk::Mission::MissionItem make_mission_item(
         double latitude_deg,
@@ -62,9 +98,10 @@ private:
     bool perform_takeoff();
     void wait_for_start_signal();
     bool start_mission_execution();
-    void wait_mission_completion();
+    bool wait_mission_completion();
     bool return_to_launch();
     bool wait_for_px4_shutdown();
+    void log_message(const Logger::Type &type, const std::string &message) const;
     
     void execute_mission();
     void cleanup_px4_process();

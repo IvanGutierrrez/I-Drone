@@ -45,4 +45,12 @@ private:
                                                                 const std::vector<Struct_Planner::Coordinate> &points_cp,
                                                                 const std::vector<std::vector<std::pair<int,double>>>& adj,
                                                                 const std::shared_ptr<Planner_Recorder> &rec_mng) const;
+    std::vector<int> map_targets_to_closest_points(
+        const std::vector<Struct_Planner::Coordinate>& pos_targets,
+        const std::vector<Struct_Planner::Coordinate>& points_cp) const;
+    std::vector<Struct_Planner::Coordinate> build_full_path_from_target_indices(
+        const std::vector<int>& path_target_indices,
+        const std::vector<int>& closest_point,
+        const std::vector<Struct_Planner::Coordinate>& points_cp,
+        const std::vector<std::vector<std::pair<int,double>>>& adj) const;
 };

@@ -30,15 +30,15 @@ Planner_Manager::Planner_Manager(std::shared_ptr<Communication_Manager> comm_mng
                                                                             signal_cal_ptr_(std::move(signal_cal)),
                                                                             global_config_(cnf)
 {
-    comm_mng_ptr_->set_calculate_handler([this](const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data) {
-        calculate(config, std::move(drone_data));
+    comm_mng_ptr_->set_calculate_handler([this](const std::vector<Struct_Planner::SignalServerConfig> &configs, Struct_Planner::DroneData drone_data) {
+        calculate(configs, std::move(drone_data));
     });
 }
 
-void Planner_Manager::calculate(const Struct_Planner::SignalServerConfig &config, Struct_Planner::DroneData drone_data)
+void Planner_Manager::calculate(const std::vector<Struct_Planner::SignalServerConfig> &configs, Struct_Planner::DroneData drone_data)
 {
     comm_mng_ptr_->set_status(Struct_Planner::Status::CALCULATING);
-    auto points = signal_cal_ptr_->calculate_signal(global_config_,config);
+    auto points = signal_cal_ptr_->calculate_signal(global_config_,configs);
 
     if (points.empty()) {
         comm_mng_ptr_->set_status(Struct_Planner::Status::ERROR);

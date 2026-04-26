@@ -22,7 +22,8 @@ namespace Enc_Dec_Planner {
     
     std::pair<Planner, std::unique_ptr<google::protobuf::Message>> decode_to_planner(const std::string& data);
     
-    bool encode_config_message(const Struct_Planner::SignalServerConfig& msg, const Struct_Planner::DroneData& drone_msg, std::string &data);
+    bool encode_config_message(const std::vector<Struct_Planner::SignalServerConfig>& msg, const Struct_Planner::DroneData& drone_msg, std::string &data);
     bool decode_signal_server(const SignalServerConfigProto& protoMsg, Struct_Planner::SignalServerConfig &msg);
+    bool decode_signal_server_list(const PlannerMessage& planner_msg, std::vector<Struct_Planner::SignalServerConfig> &msgs);
     bool decode_drone_data(const DroneData& protoMsg, Struct_Planner::DroneData &msg);
 };

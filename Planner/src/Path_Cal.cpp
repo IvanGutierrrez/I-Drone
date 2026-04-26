@@ -185,6 +185,93 @@ void Path_Cal::compute_target_distance_matrix(const std::vector<Struct_Planner::
     }
 }
 
+namespace {
+std::vector<int> extract_target_indices_for_vehicle(const RoutingModel& routing,
+                                                    const RoutingIndexManager& manager,
+                                                    const Assignment& solution,
+                                                    int vehicle_idx)
+{
+    std::vector<int> path_target_indices;
+    int64_t idx = routing.Start(vehicle_idx);
+    while (!routing.IsEnd(idx)) {
+        path_target_indices.push_back(manager.IndexToNode(idx).value());
+        idx = solution.Value(routing.NextVar(idx));
+    }
+    return path_target_indices;
+}
+
+void append_vehicle_solution_log(std::stringstream& log,
+                                 int drone_idx,
+                                 const std::vector<int>& path_target_indices,
+                                 const std::vector<Struct_Planner::Coordinate>& pos_targets)
+{
+    log << "\nDron path " << drone_idx << ":\n";
+    for (int node : path_target_indices) {
+        log << "  -> (" << pos_targets[node].lat << ", "
+            << pos_targets[node].lon << ")\n";
+    }
+    log << "  (go origin)\n";
+}
+}
+
+std::vector<int> Path_Cal::map_targets_to_closest_points(
+    const std::vector<Struct_Planner::Coordinate>& pos_targets,
+    const std::vector<Struct_Planner::Coordinate>& points_cp) const
+{
+    auto target_count = static_cast<int>(pos_targets.size());
+    std::vector<int> closest_point(target_count);
+
+    for (int t = 0; t < target_count; ++t) {
+        double best = 1e18;
+        int best_i = -1;
+        for (size_t i = 0; i < points_cp.size(); ++i) {
+            const double d = haversine_m(pos_targets[t], points_cp[i]);
+            if (d < best) {
+                best = d;
+                best_i = static_cast<int>(i);
+            }
+        }
+        closest_point[t] = best_i;
+    }
+
+    return closest_point;
+}
+
+std::vector<Struct_Planner::Coordinate> Path_Cal::build_full_path_from_target_indices(
+    const std::vector<int>& path_target_indices,
+    const std::vector<int>& closest_point,
+    const std::vector<Struct_Planner::Coordinate>& points_cp,
+    const std::vector<std::vector<std::pair<int,double>>>& adj) const
+{
+    std::vector<Struct_Planner::Coordinate> path_full;
+    if (path_target_indices.empty()) {
+        return path_full;
+    }
+
+    int last_node_idx = -1;
+    for (size_t i = 0; i + 1 < path_target_indices.size(); ++i) {
+        const int src_node = closest_point[path_target_indices[i]];
+        const int dst_node = closest_point[path_target_indices[i + 1]];
+
+        const std::vector<int> inter_nodes = dijkstra_path(src_node, dst_node, adj);
+        for (int n : inter_nodes) {
+            if (n != last_node_idx) {
+                path_full.push_back(points_cp[n]);
+                last_node_idx = n;
+            }
+        }
+    }
+
+    const int start_node_idx = closest_point[path_target_indices.front()];
+    if (path_full.empty() || haversine_m(path_full.front(), points_cp[start_node_idx]) > 0.01) {
+        path_full.insert(path_full.begin(), points_cp[start_node_idx]);
+    }
+
+    // Keep origin repeated at the end to force explicit return-to-origin behavior.
+    path_full.push_back(points_cp[start_node_idx]);
+    return path_full;
+}
+
 std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const std::vector<std::vector<int64_t>>& dist_matrix,
                                                                       const std::vector<Struct_Planner::Coordinate>& pos_targets,
                                                                       int num_drones,
@@ -244,64 +331,19 @@ std::vector<std::vector<Struct_Planner::Coordinate>> Path_Cal::solve_vrp(const s
     Logger::log_message(Logger::Type::INFO, "Writting Or Tools result");
 
     std::stringstream log;
-    for (int d = 0; d < num_drones; d++) {
-        log << "\nDron path " << d << ":\n";
-        int64_t idx = routing.Start(d);
-        while (!routing.IsEnd(idx)) {
-            int node = manager.IndexToNode(idx).value();
-            log << "  -> (" << pos_targets[node].lat << ", " 
-                      << pos_targets[node].lon << ")\n";
-            idx = solution->Value(routing.NextVar(idx));
-        }
-        log << "  (go origin)\n";
-    }
-    std::string log_str = log.str();
-
-    rec_mng->write_or_output(log_str);
-    
-    std::vector<int> closest_point(T);
-    for (int t = 0; t < T; t++) {
-        double best = 1e18;
-        int best_i = -1;
-        for (size_t i = 0; i < points_cp.size(); i++) {
-            double d = haversine_m(pos_targets[t], points_cp[i]);
-            if (d < best) { best = d; best_i = static_cast<int>(i); }
-        }
-        closest_point[t] = best_i;
-    }
+    const std::vector<int> closest_point = map_targets_to_closest_points(pos_targets, points_cp);
 
     result.resize(num_drones);
 
     for (int d = 0; d < num_drones; d++) {
-        std::vector<int> path_target_indices;
-        int64_t idx = routing.Start(d);
-        while (!routing.IsEnd(idx)) {
-            int node = manager.IndexToNode(idx).value();
-            path_target_indices.push_back(node);
-            idx = solution->Value(routing.NextVar(idx));
-        }
-
-        std::vector<Struct_Planner::Coordinate> path_full;
-
-        for (size_t i = 0; i + 1 < path_target_indices.size(); ++i) {
-            int src_target = path_target_indices[i];
-            int dst_target = path_target_indices[i+1];
-
-            int src_node = closest_point[src_target];
-            int dst_node = closest_point[dst_target];
-
-            std::vector<int> inter_nodes = dijkstra_path(src_node, dst_node, adj);
-            for (int n : inter_nodes) {
-                path_full.push_back(points_cp[n]);
-            }
-        }
-
-        int start_node_idx = closest_point[path_target_indices.front()];
-        path_full.insert(path_full.begin(), points_cp[start_node_idx]);
-        path_full.push_back(points_cp[start_node_idx]);
-
-        result[d] = std::move(path_full);
+        const std::vector<int> path_target_indices = extract_target_indices_for_vehicle(
+            routing, manager, *solution, d);
+        append_vehicle_solution_log(log, d, path_target_indices, pos_targets);
+        result[d] = build_full_path_from_target_indices(
+            path_target_indices, closest_point, points_cp, adj);
     }
+
+    rec_mng->write_or_output(log.str());
 
     return result;
 }

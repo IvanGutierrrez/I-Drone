@@ -977,21 +977,23 @@ class PlannerMessage final : public ::google::protobuf::Message
     kSignalServerConfigFieldNumber = 1,
     kDroneDataFieldNumber = 2,
   };
-  // .SignalServerConfigProto signal_server_config = 1;
-  bool has_signal_server_config() const;
-  void clear_signal_server_config() ;
-  const ::SignalServerConfigProto& signal_server_config() const;
-  [[nodiscard]] ::SignalServerConfigProto* PROTOBUF_NULLABLE release_signal_server_config();
-  ::SignalServerConfigProto* PROTOBUF_NONNULL mutable_signal_server_config();
-  void set_allocated_signal_server_config(::SignalServerConfigProto* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_signal_server_config(::SignalServerConfigProto* PROTOBUF_NULLABLE value);
-  ::SignalServerConfigProto* PROTOBUF_NULLABLE unsafe_arena_release_signal_server_config();
-
+  // repeated .SignalServerConfigProto signal_server_config = 1;
+  int signal_server_config_size() const;
   private:
-  const ::SignalServerConfigProto& _internal_signal_server_config() const;
-  ::SignalServerConfigProto* PROTOBUF_NONNULL _internal_mutable_signal_server_config();
+  int _internal_signal_server_config_size() const;
 
   public:
+  void clear_signal_server_config() ;
+  ::SignalServerConfigProto* PROTOBUF_NONNULL mutable_signal_server_config(int index);
+  ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>* PROTOBUF_NONNULL mutable_signal_server_config();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>& _internal_signal_server_config() const;
+  ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>* PROTOBUF_NONNULL _internal_mutable_signal_server_config();
+  public:
+  const ::SignalServerConfigProto& signal_server_config(int index) const;
+  ::SignalServerConfigProto* PROTOBUF_NONNULL add_signal_server_config();
+  const ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>& signal_server_config() const;
   // .DroneData drone_data = 2;
   bool has_drone_data() const;
   void clear_drone_data() ;
@@ -1033,7 +1035,7 @@ class PlannerMessage final : public ::google::protobuf::Message
         const PlannerMessage& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::SignalServerConfigProto* PROTOBUF_NULLABLE signal_server_config_;
+    ::google::protobuf::RepeatedPtrField< ::SignalServerConfigProto > signal_server_config_;
     ::DroneData* PROTOBUF_NULLABLE drone_data_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1366,114 +1368,66 @@ inline Wrapper::PayloadCase Wrapper::payload_case() const {
 
 // PlannerMessage
 
-// .SignalServerConfigProto signal_server_config = 1;
-inline bool PlannerMessage::has_signal_server_config() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  PROTOBUF_ASSUME(!value || _impl_.signal_server_config_ != nullptr);
-  return value;
+// repeated .SignalServerConfigProto signal_server_config = 1;
+inline int PlannerMessage::_internal_signal_server_config_size() const {
+  return _internal_signal_server_config().size();
+}
+inline int PlannerMessage::signal_server_config_size() const {
+  return _internal_signal_server_config_size();
 }
 inline void PlannerMessage::clear_signal_server_config() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.signal_server_config_ != nullptr) _impl_.signal_server_config_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_.signal_server_config_.Clear();
 }
-inline const ::SignalServerConfigProto& PlannerMessage::_internal_signal_server_config() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  const ::SignalServerConfigProto* p = _impl_.signal_server_config_;
-  return p != nullptr ? *p : reinterpret_cast<const ::SignalServerConfigProto&>(::_SignalServerConfigProto_default_instance_);
+inline ::SignalServerConfigProto* PROTOBUF_NONNULL PlannerMessage::mutable_signal_server_config(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:PlannerMessage.signal_server_config)
+  return _internal_mutable_signal_server_config()->Mutable(index);
 }
-inline const ::SignalServerConfigProto& PlannerMessage::signal_server_config() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>* PROTOBUF_NONNULL PlannerMessage::mutable_signal_server_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:PlannerMessage.signal_server_config)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_signal_server_config();
+}
+inline const ::SignalServerConfigProto& PlannerMessage::signal_server_config(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:PlannerMessage.signal_server_config)
+  return _internal_signal_server_config().Get(index);
+}
+inline ::SignalServerConfigProto* PROTOBUF_NONNULL PlannerMessage::add_signal_server_config()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::SignalServerConfigProto* _add = _internal_mutable_signal_server_config()->Add();
+  // @@protoc_insertion_point(field_add:PlannerMessage.signal_server_config)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>& PlannerMessage::signal_server_config() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:PlannerMessage.signal_server_config)
   return _internal_signal_server_config();
 }
-inline void PlannerMessage::unsafe_arena_set_allocated_signal_server_config(
-    ::SignalServerConfigProto* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (GetArena() == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.signal_server_config_);
-  }
-  _impl_.signal_server_config_ = reinterpret_cast<::SignalServerConfigProto*>(value);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:PlannerMessage.signal_server_config)
-}
-inline ::SignalServerConfigProto* PROTOBUF_NULLABLE PlannerMessage::release_signal_server_config() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  ::SignalServerConfigProto* released = _impl_.signal_server_config_;
-  _impl_.signal_server_config_ = nullptr;
-  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
-    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
-    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-    if (GetArena() == nullptr) {
-      delete old;
-    }
-  } else {
-    if (GetArena() != nullptr) {
-      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
-    }
-  }
-  return released;
-}
-inline ::SignalServerConfigProto* PROTOBUF_NULLABLE PlannerMessage::unsafe_arena_release_signal_server_config() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:PlannerMessage.signal_server_config)
-
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  ::SignalServerConfigProto* temp = _impl_.signal_server_config_;
-  _impl_.signal_server_config_ = nullptr;
-  return temp;
-}
-inline ::SignalServerConfigProto* PROTOBUF_NONNULL PlannerMessage::_internal_mutable_signal_server_config() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (_impl_.signal_server_config_ == nullptr) {
-    auto* p = ::google::protobuf::Message::DefaultConstruct<::SignalServerConfigProto>(GetArena());
-    _impl_.signal_server_config_ = reinterpret_cast<::SignalServerConfigProto*>(p);
-  }
+inline const ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>&
+PlannerMessage::_internal_signal_server_config() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.signal_server_config_;
 }
-inline ::SignalServerConfigProto* PROTOBUF_NONNULL PlannerMessage::mutable_signal_server_config()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  ::SignalServerConfigProto* _msg = _internal_mutable_signal_server_config();
-  // @@protoc_insertion_point(field_mutable:PlannerMessage.signal_server_config)
-  return _msg;
-}
-inline void PlannerMessage::set_allocated_signal_server_config(::SignalServerConfigProto* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::Arena* message_arena = GetArena();
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (message_arena == nullptr) {
-    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.signal_server_config_);
-  }
-
-  if (value != nullptr) {
-    ::google::protobuf::Arena* submessage_arena = value->GetArena();
-    if (message_arena != submessage_arena) {
-      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
-    }
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-
-  _impl_.signal_server_config_ = reinterpret_cast<::SignalServerConfigProto*>(value);
-  // @@protoc_insertion_point(field_set_allocated:PlannerMessage.signal_server_config)
+inline ::google::protobuf::RepeatedPtrField<::SignalServerConfigProto>* PROTOBUF_NONNULL
+PlannerMessage::_internal_mutable_signal_server_config() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.signal_server_config_;
 }
 
 // .DroneData drone_data = 2;
 inline bool PlannerMessage::has_drone_data() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.drone_data_ != nullptr);
   return value;
 }
 inline void PlannerMessage::clear_drone_data() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.drone_data_ != nullptr) _impl_.drone_data_->Clear();
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const ::DroneData& PlannerMessage::_internal_drone_data() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -1492,16 +1446,16 @@ inline void PlannerMessage::unsafe_arena_set_allocated_drone_data(
   }
   _impl_.drone_data_ = reinterpret_cast<::DroneData*>(value);
   if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_._has_bits_[0] |= 0x00000001u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
+    _impl_._has_bits_[0] &= ~0x00000001u;
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:PlannerMessage.drone_data)
 }
 inline ::DroneData* PROTOBUF_NULLABLE PlannerMessage::release_drone_data() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
 
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
   ::DroneData* released = _impl_.drone_data_;
   _impl_.drone_data_ = nullptr;
   if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
@@ -1521,7 +1475,7 @@ inline ::DroneData* PROTOBUF_NULLABLE PlannerMessage::unsafe_arena_release_drone
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:PlannerMessage.drone_data)
 
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
   ::DroneData* temp = _impl_.drone_data_;
   _impl_.drone_data_ = nullptr;
   return temp;
@@ -1536,7 +1490,7 @@ inline ::DroneData* PROTOBUF_NONNULL PlannerMessage::_internal_mutable_drone_dat
 }
 inline ::DroneData* PROTOBUF_NONNULL PlannerMessage::mutable_drone_data()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000001u;
   ::DroneData* _msg = _internal_mutable_drone_data();
   // @@protoc_insertion_point(field_mutable:PlannerMessage.drone_data)
   return _msg;
@@ -1553,9 +1507,9 @@ inline void PlannerMessage::set_allocated_drone_data(::DroneData* PROTOBUF_NULLA
     if (message_arena != submessage_arena) {
       value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
-    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_._has_bits_[0] |= 0x00000001u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
+    _impl_._has_bits_[0] &= ~0x00000001u;
   }
 
   _impl_.drone_data_ = reinterpret_cast<::DroneData*>(value);

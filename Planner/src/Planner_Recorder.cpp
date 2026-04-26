@@ -74,12 +74,16 @@ bool Planner_Recorder::write_signal_output(const std::vector<Struct_Planner::Coo
 return recorder_sgn->write(data.str());
 }
 
-bool Planner_Recorder::write_message_received(const Struct_Planner::SignalServerConfig &sng_data, const Struct_Planner::DroneData &drone_data)
+bool Planner_Recorder::write_message_received(const std::vector<Struct_Planner::SignalServerConfig> &sng_data, const Struct_Planner::DroneData &drone_data)
 {
     if (!recorder_msg) return false;
     
     std::stringstream data;
-    data << sng_data << "\n" << drone_data;
+    data << "Signal configs (" << sng_data.size() << "):\n";
+    for (size_t i = 0; i < sng_data.size(); ++i) {
+        data << "[" << i << "] " << sng_data[i] << "\n";
+    }
+    data << drone_data;
     return recorder_msg->write(data.str());
 }
 

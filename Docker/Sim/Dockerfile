@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=:0
 ENV QT_X11_NO_MITSHM=1
 ENV PX4_VERSION=v1.16.0
+ENV MAVSDK_VERSION=952c461f
 
 # --- Install basic dependencies, Boost, Python3, Meson, Ninja ---
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -22,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libprotobuf-dev \
     protobuf-compiler \
     pkg-config \
+    gdal-bin \
     python3-pip \
     ninja-build \
     libboost-all-dev \
@@ -39,6 +41,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get update && apt-get install -y --no-install-recommends \
     gazebo \
     libgazebo-dev \
+    imagemagick \
     python3 \
     python3-pip \
     python3-lxml \
@@ -75,6 +78,7 @@ RUN git clone https://github.com/PX4/PX4-Autopilot.git /root/tfg/PX4-Autopilot &
     DONT_RUN=1 make px4_sitl_default gazebo-classic && \
     git clone https://github.com/mavlink/MAVSDK.git /root/MAVSDK && \
     cd /root/MAVSDK && \
+    git checkout ${MAVSDK_VERSION} && \
     git submodule update --init --recursive && \
     cmake -B /root/MAVSDK/build -S /root/MAVSDK/cpp \
     -DCMAKE_BUILD_TYPE=Release \
@@ -106,9 +110,10 @@ RUN cd /app/libs/proto && \
 # --- Copy Gazebo startup scripts ---
 COPY Docker/Sim/start_gazebo.sh /opt/I-Drone/start_gazebo.sh
 COPY Docker/Sim/generate_iris_sdf.sh /opt/I-Drone/generate_iris_sdf.sh
+COPY Docker/Sim/prepare_terrain_world.py /opt/I-Drone/prepare_terrain_world.py
 COPY Docker/Sim/add_camera_to_sdf.py /root/tfg/add_camera_to_sdf.py
 COPY Docker/Sim/multi_drone.world /opt/I-Drone/multi_drone.world
-RUN chmod +x /opt/I-Drone/start_gazebo.sh /opt/I-Drone/generate_iris_sdf.sh
+RUN chmod +x /opt/I-Drone/start_gazebo.sh /opt/I-Drone/generate_iris_sdf.sh /opt/I-Drone/prepare_terrain_world.py
 
 # --- Final working directory ---
 WORKDIR /opt/I-Drone

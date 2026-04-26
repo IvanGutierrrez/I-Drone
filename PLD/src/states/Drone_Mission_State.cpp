@@ -15,7 +15,7 @@
 #include "common_libs/Enc_Dec_PLD.h"
 #include "structs/Structs_Planner.h"
 
-constexpr int RATE_WAIT_FOR_MESSAGE = 10;
+constexpr int RATE_WAIT_FOR_MESSAGE = 300;
 constexpr int RATE_FOR_SEND_MESSAGES = 1;
 constexpr int NUMBER_ATTEMPS_MAX = 3;
 
@@ -210,6 +210,8 @@ void Drone_Mission_State::prepare_next_drone_message(Struct_Planner::Coordinate&
             type = "START_ALL";
             return;
         }
+
+        coor_j_ = 0;
 
         coor = config_.coor_points[drone_i_][0];
         if (1 == config_.coor_points[drone_i_].size()) {// If only have 1 coordinate add another one slightly offset for FINISH
