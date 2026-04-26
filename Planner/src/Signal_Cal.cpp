@@ -11,6 +11,11 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#if defined(__has_include)
+#if __has_include(<format>)
+#include <format>
+#endif
+#endif
 #include "common_libs/Logger.h"
 
 namespace {
@@ -30,6 +35,24 @@ CoverageMatrix merge_max(const CoverageMatrix& a, const CoverageMatrix& b)
         }
     }
     return merged;
+}
+
+std::string format_cfg_output_file(const std::string& base_output_file, size_t idx)
+{
+#if defined(__cpp_lib_format) && (__cpp_lib_format >= 201907L)
+    return std::format("{}_cfg_{}", base_output_file, idx);
+#else
+    return base_output_file + "_cfg_" + std::to_string(idx);
+#endif
+}
+
+std::string format_config_indexed_message(const std::string& prefix, size_t idx)
+{
+#if defined(__cpp_lib_format) && (__cpp_lib_format >= 201907L)
+    return std::format("{}{}", prefix, idx);
+#else
+    return prefix + std::to_string(idx);
+#endif
 }
 }
 
@@ -190,11 +213,13 @@ std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struc
 
     for (size_t i = 0; i < signal_server_confs.size(); ++i) {
         auto cfg = signal_server_confs[i];
-        cfg.filePaths.outputFile = signal_server_confs[i].filePaths.outputFile + "_cfg_" + std::to_string(i);
+        cfg.filePaths.outputFile = format_cfg_output_file(signal_server_confs[i].filePaths.outputFile, i);
 
         std::string cmd;
         if (!cfg.toCommand(global_config.signal_server_path, cmd)) {
-            Logger::log_message(Logger::Type::ERROR, "Error creating Signal-Server command for config " + std::to_string(i));
+            Logger::log_message(
+                Logger::Type::ERROR,
+                format_config_indexed_message("Error creating Signal-Server command for config ", i));
             return points_empty;
         }
 
@@ -202,7 +227,9 @@ std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struc
         Logger::log_message(Logger::Type::INFO, "Executing Signal-Server command: " + cmd);
 
         if (std::system(cmd.c_str()) != 0) {
-            Logger::log_message(Logger::Type::ERROR, "Error executing Signal-Server command for config " + std::to_string(i));
+            Logger::log_message(
+                Logger::Type::ERROR,
+                format_config_indexed_message("Error executing Signal-Server command for config ", i));
             return points_empty;
         }
 
@@ -239,7 +266,9 @@ std::vector<Struct_Planner::Coordinate> Signal_Cal::calculate_signal(const Struc
 
         auto matrix = read_Coverage_File(ppmPath, dcfPath);
         if (matrix.empty()) {
-            Logger::log_message(Logger::Type::ERROR, "Error reading coverage file for config " + std::to_string(i));
+            Logger::log_message(
+                Logger::Type::ERROR,
+                format_config_indexed_message("Error reading coverage file for config ", i));
             return points_empty;
         }
 
