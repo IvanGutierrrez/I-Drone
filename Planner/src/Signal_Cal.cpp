@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <sstream>
 #if defined(__has_include)
 #if __has_include(<format>)
 #include <format>
@@ -42,7 +43,9 @@ std::string format_cfg_output_file(const std::string& base_output_file, size_t i
 #if defined(__cpp_lib_format) && (__cpp_lib_format >= 201907L)
     return std::format("{}_cfg_{}", base_output_file, idx);
 #else
-    return base_output_file + "_cfg_" + std::to_string(idx);
+    std::ostringstream oss;
+    oss << base_output_file << "_cfg_" << idx;
+    return oss.str();
 #endif
 }
 
@@ -51,7 +54,9 @@ std::string format_config_indexed_message(const std::string& prefix, size_t idx)
 #if defined(__cpp_lib_format) && (__cpp_lib_format >= 201907L)
     return std::format("{}{}", prefix, idx);
 #else
-    return prefix + std::to_string(idx);
+    std::ostringstream oss;
+    oss << prefix << idx;
+    return oss.str();
 #endif
 }
 }
